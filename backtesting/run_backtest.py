@@ -1,11 +1,8 @@
 """
-Main backtest runner: runs all 8 strategies on synthetic Korean market data
-for In-Sample (2019-2022) and Out-of-Sample (2023-2024) periods.
+Main backtest runner: 8 strategies on synthetic Korean market data.
+In-Sample (2019-2022) / Out-of-Sample (2023-2024).
 """
-import sys
-import os
-import json
-import warnings
+import sys, os, json, warnings, inspect
 import numpy as np
 import pandas as pd
 
@@ -21,73 +18,60 @@ from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
 
 STRATEGIES = {
-    "EMA Crossover":    (EMACrossoverStrategy(),    {"stop_loss": 0.04, "take_profit": 0.10, "position_size": 0.10}),
-    "RSI Reversal":     (RSIReversalStrategy(),     {"stop_loss": 0.05, "take_profit": 0.07, "position_size": 0.10}),
-    "MACD Divergence":  (MACDDivergenceStrategy(),  {"stop_loss": 0.05, "take_profit": 0.10, "position_size": 0.10}),
-    "BB Squeeze":       (BBSqueezeStrategy(),       {"stop_loss": 0.05, "take_profit": 0.10, "position_size": 0.10}),
-    "Candle+RSI":       (CandleRSIStrategy(),       {"stop_loss": 0.04, "take_profit": 0.08, "position_size": 0.10}),
-    "ADX Trend":        (ADXTrendStrategy(),        {"stop_loss": 0.05, "take_profit": 0.12, "position_size": 0.10}),
-    "Mean Reversion":   (MeanReversionStrategy(),   {"stop_loss": 0.04, "take_profit": 0.06, "position_size": 0.10}),
-    "52W Breakout":     (High52WBreakoutStrategy(), {"stop_loss": 0.08, "take_profit": 0.15, "position_size": 0.10}),
+    "EMA Crossover":    (EMACrossoverStrategy(),    {"stop_loss": 0.04, "take_profit": 0.10}),
+    "RSI Reversal":     (RSIReversalStrategy(),     {"stop_loss": 0.05, "take_profit": 0.07}),
+    "MACD Divergence":  (MACDDivergenceStrategy(),  {"stop_loss": 0.05, "take_profit": 0.10}),
+    "BB Squeeze":       (BBSqueezeStrategy(),       {"stop_loss": 0.05, "take_profit": 0.10}),
+    "Candle+RSI":       (CandleRSIStrategy(),       {"stop_loss": 0.04, "take_profit": 0.08}),
+    "ADX Trend":        (ADXTrendStrategy(),        {"stop_loss": 0.05, "take_profit": 0.12}),
+    "Mean Reversion":   (MeanReversionStrategy(),   {"stop_loss": 0.04, "take_profit": 0.06}),
+    "52W Breakout":     (High52WBreakoutStrategy(), {"stop_loss": 0.08, "take_profit": 0.15}),
 }
 
 PERIODS = {
     "in_sample":     ("2019-01-01", "2022-12-31"),
     "out_of_sample": ("2023-01-01", "2024-12-31"),
 }
+IC = 10_000_000
 
-INITIAL_CAPITAL = 10_000_000
 
-
-def aggregate_portfolio_results(per_stock_results):
-    """Equal-weight portfolio aggregation from per-stock results."""
+def cross_sectional_aggregate(per_stock_results):
+    """Average equity curves (normalized) then compute portfolio metrics."""
     if not per_stock_results:
         return None
-
-    all_equity = []
+    all_eq = []
     all_trades = []
     for r in per_stock_results:
-        if r.equity_curve is not None and len(r.equity_curve) > 0:
-            norm = r.equity_curve / r.equity_curve.iloc[0]
-            all_equity.append(norm)
+        if r.equity_curve is not None and len(r.equity_curve) > 0 and r.equity_curve.iloc[0] > 0:
+            all_eq.append(r.equity_curve / r.equity_curve.iloc[0])
         all_trades.extend(r.trades)
-
-    if not all_equity:
+    if not all_eq:
         return None
-
-    combined = pd.concat(all_equity, axis=1).mean(axis=1)
-    equity = combined * INITIAL_CAPITAL
-
-    agg = BacktestResult(strategy_name="", ticker="portfolio", period="")
-    agg.trades = all_trades
-    agg.equity_curve = equity
-    agg = _compute_metrics(agg, equity, INITIAL_CAPITAL)
-    return agg
+    combined = pd.concat(all_eq, axis=1).mean(axis=1) * IC
+    agg = BacktestResult(strategy_name="", ticker="portfolio", period="", trades=all_trades)
+    agg.equity_curve = combined
+    return _compute_metrics(agg, combined, IC)
 
 
-def run_strategy_on_universe(strategy, params, stock_data, kospi_data):
+def run_on_universe(strategy, params, stock_data, kospi_data):
     results = []
     for ticker, df in stock_data.items():
-        if ticker == "KOSPI":
+        if len(df) < 100:
             continue
         try:
-            import inspect
-            sig = inspect.signature(strategy.generate_signals)
-            if "market_close" in sig.parameters:
-                market_close = kospi_data["close"].reindex(df.index, method="ffill")
-                signals = strategy.generate_signals(df, market_close=market_close)
+            sig_params = inspect.signature(strategy.generate_signals)
+            if "market_close" in sig_params.parameters:
+                mc = kospi_data["close"].reindex(df.index, method="ffill") if kospi_data is not None else None
+                signals = strategy.generate_signals(df, market_close=mc)
             else:
                 signals = strategy.generate_signals(df)
-
-            if signals.abs().sum() == 0:
+            if (signals == 1).sum() == 0:
                 continue
-
-            r = run_backtest(df, signals, **params)
-            r.strategy_name = params.get("_name", "")
+            r = run_backtest(df, signals, position_size=1.0, initial_capital=IC, **params)
+            r.strategy_name = ""
             r.ticker = ticker
-            if r.total_trades >= 2:
-                results.append(r)
-        except Exception as e:
+            results.append(r)
+        except Exception:
             pass
     return results
 
@@ -96,56 +80,50 @@ def main():
     print("=" * 60)
     print("BACKTESTING RUNNER — 8 Strategies, Synthetic KOSPI Universe")
     print("=" * 60)
-
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")
-    print(f"  {len(all_data)-1} stocks + KOSPI index generated")
+    kospi_full = all_data.pop("KOSPI")
+    print(f"  {len(all_data)} stocks generated")
 
-    all_results = {}
+    output = {}
 
     for period_name, (start, end) in PERIODS.items():
         print(f"\n[{period_name.upper().replace('_', '-')}] {start} ~ {end}")
-        stock_data = {k: v.loc[start:end] for k, v in all_data.items() if len(v.loc[start:end]) >= 60}
-        kospi_data = stock_data.pop("KOSPI", None)
+        stock_data = {k: v.loc[start:end] for k, v in all_data.items()}
+        kospi = kospi_full.loc[start:end]
 
-        period_metrics = {}
+        period_out = {}
         for strat_name, (strategy, params) in STRATEGIES.items():
-            print(f"  Running {strat_name}...", flush=True, end="")
-            run_params = {k: v for k, v in params.items()}
-            results = run_strategy_on_universe(strategy, run_params, stock_data, kospi_data)
-            agg = aggregate_portfolio_results(results)
+            print(f"  {strat_name}...", end="", flush=True)
+            results = run_on_universe(strategy, params, stock_data, kospi)
+            agg = cross_sectional_aggregate(results)
             if agg:
                 agg.strategy_name = strat_name
-                period_metrics[strat_name] = agg
-                verdict = "PASS" if (agg.sharpe > 1.0 and agg.mdd < 20 and agg.cagr > 10) else "fail"
-                print(f" CAGR={agg.cagr:+.1f}% MDD={agg.mdd:.1f}% Sharpe={agg.sharpe:.2f} "
-                      f"Win={agg.win_rate:.1f}% PF={agg.profit_factor:.2f} Trades={agg.total_trades} [{verdict}]")
+                pass_fail = "PASS" if (agg.sharpe > 1.0 and agg.mdd < 20.0 and agg.cagr > 10.0) else "fail"
+                print(f" CAGR={agg.cagr:+.1f}% MDD={agg.mdd:.1f}% Sharpe={agg.sharpe:.2f}"
+                      f" Win={agg.win_rate:.1f}% PF={agg.profit_factor:.2f}"
+                      f" Trades={agg.total_trades} [{pass_fail}]")
+                period_out[strat_name] = {
+                    "cagr": round(agg.cagr, 2),
+                    "mdd": round(agg.mdd, 2),
+                    "sharpe": round(agg.sharpe, 3),
+                    "win_rate": round(agg.win_rate, 1),
+                    "profit_factor": round(min(agg.profit_factor, 99.0), 2),
+                    "total_trades": agg.total_trades,
+                    "avg_holding_days": round(agg.avg_holding_days, 1),
+                }
             else:
-                print(" no trades")
+                print(" no signals")
+                period_out[strat_name] = None
 
-        all_results[period_name] = period_metrics
-
-    return all_results
-
-
-if __name__ == "__main__":
-    results = main()
-
-    output = {}
-    for period, metrics in results.items():
-        output[period] = {}
-        for strat, r in metrics.items():
-            output[period][strat] = {
-                "cagr": round(r.cagr, 2),
-                "mdd": round(r.mdd, 2),
-                "sharpe": round(r.sharpe, 3),
-                "win_rate": round(r.win_rate, 1),
-                "profit_factor": round(r.profit_factor, 2),
-                "total_trades": r.total_trades,
-                "avg_holding_days": round(r.avg_holding_days, 1),
-            }
+        output[period_name] = period_out
 
     out_path = os.path.join(os.path.dirname(__file__), "results.json")
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
     print(f"\nResults saved to {out_path}")
+    return output
+
+
+if __name__ == "__main__":
+    main()
