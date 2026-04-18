@@ -1,13 +1,13 @@
 {
   "in_sample": {
     "EMA Crossover": {
-      "cagr": 3.61,
-      "mdd": 0.99,
-      "sharpe": 2.358,
-      "win_rate": 75.0,
-      "profit_factor": 10.4,
-      "total_trades": 28,
-      "avg_holding_days": 13.7
+      "cagr": 6.64,
+      "mdd": 3.32,
+      "sharpe": 1.707,
+      "win_rate": 50.0,
+      "profit_factor": 5.67,
+      "total_trades": 74,
+      "avg_holding_days": 28.1
     },
     "RSI Reversal": {
       "cagr": 0.59,
@@ -17,15 +17,6 @@
       "profit_factor": 1.87,
       "total_trades": 14,
       "avg_holding_days": 11.1
-    },
-    "MACD Divergence": {
-      "cagr": -1.12,
-      "mdd": 6.64,
-      "sharpe": -0.557,
-      "win_rate": 0.0,
-      "profit_factor": 0.0,
-      "total_trades": 3,
-      "avg_holding_days": 3.0
     },
     "BB Squeeze": {
       "cagr": 1.7,
@@ -54,15 +45,6 @@
       "total_trades": 10,
       "avg_holding_days": 12.6
     },
-    "Mean Reversion": {
-      "cagr": -5.89,
-      "mdd": 23.12,
-      "sharpe": -1.873,
-      "win_rate": 27.2,
-      "profit_factor": 0.37,
-      "total_trades": 213,
-      "avg_holding_days": 5.3
-    },
     "52W Breakout": {
       "cagr": 3.33,
       "mdd": 7.35,
@@ -75,13 +57,13 @@
   },
   "out_of_sample": {
     "EMA Crossover": {
-      "cagr": 4.04,
-      "mdd": 1.89,
-      "sharpe": 2.116,
-      "win_rate": 63.2,
-      "profit_factor": 6.24,
-      "total_trades": 19,
-      "avg_holding_days": 18.5
+      "cagr": 13.89,
+      "mdd": 1.76,
+      "sharpe": 3.022,
+      "win_rate": 66.7,
+      "profit_factor": 11.14,
+      "total_trades": 45,
+      "avg_holding_days": 37.1
     },
     "RSI Reversal": {
       "cagr": 1.44,
@@ -92,7 +74,6 @@
       "total_trades": 3,
       "avg_holding_days": 16.3
     },
-    "MACD Divergence": null,
     "BB Squeeze": {
       "cagr": 4.93,
       "mdd": 2.04,
@@ -119,15 +100,6 @@
       "profit_factor": 11.75,
       "total_trades": 7,
       "avg_holding_days": 12.4
-    },
-    "Mean Reversion": {
-      "cagr": -3.61,
-      "mdd": 7.62,
-      "sharpe": -1.733,
-      "win_rate": 29.7,
-      "profit_factor": 0.35,
-      "total_trades": 64,
-      "avg_holding_days": 7.1
     },
     "52W Breakout": {
       "cagr": 10.43,
