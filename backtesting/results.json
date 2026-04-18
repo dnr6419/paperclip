@@ -1,0 +1,105 @@
+{
+  "in_sample": {
+    "EMA Crossover": {
+      "cagr": 0.19,
+      "mdd": 0.21,
+      "sharpe": 0.862,
+      "win_rate": 44.0,
+      "profit_factor": 3.29,
+      "total_trades": 25,
+      "avg_holding_days": 14.7
+    },
+    "RSI Reversal": {
+      "cagr": 0.19,
+      "mdd": 0.27,
+      "sharpe": 0.872,
+      "win_rate": 75.0,
+      "profit_factor": 4.2,
+      "total_trades": 8,
+      "avg_holding_days": 12.2
+    },
+    "BB Squeeze": {
+      "cagr": 0.04,
+      "mdd": 0.52,
+      "sharpe": 0.136,
+      "win_rate": 50.0,
+      "profit_factor": 4.84,
+      "total_trades": 2,
+      "avg_holding_days": 18.5
+    },
+    "Candle+RSI": {
+      "cagr": 0.18,
+      "mdd": 0.17,
+      "sharpe": 0.998,
+      "win_rate": 65.0,
+      "profit_factor": 6.07,
+      "total_trades": 20,
+      "avg_holding_days": 8.3
+    },
+    "ADX Trend": {
+      "cagr": 0.16,
+      "mdd": 0.14,
+      "sharpe": 0.951,
+      "win_rate": 58.3,
+      "profit_factor": 10.1,
+      "total_trades": 12,
+      "avg_holding_days": 11.2
+    },
+    "Mean Reversion": {
+      "cagr": -0.5,
+      "mdd": 2.17,
+      "sharpe": -1.789,
+      "win_rate": 30.3,
+      "profit_factor": 0.43,
+      "total_trades": 195,
+      "avg_holding_days": 5.4
+    },
+    "52W Breakout": {
+      "cagr": 0.3,
+      "mdd": 0.52,
+      "sharpe": 0.775,
+      "win_rate": 59.1,
+      "profit_factor": 2.37,
+      "total_trades": 22,
+      "avg_holding_days": 24.7
+    }
+  },
+  "out_of_sample": {
+    "EMA Crossover": {
+      "cagr": 0.63,
+      "mdd": 0.43,
+      "sharpe": 1.567,
+      "win_rate": 58.3,
+      "profit_factor": 3.89,
+      "total_trades": 12,
+      "avg_holding_days": 18.8
+    },
+    "Candle+RSI": {
+      "cagr": 0.13,
+      "mdd": 0.2,
+      "sharpe": 0.451,
+      "win_rate": 71.4,
+      "profit_factor": 2.36,
+      "total_trades": 7,
+      "avg_holding_days": 7.3
+    },
+    "ADX Trend": {
+      "cagr": 0.58,
+      "mdd": 0.22,
+      "sharpe": 1.656,
+      "win_rate": 71.4,
+      "profit_factor": 25.97,
+      "total_trades": 7,
+      "avg_holding_days": 12.1
+    },
+    "Mean Reversion": {
+      "cagr": -0.14,
+      "mdd": 0.47,
+      "sharpe": -0.564,
+      "win_rate": 45.0,
+      "profit_factor": 0.74,
+      "total_trades": 80,
+      "avg_holding_days": 6.7
+    }
+  }
+}
