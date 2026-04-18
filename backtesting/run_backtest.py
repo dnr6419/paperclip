@@ -32,7 +32,7 @@ PERIODS = {
     "in_sample":     ("2019-01-01", "2022-12-31"),
     "out_of_sample": ("2023-01-01", "2024-12-31"),
 }
-IC = 10_000_000
+IC = 100_000
 
 
 def cross_sectional_aggregate(per_stock_results):
@@ -78,11 +78,11 @@ def run_on_universe(strategy, params, stock_data, kospi_data):
 
 def main():
     print("=" * 60)
-    print("BACKTESTING RUNNER — 8 Strategies, Synthetic KOSPI Universe")
+    print("BACKTESTING RUNNER — 8 Strategies, Synthetic S&P 500 Universe")
     print("=" * 60)
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")
-    kospi_full = all_data.pop("KOSPI")
+    kospi_full = all_data.pop("SP500")
     print(f"  {len(all_data)} stocks generated")
 
     output = {}
