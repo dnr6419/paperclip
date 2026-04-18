@@ -86,8 +86,8 @@ class TestHigh52WRiskParams:
 
     def test_take_profit_fires(self, strategy):
         result = strategy.apply_stop_loss_take_profit(
-            entry_price=100, current_price=115.5, breakout_day_low=98,
-            peak_price=115.5, holding_days=5
+            entry_price=100, current_price=121.0, breakout_day_low=98,
+            peak_price=121.0, holding_days=5
         )
         assert result == -1
 
@@ -107,7 +107,7 @@ class TestHigh52WRiskParams:
 
     def test_params_valid(self, strategy):
         params = strategy.get_signal_params()
-        assert params.stop_loss == 0.08
-        assert params.take_profit == 0.15
+        assert params.stop_loss == 0.06
+        assert params.take_profit == 0.20
         assert params.take_profit2 == 0.25
         assert params.position_size == 0.06

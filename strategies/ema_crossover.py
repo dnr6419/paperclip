@@ -8,7 +8,7 @@ from .base import BaseStrategy, Signal
 
 
 class EMACrossoverStrategy(BaseStrategy):
-    def __init__(self, fast: int = 8, slow: int = 21, vol_multiplier: float = 1.2):
+    def __init__(self, fast: int = 10, slow: int = 20, vol_multiplier: float = 1.2):
         self.fast = fast
         self.slow = slow
         self.vol_multiplier = vol_multiplier

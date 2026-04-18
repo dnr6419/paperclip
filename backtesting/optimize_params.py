@@ -165,7 +165,9 @@ def main():
         ("ADX Trend", best_adx),
     ]:
         if best:
-            status = "PASS" if passes(best) else "fail"
+            status = "PASS" if (best["sharpe"] > PASS_CRIT["sharpe"] and
+                                best["mdd"] < PASS_CRIT["mdd"] and
+                                best["cagr"] > PASS_CRIT["cagr"]) else "fail"
             print(f"\n[{name}] Best OOS: CAGR={best['cagr']:+.1f}% MDD={best['mdd']:.1f}% "
                   f"Sharpe={best['sharpe']:.2f} [{status}]")
             print(f"  strat_params: {best['strat_params']}")
