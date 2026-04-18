@@ -32,7 +32,7 @@ def compute_adx_full(high: pd.Series, low: pd.Series, close: pd.Series,
 
 class ADXTrendStrategy(BaseStrategy):
     def __init__(self, adx_period: int = 14, adx_threshold: float = 25,
-                 sma_period: int = 50, vol_threshold: float = 1.2):
+                 sma_period: int = 50, vol_threshold: float = 1.5):
         self.adx_period = adx_period
         self.adx_threshold = adx_threshold
         self.sma_period = sma_period

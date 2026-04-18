@@ -53,7 +53,7 @@ def cross_sectional_aggregate(per_stock_results):
     return _compute_metrics(agg, combined, IC)
 
 
-def run_on_universe(strategy, params, stock_data, kospi_data):
+def run_on_universe(strategy, params, stock_data, sp500_data):
     results = []
     for ticker, df in stock_data.items():
         if len(df) < 100:
@@ -61,7 +61,7 @@ def run_on_universe(strategy, params, stock_data, kospi_data):
         try:
             sig_params = inspect.signature(strategy.generate_signals)
             if "market_close" in sig_params.parameters:
-                mc = kospi_data["close"].reindex(df.index, method="ffill") if kospi_data is not None else None
+                mc = sp500_data["close"].reindex(df.index, method="ffill") if sp500_data is not None else None
                 signals = strategy.generate_signals(df, market_close=mc)
             else:
                 signals = strategy.generate_signals(df)
@@ -82,7 +82,7 @@ def main():
     print("=" * 60)
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")
-    kospi_full = all_data.pop("SP500")
+    sp500_full = all_data.pop("SP500")
     print(f"  {len(all_data)} stocks generated")
 
     output = {}
@@ -90,12 +90,12 @@ def main():
     for period_name, (start, end) in PERIODS.items():
         print(f"\n[{period_name.upper().replace('_', '-')}] {start} ~ {end}")
         stock_data = {k: v.loc[start:end] for k, v in all_data.items()}
-        kospi = kospi_full.loc[start:end]
+        sp500 = sp500_full.loc[start:end]
 
         period_out = {}
         for strat_name, (strategy, params) in STRATEGIES.items():
             print(f"  {strat_name}...", end="", flush=True)
-            results = run_on_universe(strategy, params, stock_data, kospi)
+            results = run_on_universe(strategy, params, stock_data, sp500)
             agg = cross_sectional_aggregate(results)
             if agg:
                 agg.strategy_name = strat_name

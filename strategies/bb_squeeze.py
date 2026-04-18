@@ -33,7 +33,7 @@ def compute_adx(high: pd.Series, low: pd.Series, close: pd.Series,
 
 class BBSqueezeStrategy(BaseStrategy):
     def __init__(self, bb_period: int = 20, bb_std: float = 2.0,
-                 squeeze_threshold: float = 0.5, adx_threshold: float = 20):
+                 squeeze_threshold: float = 0.5, adx_threshold: float = 25):
         self.bb_period = bb_period
         self.bb_std = bb_std
         self.squeeze_threshold = squeeze_threshold

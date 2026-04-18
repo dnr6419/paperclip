@@ -17,7 +17,7 @@ def compute_zscore(close: pd.Series, period: int = 20) -> pd.Series:
 
 
 class MeanReversionStrategy(BaseStrategy):
-    def __init__(self, period: int = 20, entry_z: float = -2.0,
+    def __init__(self, period: int = 20, entry_z: float = -1.8,
                  partial_exit_z: float = -1.0, full_exit_z: float = 0.0,
                  stop_z: float = -3.0, rsi_threshold: float = 35):
         self.period = period
