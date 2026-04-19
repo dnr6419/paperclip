@@ -1,10 +1,20 @@
 """
 Elasticsearch connection and OHLCV query utilities.
 Reads config from environment variables.
+
+Required env vars for the external ES instance:
+  ELK_HOST      host (default: localhost)
+  ELK_PORT      port (default: 9200)
+  ELK_SCHEME    http or https (default: https)
+  ELK_USER      basic-auth username (default: elastic)
+  ELK_PASSWORD  basic-auth password (default: "")
 """
 import os
+import urllib3
 import pandas as pd
 from elasticsearch import Elasticsearch
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 INDEX = "ohlcv-daily"
 
@@ -29,13 +39,18 @@ INDEX_MAPPING = {
 ELK_CONFIG = {
     "host": os.getenv("ELK_HOST", "localhost"),
     "port": int(os.getenv("ELK_PORT", "9200")),
-    "scheme": os.getenv("ELK_SCHEME", "http"),
+    "scheme": os.getenv("ELK_SCHEME", "https"),
+    "user": os.getenv("ELK_USER", "elastic"),
+    "password": os.getenv("ELK_PASSWORD", ""),
 }
 
 
 def get_client() -> Elasticsearch:
     url = f"{ELK_CONFIG['scheme']}://{ELK_CONFIG['host']}:{ELK_CONFIG['port']}"
-    return Elasticsearch(url)
+    kwargs = {"verify_certs": False, "ssl_show_warn": False}
+    if ELK_CONFIG["user"]:
+        kwargs["basic_auth"] = (ELK_CONFIG["user"], ELK_CONFIG["password"])
+    return Elasticsearch(url, **kwargs)
 
 
 def ensure_index(client: Elasticsearch = None) -> None:

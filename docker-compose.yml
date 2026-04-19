@@ -28,6 +28,8 @@ services:
       ELK_HOST: ${ELK_HOST:-192.168.45.75}
       ELK_PORT: ${ELK_PORT:-9200}
       ELK_SCHEME: ${ELK_SCHEME:-https}
+      ELK_USER: ${ELK_USER:-elastic}
+      ELK_PASSWORD: ${ELK_PASSWORD:-}
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
     depends_on:
       db:

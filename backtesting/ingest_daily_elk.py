@@ -6,9 +6,10 @@ bulk-upserts into the ohlcv-daily index. Sends a Slack notification
 on completion (success or failure) via SLACK_WEBHOOK_URL env var.
 
 Usage:
-    python backtesting/ingest_daily_elk.py          # ingest yesterday
+    python backtesting/ingest_daily_elk.py                   # ingest yesterday via yfinance
     python backtesting/ingest_daily_elk.py --date 2024-12-31
-    python backtesting/ingest_daily_elk.py --gap-check  # backfill missing dates
+    python backtesting/ingest_daily_elk.py --gap-check       # backfill missing dates
+    python backtesting/ingest_daily_elk.py --from-ticker-prices  # sync from ticker-prices-* indices
 """
 import argparse
 import json
@@ -132,16 +133,85 @@ def gap_check_and_backfill(client, tickers: list[str], start: str, end: str) -> 
     return stats
 
 
+def sync_from_ticker_prices(client) -> dict:
+    """
+    Sync OHLCV data from existing ticker-prices-{date} indices into ohlcv-daily.
+
+    ticker-prices-* fields: symbol, trade_date, open, high, low, last (=close), volume
+    Filters to SP500_TICKERS only.
+    """
+    ticker_set = set(SP500_TICKERS)
+    stats = {"indexed": 0, "skipped": 0, "failed": []}
+
+    # Discover all ticker-prices-* indices
+    resp = client.cat.indices(index="ticker-prices-*", h="index", format="json")
+    price_indices = sorted([r["index"] for r in resp])
+    print(f"Found {len(price_indices)} ticker-prices-* indices: {price_indices[0]} ~ {price_indices[-1]}")
+
+    for idx_name in price_indices:
+        try:
+            result = client.search(
+                index=idx_name,
+                body={
+                    "size": 10000,
+                    "query": {"terms": {"symbol": list(ticker_set)}},
+                    "_source": ["symbol", "trade_date", "open", "high", "low", "last", "volume"],
+                },
+            )
+            hits = result["hits"]["hits"]
+            if not hits:
+                print(f"  {idx_name}: no matching tickers")
+                stats["skipped"] += 1
+                continue
+
+            actions = []
+            for h in hits:
+                s = h["_source"]
+                ticker = s.get("symbol", "")
+                trade_date = s.get("trade_date", "")
+                if not ticker or not trade_date:
+                    continue
+                actions.append({
+                    "_index": INDEX,
+                    "_id": f"{ticker}_{trade_date}",
+                    "_source": {
+                        "ticker": ticker,
+                        "date": trade_date,
+                        "open": float(s.get("open") or 0),
+                        "high": float(s.get("high") or 0),
+                        "low": float(s.get("low") or 0),
+                        "close": float(s.get("last") or 0),
+                        "volume": int(s.get("volume") or 0),
+                    },
+                })
+
+            success, errors = bulk(client, actions, raise_on_error=False)
+            stats["indexed"] += success
+            print(f"  {idx_name}: {success} rows indexed" + (f", {len(errors)} errors" if errors else ""))
+
+        except Exception as e:
+            stats["failed"].append((idx_name, str(e)))
+            print(f"  {idx_name}: FAILED — {e}")
+
+    return stats
+
+
 def main():
     parser = argparse.ArgumentParser(description="Daily OHLCV ELK ingestion")
     parser.add_argument("--date", help="Target date YYYY-MM-DD (default: yesterday)")
     parser.add_argument("--gap-check", action="store_true", help="Backfill missing dates since 2019-01-01")
+    parser.add_argument("--from-ticker-prices", action="store_true",
+                        help="Sync from existing ticker-prices-* indices into ohlcv-daily")
     args = parser.parse_args()
 
     client = get_client()
     ensure_index(client)
 
-    if args.gap_check:
+    if args.from_ticker_prices:
+        print("Syncing from ticker-prices-* indices...")
+        stats = sync_from_ticker_prices(client)
+        mode = "ticker-prices-sync"
+    elif args.gap_check:
         target_start = "2019-01-01"
         target_end = date.today().strftime("%Y-%m-%d")
         print(f"Gap check & backfill: {target_start} ~ {target_end}")
