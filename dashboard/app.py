@@ -266,8 +266,17 @@ app = FastAPI(title="Backtesting Dashboard", lifespan=lifespan)
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 
+PERIOD_LABELS = {
+    "short_term":  "단기 (6개월: 2024-07~12)",
+    "medium_term": "중기 (2년: 2023~2024)",
+    "long_term":   "장기 (6년: 2019~2024)",
+}
+
+
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, period: str = "medium_term"):
+    if period not in PERIOD_LABELS:
+        period = "medium_term"
     static = _load_static_results()
     db_available = False
     db_runs = []
@@ -291,11 +300,16 @@ async def index(request: Request):
             entry["uploaded_manual"] = uploaded
         manuals_with_uploads[strat_name] = entry
 
+    period_results = static.get(period, {})
+
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
             "static_results": static,
+            "period_results": period_results,
+            "selected_period": period,
+            "period_labels": PERIOD_LABELS,
             "db_runs": db_runs,
             "db_available": db_available,
             "strategy_manuals": manuals_with_uploads,
@@ -307,6 +321,14 @@ async def index(request: Request):
 @app.get("/api/results")
 async def api_results():
     return _load_static_results()
+
+
+@app.get("/api/results/{period}")
+async def api_results_period(period: str):
+    data = _load_static_results()
+    if period not in data:
+        return {"error": f"Period '{period}' not found", "available": list(data.keys())}
+    return data[period]
 
 
 @app.get("/api/runs")

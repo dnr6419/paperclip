@@ -1,0 +1,149 @@
+"""
+Period-based backtest runner: 10 strategies × 3 periods (단기/중기/장기).
+Results are merged into results.json under short_term, medium_term, long_term keys.
+"""
+import sys, os, json, warnings, inspect
+import numpy as np
+import pandas as pd
+
+warnings.filterwarnings("ignore")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from strategies import (
+    EMACrossoverStrategy, RSIReversalStrategy,
+    CandleRSIStrategy, ADXTrendStrategy,
+    High52WBreakoutStrategy, ATRBreakoutStrategy,
+    BBMeanReversionStrategy, VWBStrategy, MTMStrategy,
+    DCBStrategy,
+)
+from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
+from backtesting.generate_data import generate_all_data
+
+STRATEGIES = {
+    "EMA Crossover":      (EMACrossoverStrategy(),    {"stop_loss": 0.04, "take_profit": 0.30}),
+    "RSI Reversal":       (RSIReversalStrategy(),     {"stop_loss": 0.04, "take_profit": 0.25}),
+    "Candle+RSI":         (CandleRSIStrategy(),       {"stop_loss": 0.04, "take_profit": 0.20}),
+    "ADX Trend":          (ADXTrendStrategy(),        {"stop_loss": 0.04, "take_profit": 0.25}),
+    "52W Breakout":       (High52WBreakoutStrategy(), {"stop_loss": 0.06, "take_profit": 0.20}),
+    "ATR Breakout":       (ATRBreakoutStrategy(),     {"stop_loss": 0.05, "take_profit": 0.20}),
+    "BB Mean Reversion":  (BBMeanReversionStrategy(bb_std=1.5, rsi_cap=60.0, sma_period=50, atr_threshold=0.8),
+                           {"stop_loss": 0.06, "take_profit": 0.18}),
+    "VWB":                (VWBStrategy(),             {"stop_loss": 0.05, "take_profit": 10.0}),
+    "MTM":                (MTMStrategy(),             {"stop_loss": 0.05, "take_profit": 0.20}),
+    "DCB":                (DCBStrategy(),             {"stop_loss": 0.05, "take_profit": 0.25}),
+}
+
+PERIODS = {
+    "short_term":  ("2024-07-01", "2024-12-31"),
+    "medium_term": ("2023-01-01", "2024-12-31"),
+    "long_term":   ("2019-01-01", "2024-12-31"),
+}
+
+IC = 100_000
+
+
+def cross_sectional_aggregate(per_stock_results):
+    if not per_stock_results:
+        return None
+    all_eq, all_trades = [], []
+    for r in per_stock_results:
+        if r.equity_curve is not None and len(r.equity_curve) > 0 and r.equity_curve.iloc[0] > 0:
+            all_eq.append(r.equity_curve / r.equity_curve.iloc[0])
+        all_trades.extend(r.trades)
+    if not all_eq:
+        return None
+    combined = pd.concat(all_eq, axis=1).mean(axis=1) * IC
+    agg = BacktestResult(strategy_name="", ticker="portfolio", period="", trades=all_trades)
+    agg.equity_curve = combined
+    return _compute_metrics(agg, combined, IC)
+
+
+def run_on_universe(strategy, params, stock_data, sp500_data):
+    results = []
+    for ticker, df in stock_data.items():
+        if len(df) < 50:
+            continue
+        try:
+            sig_params = inspect.signature(strategy.generate_signals)
+            if "market_close" in sig_params.parameters:
+                mc = sp500_data["close"].reindex(df.index, method="ffill") if sp500_data is not None else None
+                signals = strategy.generate_signals(df, market_close=mc)
+            else:
+                signals = strategy.generate_signals(df)
+            if (signals == 1).sum() == 0:
+                continue
+            bt_params = dict(params)
+            if hasattr(strategy, "last_atr") and strategy.last_atr is not None:
+                bt_params["trailing_atr_series"] = strategy.last_atr
+                bt_params["trailing_atr_mult"] = strategy.atr_mult
+            r = run_backtest(df, signals, position_size=1.0, initial_capital=IC, **bt_params)
+            r.strategy_name = ""
+            r.ticker = ticker
+            results.append(r)
+        except Exception:
+            pass
+    return results
+
+
+def main():
+    print("=" * 60)
+    print("PERIOD BACKTESTING — 10 Strategies × 3 Periods")
+    print("=" * 60)
+    print("\nGenerating synthetic market data (2019-2024)...", flush=True)
+    all_data = generate_all_data("2019-01-01", "2024-12-31")
+    sp500_full = all_data.pop("SP500")
+    print(f"  {len(all_data)} stocks generated")
+
+    new_results = {}
+
+    for period_name, (start, end) in PERIODS.items():
+        label_map = {"short_term": "단기(6개월)", "medium_term": "중기(2년)", "long_term": "장기(6년)"}
+        print(f"\n[{label_map[period_name]}] {start} ~ {end}")
+        stock_data = {k: v.loc[start:end] for k, v in all_data.items()}
+        sp500 = sp500_full.loc[start:end]
+
+        period_out = {}
+        for strat_name, (strategy, params) in STRATEGIES.items():
+            print(f"  {strat_name}...", end="", flush=True)
+            results = run_on_universe(strategy, params, stock_data, sp500)
+            agg = cross_sectional_aggregate(results)
+            if agg:
+                agg.strategy_name = strat_name
+                pass_fail = "PASS" if (agg.sharpe > 1.0 and agg.mdd < 20.0 and agg.cagr > 10.0) else "fail"
+                print(f" CAGR={agg.cagr:+.1f}% MDD={agg.mdd:.1f}% Sharpe={agg.sharpe:.2f}"
+                      f" Win={agg.win_rate:.1f}% PF={agg.profit_factor:.2f}"
+                      f" Trades={agg.total_trades} [{pass_fail}]")
+                period_out[strat_name] = {
+                    "cagr": round(agg.cagr, 2),
+                    "mdd": round(agg.mdd, 2),
+                    "sharpe": round(agg.sharpe, 3),
+                    "win_rate": round(agg.win_rate, 1),
+                    "profit_factor": round(min(agg.profit_factor, 99.0), 2),
+                    "total_trades": agg.total_trades,
+                    "avg_holding_days": round(agg.avg_holding_days, 1),
+                }
+            else:
+                print(" no signals")
+                period_out[strat_name] = None
+
+        new_results[period_name] = period_out
+
+    out_path = os.path.join(os.path.dirname(__file__), "results.json")
+    try:
+        with open(out_path) as f:
+            existing = json.load(f)
+    except Exception:
+        existing = {}
+
+    existing.update(new_results)
+
+    with open(out_path, "w") as f:
+        json.dump(existing, f, indent=2, ensure_ascii=False)
+
+    print(f"\nResults merged into {out_path}")
+    print("Keys present:", list(existing.keys()))
+    return existing
+
+
+if __name__ == "__main__":
+    main()
