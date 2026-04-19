@@ -1,0 +1,351 @@
+{
+  "in_sample": {
+    "A: Tight TP Uptrend Dip": {
+      "TQQQ": {
+        "cagr": -21.68,
+        "mdd": 72.35,
+        "sharpe": -0.933,
+        "win_rate": 51.5,
+        "profit_factor": 0.26,
+        "total_trades": 33,
+        "avg_holding_days": 2.4,
+        "avg_win_pct": 2.0,
+        "avg_loss_pct": -8.02,
+        "exit_reasons": {
+          "take_profit": 17,
+          "signal": 4,
+          "stop_loss": 12
+        }
+      },
+      "SOXL": {
+        "cagr": -33.5,
+        "mdd": 82.27,
+        "sharpe": -1.422,
+        "win_rate": 51.2,
+        "profit_factor": 0.22,
+        "total_trades": 43,
+        "avg_holding_days": 1.9,
+        "avg_win_pct": 2.0,
+        "avg_loss_pct": -9.61,
+        "exit_reasons": {
+          "take_profit": 22,
+          "stop_loss": 20,
+          "signal": 1
+        }
+      }
+    },
+    "B: Micro Scalp": {
+      "TQQQ": {
+        "cagr": -26.36,
+        "mdd": 72.27,
+        "sharpe": -0.937,
+        "win_rate": 66.3,
+        "profit_factor": 0.42,
+        "total_trades": 83,
+        "avg_holding_days": 2.1,
+        "avg_win_pct": 1.5,
+        "avg_loss_pct": -7.08,
+        "exit_reasons": {
+          "signal": 19,
+          "take_profit": 55,
+          "stop_loss": 9
+        }
+      },
+      "SOXL": {
+        "cagr": -32.3,
+        "mdd": 83.31,
+        "sharpe": -1.116,
+        "win_rate": 71.8,
+        "profit_factor": 0.38,
+        "total_trades": 85,
+        "avg_holding_days": 1.9,
+        "avg_win_pct": 1.5,
+        "avg_loss_pct": -9.92,
+        "exit_reasons": {
+          "take_profit": 61,
+          "signal": 8,
+          "stop_loss": 16
+        }
+      }
+    },
+    "C: Trend Dip RSI(5)": {
+      "TQQQ": {
+        "cagr": 0.6,
+        "mdd": 2.09,
+        "sharpe": 0.249,
+        "win_rate": 100.0,
+        "profit_factor": 99.0,
+        "total_trades": 1,
+        "avg_holding_days": 1.0,
+        "avg_win_pct": 2.5,
+        "exit_reasons": {
+          "take_profit": 1
+        }
+      },
+      "SOXL": null
+    },
+    "D: Momentum Burst": {
+      "TQQQ": {
+        "cagr": 37.83,
+        "mdd": 23.34,
+        "sharpe": 0.905,
+        "win_rate": 94.7,
+        "profit_factor": 6.35,
+        "total_trades": 113,
+        "avg_holding_days": 1.4,
+        "avg_win_pct": 1.5,
+        "avg_loss_pct": -4.21,
+        "exit_reasons": {
+          "take_profit": 107,
+          "signal": 4,
+          "stop_loss": 2
+        }
+      },
+      "SOXL": {
+        "cagr": 43.85,
+        "mdd": 16.7,
+        "sharpe": 1.0,
+        "win_rate": 95.6,
+        "profit_factor": 4.73,
+        "total_trades": 136,
+        "avg_holding_days": 1.3,
+        "avg_win_pct": 1.5,
+        "avg_loss_pct": -6.87,
+        "exit_reasons": {
+          "take_profit": 130,
+          "signal": 5,
+          "stop_loss": 1
+        }
+      }
+    }
+  },
+  "out_of_sample": {
+    "A: Tight TP Uptrend Dip": {
+      "TQQQ": {
+        "cagr": -25.17,
+        "mdd": 57.84,
+        "sharpe": -0.871,
+        "win_rate": 64.1,
+        "profit_factor": 0.47,
+        "total_trades": 39,
+        "avg_holding_days": 2.7,
+        "avg_win_pct": 1.94,
+        "avg_loss_pct": -7.36,
+        "exit_reasons": {
+          "signal": 6,
+          "stop_loss": 9,
+          "take_profit": 24
+        }
+      },
+      "SOXL": {
+        "cagr": -32.39,
+        "mdd": 57.27,
+        "sharpe": -1.272,
+        "win_rate": 53.6,
+        "profit_factor": 0.28,
+        "total_trades": 28,
+        "avg_holding_days": 2.0,
+        "avg_win_pct": 2.0,
+        "avg_loss_pct": -8.1,
+        "exit_reasons": {
+          "take_profit": 15,
+          "stop_loss": 10,
+          "signal": 3
+        }
+      }
+    },
+    "B: Micro Scalp": {
+      "TQQQ": {
+        "cagr": -17.18,
+        "mdd": 40.08,
+        "sharpe": -0.573,
+        "win_rate": 72.2,
+        "profit_factor": 0.63,
+        "total_trades": 54,
+        "avg_holding_days": 2.5,
+        "avg_win_pct": 1.5,
+        "avg_loss_pct": -6.19,
+        "exit_reasons": {
+          "take_profit": 39,
+          "stop_loss": 2,
+          "signal": 12,
+          "end": 1
+        }
+      },
+      "SOXL": {
+        "cagr": -24.13,
+        "mdd": 46.69,
+        "sharpe": -0.616,
+        "win_rate": 73.7,
+        "profit_factor": 0.55,
+        "total_trades": 57,
+        "avg_holding_days": 2.2,
+        "avg_win_pct": 1.5,
+        "avg_loss_pct": -7.58,
+        "exit_reasons": {
+          "take_profit": 42,
+          "stop_loss": 5,
+          "signal": 10
+        }
+      }
+    },
+    "C: Trend Dip RSI(5)": {
+      "TQQQ": {
+        "cagr": -2.79,
+        "mdd": 8.0,
+        "sharpe": -0.524,
+        "win_rate": 50.0,
+        "profit_factor": 0.31,
+        "total_trades": 2,
+        "avg_holding_days": 1.5,
+        "avg_win_pct": 2.5,
+        "avg_loss_pct": -8.0,
+        "exit_reasons": {
+          "take_profit": 1,
+          "stop_loss": 1
+        }
+      },
+      "SOXL": {
+        "cagr": -2.79,
+        "mdd": 9.43,
+        "sharpe": -0.423,
+        "win_rate": 50.0,
+        "profit_factor": 0.31,
+        "total_trades": 2,
+        "avg_holding_days": 1.0,
+        "avg_win_pct": 2.5,
+        "avg_loss_pct": -8.0,
+        "exit_reasons": {
+          "take_profit": 1,
+          "stop_loss": 1
+        }
+      }
+    },
+    "D: Momentum Burst": {
+      "TQQQ": {
+        "cagr": 71.6,
+        "mdd": 12.66,
+        "sharpe": 1.667,
+        "win_rate": 96.7,
+        "profit_factor": 8.15,
+        "total_trades": 90,
+        "avg_holding_days": 1.5,
+        "avg_win_pct": 1.49,
+        "avg_loss_pct": -5.29,
+        "exit_reasons": {
+          "take_profit": 86,
+          "signal": 4
+        }
+      },
+      "SOXL": {
+        "cagr": 53.71,
+        "mdd": 19.93,
+        "sharpe": 1.189,
+        "win_rate": 93.5,
+        "profit_factor": 3.45,
+        "total_trades": 92,
+        "avg_holding_days": 1.3,
+        "avg_win_pct": 1.5,
+        "avg_loss_pct": -6.23,
+        "exit_reasons": {
+          "take_profit": 86,
+          "stop_loss": 2,
+          "signal": 4
+        }
+      }
+    }
+  },
+  "passing_80pct": [
+    {
+      "period": "in_sample",
+      "strategy": "C: Trend Dip RSI(5)",
+      "ticker": "TQQQ",
+      "cagr": 0.6,
+      "mdd": 2.09,
+      "sharpe": 0.249,
+      "win_rate": 100.0,
+      "profit_factor": 99.0,
+      "total_trades": 1,
+      "avg_holding_days": 1.0,
+      "avg_win_pct": 2.5,
+      "exit_reasons": {
+        "take_profit": 1
+      }
+    },
+    {
+      "period": "in_sample",
+      "strategy": "D: Momentum Burst",
+      "ticker": "TQQQ",
+      "cagr": 37.83,
+      "mdd": 23.34,
+      "sharpe": 0.905,
+      "win_rate": 94.7,
+      "profit_factor": 6.35,
+      "total_trades": 113,
+      "avg_holding_days": 1.4,
+      "avg_win_pct": 1.5,
+      "avg_loss_pct": -4.21,
+      "exit_reasons": {
+        "take_profit": 107,
+        "signal": 4,
+        "stop_loss": 2
+      }
+    },
+    {
+      "period": "in_sample",
+      "strategy": "D: Momentum Burst",
+      "ticker": "SOXL",
+      "cagr": 43.85,
+      "mdd": 16.7,
+      "sharpe": 1.0,
+      "win_rate": 95.6,
+      "profit_factor": 4.73,
+      "total_trades": 136,
+      "avg_holding_days": 1.3,
+      "avg_win_pct": 1.5,
+      "avg_loss_pct": -6.87,
+      "exit_reasons": {
+        "take_profit": 130,
+        "signal": 5,
+        "stop_loss": 1
+      }
+    },
+    {
+      "period": "out_of_sample",
+      "strategy": "D: Momentum Burst",
+      "ticker": "TQQQ",
+      "cagr": 71.6,
+      "mdd": 12.66,
+      "sharpe": 1.667,
+      "win_rate": 96.7,
+      "profit_factor": 8.15,
+      "total_trades": 90,
+      "avg_holding_days": 1.5,
+      "avg_win_pct": 1.49,
+      "avg_loss_pct": -5.29,
+      "exit_reasons": {
+        "take_profit": 86,
+        "signal": 4
+      }
+    },
+    {
+      "period": "out_of_sample",
+      "strategy": "D: Momentum Burst",
+      "ticker": "SOXL",
+      "cagr": 53.71,
+      "mdd": 19.93,
+      "sharpe": 1.189,
+      "win_rate": 93.5,
+      "profit_factor": 3.45,
+      "total_trades": 92,
+      "avg_holding_days": 1.3,
+      "avg_win_pct": 1.5,
+      "avg_loss_pct": -6.23,
+      "exit_reasons": {
+        "take_profit": 86,
+        "stop_loss": 2,
+        "signal": 4
+      }
+    }
+  ]
+}
