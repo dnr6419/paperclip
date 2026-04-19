@@ -1,5 +1,5 @@
 """
-Main backtest runner: 11 strategies on synthetic S&P 500 market data.
+Main backtest runner: 12 strategies on synthetic S&P 500 market data.
 In-Sample (2019-2022) / Out-of-Sample (2023-2024).
 """
 import sys, os, json, warnings, inspect
@@ -14,7 +14,7 @@ from strategies import (
     CandleRSIStrategy, ADXTrendStrategy,
     High52WBreakoutStrategy, ATRBreakoutStrategy,
     VWBStrategy, MTMStrategy, DCBStrategy, MACDMomentumStrategy,
-    GapFillStrategy,
+    GapFillStrategy, DualMomentumStrategy,
 )
 from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
@@ -31,6 +31,7 @@ STRATEGIES = {
     "DCB":              (DCBStrategy(),             {"stop_loss": 0.05, "take_profit": 0.25}),
     "MACD Momentum":    (MACDMomentumStrategy(),    {"stop_loss": 0.05, "take_profit": 0.25}),
     "Gap Fill":         (GapFillStrategy(),         {"stop_loss": 0.03, "take_profit": 0.05}),
+    "Dual Momentum":    (DualMomentumStrategy(),    {"stop_loss": 0.05, "take_profit": 0.30}),
 }
 
 PERIODS = {
@@ -85,9 +86,46 @@ def run_on_universe(strategy, params, stock_data, sp500_data):
     return results
 
 
+PORTFOLIO_STRATEGIES = ["DCB", "ATR Breakout", "MTM", "Candle+RSI", "Dual Momentum"]
+MAX_WEIGHT = 0.35
+
+
+def compute_portfolio_weights(oos_results: dict) -> dict:
+    """Method D: Sharpe 60% + Inverse-MDD 40%, capped at MAX_WEIGHT per strategy."""
+    candidates = {k: v for k, v in oos_results.items() if k in PORTFOLIO_STRATEGIES and v}
+
+    sharpe_scores = {k: max(v["sharpe"], 0.0) for k, v in candidates.items()}
+    inv_mdd_scores = {k: 1.0 / max(v["mdd"], 0.1) for k, v in candidates.items()}
+
+    total_sharpe = sum(sharpe_scores.values()) or 1.0
+    total_inv_mdd = sum(inv_mdd_scores.values()) or 1.0
+
+    raw = {
+        k: 0.60 * (sharpe_scores[k] / total_sharpe) + 0.40 * (inv_mdd_scores[k] / total_inv_mdd)
+        for k in candidates
+    }
+
+    # Iterative cap: redistribute excess from capped strategies
+    weights = dict(raw)
+    for _ in range(10):
+        capped = {k: min(w, MAX_WEIGHT) for k, w in weights.items()}
+        excess = sum(w - MAX_WEIGHT for w in weights.values() if w > MAX_WEIGHT)
+        uncapped_keys = [k for k, w in weights.items() if w < MAX_WEIGHT]
+        if excess <= 0 or not uncapped_keys:
+            weights = capped
+            break
+        total_uncapped = sum(capped[k] for k in uncapped_keys) or 1.0
+        for k in uncapped_keys:
+            capped[k] += excess * (capped[k] / total_uncapped)
+        weights = capped
+
+    total = sum(weights.values()) or 1.0
+    return {k: round(w / total, 4) for k, w in weights.items()}
+
+
 def main():
     print("=" * 60)
-    print("BACKTESTING RUNNER — 11 Active Strategies, Synthetic S&P 500 Universe")
+    print("BACKTESTING RUNNER — 12 Active Strategies, Synthetic S&P 500 Universe")
     print("=" * 60)
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")
@@ -126,6 +164,20 @@ def main():
                 period_out[strat_name] = None
 
         output[period_name] = period_out
+
+    # Portfolio weight computation (OOS results, Method D)
+    oos = output.get("out_of_sample", {})
+    weights = compute_portfolio_weights(oos)
+    output["portfolio_weights"] = weights
+
+    print("\n" + "=" * 60)
+    print("PORTFOLIO WEIGHTS (Method D: Sharpe 60% + Inverse-MDD 40%)")
+    print("=" * 60)
+    for strat, w in sorted(weights.items(), key=lambda x: -x[1]):
+        metrics = oos.get(strat, {}) or {}
+        sharpe = metrics.get("sharpe", "-")
+        mdd = metrics.get("mdd", "-")
+        print(f"  {strat:<20} {w*100:5.1f}%  (Sharpe={sharpe}, MDD={mdd}%)")
 
     out_path = os.path.join(os.path.dirname(__file__), "results.json")
     with open(out_path, "w") as f:
