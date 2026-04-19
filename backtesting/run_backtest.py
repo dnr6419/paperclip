@@ -1,5 +1,5 @@
 """
-Main backtest runner: 6 strategies on synthetic S&P 500 market data.
+Main backtest runner: 5 strategies on synthetic S&P 500 market data.
 In-Sample (2019-2022) / Out-of-Sample (2023-2024).
 """
 import sys, os, json, warnings, inspect
@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from strategies import (
     EMACrossoverStrategy, RSIReversalStrategy,
-    BBSqueezeStrategy, CandleRSIStrategy, ADXTrendStrategy,
+    CandleRSIStrategy, ADXTrendStrategy,
     High52WBreakoutStrategy,
 )
 from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
@@ -20,7 +20,6 @@ from backtesting.generate_data import generate_all_data
 STRATEGIES = {
     "EMA Crossover":    (EMACrossoverStrategy(),    {"stop_loss": 0.04, "take_profit": 0.30}),
     "RSI Reversal":     (RSIReversalStrategy(),     {"stop_loss": 0.04, "take_profit": 0.25}),
-    "BB Squeeze":       (BBSqueezeStrategy(),       {"stop_loss": 0.05, "take_profit": 0.10}),
     "Candle+RSI":       (CandleRSIStrategy(),       {"stop_loss": 0.04, "take_profit": 0.20}),
     "ADX Trend":        (ADXTrendStrategy(),        {"stop_loss": 0.04, "take_profit": 0.25}),
     "52W Breakout":     (High52WBreakoutStrategy(), {"stop_loss": 0.06, "take_profit": 0.20}),
@@ -76,7 +75,7 @@ def run_on_universe(strategy, params, stock_data, sp500_data):
 
 def main():
     print("=" * 60)
-    print("BACKTESTING RUNNER — 6 Strategies, Synthetic S&P 500 Universe")
+    print("BACKTESTING RUNNER — 5 Strategies, Synthetic S&P 500 Universe")
     print("=" * 60)
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")
