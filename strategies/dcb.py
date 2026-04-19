@@ -3,7 +3,7 @@ Strategy 10: Donchian Channel Breakout (DCB)
 Entry: close breaks above highest high of last `entry_period` bars (Turtle breakout).
 Exit: close drops below lowest low of last `exit_period` bars.
 Filter: ADX > adx_threshold confirms trending regime to avoid whipsaws in flat markets.
-Parameters: entry_period=20, exit_period=10, adx_period=14, adx_threshold=20.
+Parameters: entry_period=20, exit_period=8, adx_period=14, adx_threshold=25.
 """
 import pandas as pd
 import numpy as np
@@ -35,9 +35,9 @@ class DCBStrategy(BaseStrategy):
     def __init__(
         self,
         entry_period: int = 20,
-        exit_period: int = 10,
+        exit_period: int = 8,
         adx_period: int = 14,
-        adx_threshold: float = 20.0,
+        adx_threshold: float = 25.0,
     ):
         self.entry_period = entry_period
         self.exit_period = exit_period

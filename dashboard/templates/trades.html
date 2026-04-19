@@ -516,13 +516,22 @@
 
     function renderStats(trades) {
         if (!trades.length) { document.getElementById('statsRow').innerHTML = ''; return; }
+        const filled = trades.filter(t => t.exit_reason !== 'end');
+        const unfilled = trades.filter(t => t.exit_reason === 'end');
+        const buyCount = trades.filter(t => t.entry_date).length;
+        const sellCount = filled.length;
+        const totalFilled = buyCount + sellCount;
         const wins = trades.filter(t => t.pnl_pct > 0);
         const winRate = (wins.length / trades.length * 100).toFixed(1);
         const avgPnl = (trades.reduce((s, t) => s + t.pnl_pct, 0) / trades.length).toFixed(2);
         const avgDays = trades.filter(t => t.holding_days).reduce((s, t) => s + t.holding_days, 0) / trades.filter(t => t.holding_days).length;
         const tickers = new Set(trades.map(t => t.ticker)).size;
+        let filledHtml = `<div class="stat"><div class="slabel">총 체결</div><div class="sval neutral">${totalFilled}건</div></div>`;
+        if (unfilled.length > 0) {
+            filledHtml += `<div class="stat"><div class="slabel">미체결</div><div class="sval" style="color:#f59e0b;">${unfilled.length}건</div></div>`;
+        }
         document.getElementById('statsRow').innerHTML = `
-            <div class="stat"><div class="slabel">총 체결</div><div class="sval neutral">${trades.length}건</div></div>
+            ${filledHtml}
             <div class="stat"><div class="slabel">승률</div><div class="sval ${+winRate > 50 ? 'positive' : 'neutral'}">${winRate}%</div></div>
             <div class="stat"><div class="slabel">평균 수익률</div><div class="sval ${+avgPnl >= 0 ? 'positive' : 'negative'}">${+avgPnl >= 0 ? '+' : ''}${avgPnl}%</div></div>
             <div class="stat"><div class="slabel">평균 보유일</div><div class="sval neutral">${avgDays.toFixed(1)}일</div></div>

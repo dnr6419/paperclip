@@ -3,7 +3,7 @@ Strategy 9: Multi-Timeframe Momentum (MTM)
 Entry: weekly (above MA + RSI > 50) AND daily (above MA + RSI > 50).
 Exit: daily bearish (below MA OR RSI < 45) OR weekly reversal.
 Lookahead bias prevention: weekly signal shifted by 1 bar before reindex.
-Parameters: daily_ma=20, weekly_ma=10, rsi_threshold=50.
+Parameters: daily_ma=20, weekly_ma=10, rsi_threshold=52, rsi_exit=47.
 """
 import pandas as pd
 import numpy as np
@@ -17,8 +17,8 @@ class MTMStrategy(BaseStrategy):
         daily_ma: int = 20,
         weekly_ma: int = 10,
         rsi_period: int = 14,
-        rsi_threshold: float = 50.0,
-        rsi_exit: float = 45.0,
+        rsi_threshold: float = 52.0,
+        rsi_exit: float = 47.0,
     ):
         self.daily_ma = daily_ma
         self.weekly_ma = weekly_ma

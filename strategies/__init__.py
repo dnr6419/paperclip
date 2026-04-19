@@ -4,6 +4,7 @@ from .candle_rsi import CandleRSIStrategy
 from .adx_trend import ADXTrendStrategy
 from .high52w_breakout import High52WBreakoutStrategy
 from .atr_breakout import ATRBreakoutStrategy
+from .bb_mean_reversion import BBMeanReversionStrategy
 from .vwb import VWBStrategy
 from .mtm import MTMStrategy
 from .dcb import DCBStrategy
@@ -16,6 +17,7 @@ __all__ = [
     "ADXTrendStrategy",
     "High52WBreakoutStrategy",
     "ATRBreakoutStrategy",
+    "BBMeanReversionStrategy",
     "VWBStrategy",
     "MTMStrategy",
     "DCBStrategy",

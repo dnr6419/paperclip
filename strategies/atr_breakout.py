@@ -12,9 +12,9 @@ class ATRBreakoutStrategy(BaseStrategy):
         self,
         lookback: int = 20,
         atr_period: int = 14,
-        breakout_mult: float = 0.5,
+        breakout_mult: float = 0.7,
         take_profit: float = 0.20,
-        stop_loss: float = 0.05,
+        stop_loss: float = 0.04,
     ):
         self.lookback = lookback
         self.atr_period = atr_period
