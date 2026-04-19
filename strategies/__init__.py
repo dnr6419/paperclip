@@ -15,6 +15,7 @@ from .ensemble import EnsembleRegimeStrategy, detect_regime
 from .leveraged_etf_oversold import LETFMomentumBurstStrategy
 from .keltner_channel_mr import KeltnerChannelMRStrategy
 from .vix_spike_reversion import VIXSpikeReversionStrategy
+from .stoch_mr import StochasticMRStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -35,4 +36,5 @@ __all__ = [
     "LETFMomentumBurstStrategy",
     "KeltnerChannelMRStrategy",
     "VIXSpikeReversionStrategy",
+    "StochasticMRStrategy",
 ]

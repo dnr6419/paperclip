@@ -1,0 +1,25 @@
+{
+  "best_params": {
+    "k_period": 9,
+    "oversold": 25.0,
+    "max_hold_days": 20
+  },
+  "in_sample": {
+    "cagr": 25.48,
+    "mdd": 5.06,
+    "sharpe": 3.028,
+    "win_rate": 73.9,
+    "profit_factor": 3.89,
+    "total_trades": 387,
+    "avg_holding_days": 9.1
+  },
+  "out_of_sample": {
+    "cagr": 19.25,
+    "mdd": 2.8,
+    "sharpe": 3.166,
+    "win_rate": 73.0,
+    "profit_factor": 3.5,
+    "total_trades": 189,
+    "avg_holding_days": 9.5
+  }
+}
