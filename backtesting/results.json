@@ -220,11 +220,11 @@
     }
   },
   "portfolio_weights": {
-    "DCB": 0.222,
-    "Candle+RSI": 0.212,
-    "MTM": 0.192,
-    "MACD Momentum": 0.190,
-    "ATR Breakout": 0.185
+    "Candle+RSI": 0.3072,
+    "ATR Breakout": 0.1825,
+    "MTM": 0.2053,
+    "DCB": 0.1989,
+    "Dual Momentum": 0.1061
   },
   "short_term": {
     "EMA Crossover": {
