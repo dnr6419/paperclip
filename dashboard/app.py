@@ -38,16 +38,17 @@ STRATEGY_MANUALS = {
     },
     "RSI Reversal": {
         "buy": [
-            "RSI(14)가 30 아래에서 다시 30 위로 상향 돌파 (과매도 탈출)",
+            "RSI(14)가 40 아래에서 다시 40 위로 상향 돌파 (떡사오팔: 과매도 탈출)",
             "종가가 SMA(200) 위에 위치 (장기 상승 추세 확인)",
         ],
         "sell": [
-            "RSI(14)가 65 이상 도달",
-            "손절: 진입가 대비 -4%",
-            "익절: 진입가 대비 +25%",
+            "RSI(14)가 80 이상 도달 (떡사오팔: 과매수 청산)",
+            "RSI(14)가 20 아래로 급락 시 즉시 청산",
+            "손절: 진입가 대비 -5%",
+            "익절: RSI 신호 기반 청산 (고정 목표가 없음)",
         ],
-        "params": {"rsi_period": 14, "oversold": 30, "overbought_exit": 65,
-                   "sma_filter": 200, "stop_loss": "4%", "take_profit": "25%"},
+        "params": {"rsi_period": 14, "oversold": 40, "overbought_exit": 80,
+                   "sma_filter": 200, "stop_loss": "5%", "take_profit": "RSI signal"},
     },
     "Candle+RSI": {
         "buy": [
@@ -105,16 +106,18 @@ STRATEGY_MANUALS = {
     },
     "BB Mean Reversion": {
         "buy": [
-            "가격이 하단 볼린저밴드(20, 2σ) 아래에서 다시 위로 복귀",
-            "RSI(14) < 50 (과매수 아님)",
+            "가격이 하단 볼린저밴드(20, 2σ) 아래에서 다시 위로 복귀 (바운스 확인)",
+            "RSI(14) < 55 (과매수 아님)",
             "종가가 SMA(50) 위 (중기 상승 추세 필터)",
+            "ATR(14)이 ATR의 50일 이동평균 이상 (변동성 확장 필터)",
         ],
         "sell": [
-            "손절: 진입가 대비 -6%",
-            "익절: 진입가 대비 +12%",
+            "손절: 진입가 대비 -5%",
+            "익절: 진입가 대비 +25%",
         ],
-        "params": {"bb_period": 20, "bb_std": 2.0, "rsi_threshold": 50,
-                   "sma_filter": 50, "stop_loss": "6%", "take_profit": "12%"},
+        "params": {"bb_period": 20, "bb_std": 2.0, "rsi_cap": 55,
+                   "sma_filter": 50, "atr_period": 14, "atr_ma_period": 50,
+                   "stop_loss": "5%", "take_profit": "25%"},
     },
     "VWB": {
         "buy": [
@@ -142,6 +145,21 @@ STRATEGY_MANUALS = {
         ],
         "params": {"daily_ma": 20, "weekly_ma": 10, "rsi_threshold": 50,
                    "stop_loss": "5%", "take_profit": "20%"},
+    },
+    "DCB": {
+        "buy": [
+            "종가가 20일 최고가(전일 기준)를 상향 돌파 — 터틀 브레이크아웃",
+            "ADX(14) > 20 — 추세 장세 확인 (횡보 구간 진입 방지)",
+            "연속 돌파 첫 번째 봉만 진입 (중복 진입 방지)",
+        ],
+        "sell": [
+            "종가가 10일 최저가(전일 기준) 아래로 하락 — 채널 이탈 청산",
+            "손절: 진입가 대비 -5%",
+            "익절: 진입가 대비 +25%",
+        ],
+        "params": {"entry_period": 20, "exit_period": 10,
+                   "adx_period": 14, "adx_threshold": 20,
+                   "stop_loss": "5%", "take_profit": "25%"},
     },
 }
 
