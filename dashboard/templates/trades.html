@@ -178,10 +178,11 @@
     function renderChart(priceData, trades, ticker) {
         document.getElementById('chartTitle').textContent = `${ticker} — ${trades.length}건 체결`;
 
-        const pricePoints = priceData.dates.map((d, i) => ({ x: d, y: priceData.closes[i] }));
+        const dates = priceData.dates;
+        const dateSet = new Set(dates);
 
         const buyPoints = trades
-            .filter(t => t.entry_date)
+            .filter(t => t.entry_date && dateSet.has(t.entry_date))
             .map(t => ({
                 x: t.entry_date,
                 y: t.entry_price,
@@ -189,7 +190,7 @@
             }));
 
         const sellPoints = trades
-            .filter(t => t.exit_date)
+            .filter(t => t.exit_date && dateSet.has(t.exit_date))
             .map(t => ({
                 x: t.exit_date,
                 y: t.exit_price,
@@ -202,10 +203,11 @@
         chart = new Chart(ctx, {
             type: 'line',
             data: {
+                labels: dates,
                 datasets: [
                     {
                         label: '종가',
-                        data: pricePoints,
+                        data: priceData.closes,
                         borderColor: '#60a5fa',
                         backgroundColor: 'transparent',
                         borderWidth: 1.5,
@@ -250,12 +252,15 @@
                     tooltip: {
                         callbacks: {
                             title(items) {
-                                return items[0].raw.x;
+                                const raw = items[0].raw;
+                                if (typeof raw === 'object' && raw.x) return raw.x;
+                                return items[0].label;
                             },
                             label(item) {
                                 const raw = item.raw;
                                 if (item.dataset.label === '종가') {
-                                    return `종가: ${raw.y.toFixed(2)}`;
+                                    const val = typeof raw === 'object' ? raw.y : raw;
+                                    return `종가: ${val.toFixed(2)}`;
                                 }
                                 const t = raw.trade;
                                 if (item.dataset.label === '매수') {
