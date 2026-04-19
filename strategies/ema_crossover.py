@@ -1,14 +1,14 @@
 """
 Strategy 1: EMA Crossover Momentum
-Buy when EMA(12) crosses above EMA(26) with volume confirmation.
-Sell on dead cross, -4% stop-loss, or +10%/+15% take-profit.
+Buy when EMA(8) crosses above EMA(20) with volume confirmation.
+Sell on dead cross, -4% stop-loss, or +30% take-profit.
 """
 import pandas as pd
 from .base import BaseStrategy, Signal
 
 
 class EMACrossoverStrategy(BaseStrategy):
-    def __init__(self, fast: int = 10, slow: int = 20, vol_multiplier: float = 1.2):
+    def __init__(self, fast: int = 8, slow: int = 20, vol_multiplier: float = 1.2):
         self.fast = fast
         self.slow = slow
         self.vol_multiplier = vol_multiplier
@@ -43,16 +43,14 @@ class EMACrossoverStrategy(BaseStrategy):
         return Signal(
             direction=1,
             stop_loss=0.04,
-            take_profit=0.10,
-            take_profit2=0.15,
-            position_size=0.02 / 0.04,  # capital*2% / stop4% = 50% of capital unit
+            take_profit=0.30,
+            position_size=0.02 / 0.04,
         )
 
     def apply_stop_loss_take_profit(self, entry_price: float, current_price: float) -> int:
-        """Returns -1 (exit) or 0 (hold) based on price movement from entry."""
         pct = (current_price - entry_price) / entry_price
         if pct <= -0.04:
             return -1
-        if pct >= 0.10:
+        if pct >= 0.30:
             return -1
         return 0

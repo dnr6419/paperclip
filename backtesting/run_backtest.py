@@ -18,11 +18,11 @@ from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
 
 STRATEGIES = {
-    "EMA Crossover":    (EMACrossoverStrategy(),    {"stop_loss": 0.04, "take_profit": 0.15}),
-    "RSI Reversal":     (RSIReversalStrategy(),     {"stop_loss": 0.05, "take_profit": 0.07}),
+    "EMA Crossover":    (EMACrossoverStrategy(),    {"stop_loss": 0.04, "take_profit": 0.30}),
+    "RSI Reversal":     (RSIReversalStrategy(),     {"stop_loss": 0.04, "take_profit": 0.25}),
     "BB Squeeze":       (BBSqueezeStrategy(),       {"stop_loss": 0.05, "take_profit": 0.10}),
-    "Candle+RSI":       (CandleRSIStrategy(),       {"stop_loss": 0.04, "take_profit": 0.08}),
-    "ADX Trend":        (ADXTrendStrategy(),        {"stop_loss": 0.04, "take_profit": 0.15}),
+    "Candle+RSI":       (CandleRSIStrategy(),       {"stop_loss": 0.04, "take_profit": 0.20}),
+    "ADX Trend":        (ADXTrendStrategy(),        {"stop_loss": 0.04, "take_profit": 0.25}),
     "52W Breakout":     (High52WBreakoutStrategy(), {"stop_loss": 0.06, "take_profit": 0.20}),
 }
 

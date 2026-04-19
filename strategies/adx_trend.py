@@ -1,7 +1,7 @@
 """
 Strategy 6: ADX Trend Following Momentum
-Enter long when ADX > 25, +DI crosses above -DI, and price > SMA(50).
-Stop-loss: -5% or below SMA(50). Take-profit: +15%.
+Enter long when ADX > 15, +DI crosses above -DI, and price > SMA(50).
+Exit via take-profit (+25%) or stop-loss (-4%) only — no signal-based exits.
 """
 import pandas as pd
 import numpy as np
@@ -31,8 +31,8 @@ def compute_adx_full(high: pd.Series, low: pd.Series, close: pd.Series,
 
 
 class ADXTrendStrategy(BaseStrategy):
-    def __init__(self, adx_period: int = 14, adx_threshold: float = 25,
-                 sma_period: int = 50, vol_threshold: float = 1.5):
+    def __init__(self, adx_period: int = 14, adx_threshold: float = 15,
+                 sma_period: int = 50, vol_threshold: float = 1.0):
         self.adx_period = adx_period
         self.adx_threshold = adx_threshold
         self.sma_period = sma_period
@@ -58,34 +58,23 @@ class ADXTrendStrategy(BaseStrategy):
 
         buy = strong_trend & di_cross_up & above_sma & vol_confirm
 
-        # Sell: trend weakens or DI reverses
-        trend_weak = adx < 20
-        di_cross_down = (minus_di > plus_di) & (minus_di.shift(1) <= plus_di.shift(1))
-        sell = trend_weak | di_cross_down
-
+        # No signal-based exits — exits handled by engine's TP/SL for better returns
         signals = pd.Series(0, index=df.index)
         signals[buy] = 1
-        signals[sell & (signals != 1)] = -1
         return signals
 
     def get_signal_params(self) -> Signal:
         return Signal(
             direction=1,
-            stop_loss=0.05,
-            take_profit=0.15,
-            position_size=0.025 / 0.05,
+            stop_loss=0.04,
+            take_profit=0.25,
+            position_size=0.025 / 0.04,
         )
 
-    def apply_stop_loss_take_profit(self, entry_price: float, current_price: float,
-                                    peak_price: float, sma50: float) -> int:
+    def apply_stop_loss_take_profit(self, entry_price: float, current_price: float) -> int:
         pct = (current_price - entry_price) / entry_price
-        if pct <= -0.05:
+        if pct <= -0.04:
             return -1
-        if current_price < sma50:
-            return -1
-        # Trailing stop: -7% from peak
-        if peak_price > 0 and (current_price - peak_price) / peak_price <= -0.07:
-            return -1
-        if pct >= 0.15:
+        if pct >= 0.25:
             return -1
         return 0

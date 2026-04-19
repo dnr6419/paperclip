@@ -22,8 +22,8 @@ def compute_rsi(close: pd.Series, period: int = 14) -> pd.Series:
 
 
 class RSIReversalStrategy(BaseStrategy):
-    def __init__(self, rsi_period: int = 14, oversold: float = 30, overbought: float = 70,
-                 sell_rsi: float = 65, sma_period: int = 200):
+    def __init__(self, rsi_period: int = 14, oversold: float = 40, overbought: float = 70,
+                 sell_rsi: float = 70, sma_period: int = 200):
         self.rsi_period = rsi_period
         self.oversold = oversold
         self.overbought = overbought

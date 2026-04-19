@@ -56,45 +56,40 @@ class TestADXTrendSignals:
         signals = strategy.generate_signals(df)
         assert (signals == 1).any(), "Should generate buy in strong uptrend"
 
-    def test_sell_signals_in_downtrend(self):
+    def test_no_sell_signals(self):
         df = make_falling_ohlcv(n=200)
         strategy = ADXTrendStrategy()
         signals = strategy.generate_signals(df)
-        assert (signals == -1).any()
+        # Strategy uses TP/SL-only exits; no signal-based sells
+        assert (signals == -1).sum() == 0
 
 
 class TestADXTrendRiskParams:
     def test_stop_loss_fires(self, strategy):
         result = strategy.apply_stop_loss_take_profit(
-            entry_price=100, current_price=94.5, peak_price=102, sma50=98
+            entry_price=100, current_price=94.5
         )
         assert result == -1
 
-    def test_trailing_stop_fires(self, strategy):
+    def test_hold_below_take_profit(self, strategy):
         result = strategy.apply_stop_loss_take_profit(
-            entry_price=100, current_price=110, peak_price=120, sma50=108
+            entry_price=100, current_price=110
         )
-        assert result == -1  # 110 is -8.3% from peak 120
-
-    def test_below_sma50_exit(self, strategy):
-        result = strategy.apply_stop_loss_take_profit(
-            entry_price=100, current_price=104, peak_price=106, sma50=105
-        )
-        assert result == -1
+        assert result == 0
 
     def test_take_profit_fires(self, strategy):
         result = strategy.apply_stop_loss_take_profit(
-            entry_price=100, current_price=115.5, peak_price=115.5, sma50=110
+            entry_price=100, current_price=125.5
         )
         assert result == -1
 
     def test_hold_in_normal_trend(self, strategy):
         result = strategy.apply_stop_loss_take_profit(
-            entry_price=100, current_price=108, peak_price=110, sma50=104
+            entry_price=100, current_price=108
         )
         assert result == 0
 
     def test_params_valid(self, strategy):
         params = strategy.get_signal_params()
-        assert params.stop_loss == 0.05
-        assert params.take_profit == 0.15
+        assert params.stop_loss == 0.04
+        assert params.take_profit == 0.25

@@ -38,8 +38,8 @@ def is_morning_star(open_: pd.Series, high: pd.Series, low: pd.Series,
 
 
 class CandleRSIStrategy(BaseStrategy):
-    def __init__(self, rsi_period: int = 14, rsi_threshold: float = 40,
-                 vol_multiplier: float = 1.2):
+    def __init__(self, rsi_period: int = 14, rsi_threshold: float = 55,
+                 vol_multiplier: float = 1.0):
         self.rsi_period = rsi_period
         self.rsi_threshold = rsi_threshold
         self.vol_multiplier = vol_multiplier

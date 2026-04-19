@@ -46,21 +46,23 @@ class TestRSIReversalSignals:
         assert signals.index.equals(df.index)
 
     def test_buy_signal_on_rsi_bounce_from_oversold(self):
-        """Craft scenario with noisy recovery so RSI genuinely crosses 30."""
+        """Craft scenario where RSI genuinely drops below oversold=40 then crosses back above it."""
         rng = np.random.default_rng(7)
-        n = 150
+        n = 200
         dates = pd.date_range("2024-01-01", periods=n, freq="B")
-        # Base, sharp drop, then noisy recovery (not monotone — ensures RSI crosses)
-        base = [100.0] * 80
-        drop = [100 - i * 2.2 for i in range(20)]   # falls to ~56
-        recovery_noisy = list(56 + rng.normal(0.5, 1.5, 50).cumsum())
-        prices = base + drop + recovery_noisy
+        # Noisy base (alternating gains/losses → RSI ~50), sharp drop, noisy recovery
+        noisy_base = list(100 + rng.normal(0, 0.8, 80).cumsum())
+        drop = [noisy_base[-1] - i * 2.5 for i in range(20)]  # sharp decline
+        low = drop[-1]
+        recovery_noisy = list(low + rng.normal(0.8, 1.0, 100).cumsum())
+        prices = noisy_base + drop + recovery_noisy
         df = pd.DataFrame({
             "open": prices, "high": [p * 1.005 for p in prices],
             "low": [p * 0.995 for p in prices], "close": prices,
             "volume": [500_000] * n
         }, index=dates)
-        strategy = RSIReversalStrategy(sma_period=20)
+        # Use short SMA so recovering prices are quickly above it
+        strategy = RSIReversalStrategy(sma_period=5)
         signals = strategy.generate_signals(df)
         assert (signals == 1).any(), "Expected buy after RSI bounce from oversold"
 

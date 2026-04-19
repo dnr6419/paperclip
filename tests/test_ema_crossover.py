@@ -65,14 +65,17 @@ class TestEMACrossoverRiskParams:
         assert result == 0
 
     def test_take_profit_triggers_at_threshold(self, strategy):
-        result = strategy.apply_stop_loss_take_profit(entry_price=100, current_price=110)
+        result = strategy.apply_stop_loss_take_profit(entry_price=100, current_price=131)
         assert result == -1
+
+    def test_hold_before_take_profit(self, strategy):
+        result = strategy.apply_stop_loss_take_profit(entry_price=100, current_price=110)
+        assert result == 0
 
     def test_signal_params_valid(self, strategy):
         params = strategy.get_signal_params()
         assert params.stop_loss == 0.04
-        assert params.take_profit == 0.10
-        assert params.take_profit2 == 0.15
+        assert params.take_profit == 0.30
         assert params.position_size > 0
 
     def test_risk_reward_ratio(self, strategy):
