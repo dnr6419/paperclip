@@ -1,0 +1,750 @@
+{
+  "volatility_decay": {
+    "TQQQ": {
+      "ticker": "TQQQ",
+      "ann_volatility": 72.0,
+      "realized_cagr": 42.71,
+      "avg_60d_ret_high_vol_regime": -19.59,
+      "avg_60d_ret_low_vol_regime": 29.47,
+      "decay_spread_pct": 49.06,
+      "by_year": {
+        "2019": {
+          "return_pct": 130.37,
+          "ann_vol_pct": 48.0,
+          "max_drawdown_pct": -30.5
+        },
+        "2020": {
+          "return_pct": 100.13,
+          "ann_vol_pct": 104.4,
+          "max_drawdown_pct": -69.9
+        },
+        "2021": {
+          "return_pct": 91.35,
+          "ann_vol_pct": 54.1,
+          "max_drawdown_pct": -30.4
+        },
+        "2022": {
+          "return_pct": -79.78,
+          "ann_vol_pct": 95.6,
+          "max_drawdown_pct": -81.1
+        },
+        "2023": {
+          "return_pct": 199.82,
+          "ann_vol_pct": 53.4,
+          "max_drawdown_pct": -33.4
+        },
+        "2024": {
+          "return_pct": 64.41,
+          "ann_vol_pct": 53.7,
+          "max_drawdown_pct": -37.4
+        }
+      }
+    },
+    "SOXL": {
+      "ticker": "SOXL",
+      "ann_volatility": 104.7,
+      "realized_cagr": 29.88,
+      "avg_60d_ret_high_vol_regime": -30.71,
+      "avg_60d_ret_low_vol_regime": 32.07,
+      "decay_spread_pct": 62.78,
+      "by_year": {
+        "2019": {
+          "return_pct": 221.31,
+          "ann_vol_pct": 78.7,
+          "max_drawdown_pct": -47.2
+        },
+        "2020": {
+          "return_pct": 59.78,
+          "ann_vol_pct": 131.3,
+          "max_drawdown_pct": -80.4
+        },
+        "2021": {
+          "return_pct": 121.75,
+          "ann_vol_pct": 89.6,
+          "max_drawdown_pct": -40.9
+        },
+        "2022": {
+          "return_pct": -86.59,
+          "ann_vol_pct": 129.7,
+          "max_drawdown_pct": -90.4
+        },
+        "2023": {
+          "return_pct": 235.47,
+          "ann_vol_pct": 84.0,
+          "max_drawdown_pct": -49.1
+        },
+        "2024": {
+          "return_pct": -2.6,
+          "ann_vol_pct": 101.8,
+          "max_drawdown_pct": -62.2
+        }
+      }
+    }
+  },
+  "in_sample": {
+    "A: Tight TP Uptrend Dip": {
+      "TQQQ": {
+        "cagr": -29.58,
+        "mdd": 65.08,
+        "sharpe": -1.359,
+        "win_rate": 47.1,
+        "profit_factor": 0.24,
+        "total_trades": 34,
+        "avg_holding_days": 3.3,
+        "avg_win_pct": 1.94,
+        "avg_loss_pct": -7.19,
+        "exit_reasons": {
+          "stop_loss": 12,
+          "take_profit": 14,
+          "signal": 8
+        }
+      },
+      "SOXL": {
+        "cagr": -39.42,
+        "mdd": 78.2,
+        "sharpe": -1.837,
+        "win_rate": 55.0,
+        "profit_factor": 0.22,
+        "total_trades": 40,
+        "avg_holding_days": 2.6,
+        "avg_win_pct": 1.8,
+        "avg_loss_pct": -10.0,
+        "exit_reasons": {
+          "take_profit": 19,
+          "stop_loss": 18,
+          "signal": 3
+        }
+      }
+    },
+    "B: Micro Scalp": {
+      "TQQQ": {
+        "cagr": -48.64,
+        "mdd": 86.65,
+        "sharpe": -2.17,
+        "win_rate": 47.5,
+        "profit_factor": 0.18,
+        "total_trades": 59,
+        "avg_holding_days": 2.7,
+        "avg_win_pct": 1.5,
+        "avg_loss_pct": -7.38,
+        "exit_reasons": {
+          "take_profit": 28,
+          "stop_loss": 14,
+          "signal": 17
+        }
+      },
+      "SOXL": {
+        "cagr": -59.26,
+        "mdd": 93.24,
+        "sharpe": -2.409,
+        "win_rate": 56.3,
+        "profit_factor": 0.19,
+        "total_trades": 71,
+        "avg_holding_days": 2.2,
+        "avg_win_pct": 1.44,
+        "avg_loss_pct": -9.94,
+        "exit_reasons": {
+          "stop_loss": 21,
+          "take_profit": 38,
+          "signal": 12
+        }
+      }
+    },
+    "C: Trend Dip RSI(5)": {
+      "TQQQ": null,
+      "SOXL": null
+    },
+    "D: Momentum Burst": {
+      "TQQQ": {
+        "cagr": 6.9,
+        "mdd": 25.15,
+        "sharpe": 0.386,
+        "win_rate": 76.3,
+        "profit_factor": 1.23,
+        "total_trades": 118,
+        "avg_holding_days": 1.5,
+        "avg_win_pct": 1.49,
+        "avg_loss_pct": -3.89,
+        "exit_reasons": {
+          "signal": 23,
+          "take_profit": 89,
+          "stop_loss": 6
+        },
+        "monthly_trade_count": {
+          "2020-01": 4,
+          "2020-02": 4,
+          "2020-04": 5,
+          "2020-05": 4,
+          "2020-06": 8,
+          "2020-07": 5,
+          "2020-08": 7,
+          "2020-09": 2,
+          "2020-10": 3,
+          "2020-11": 5,
+          "2020-12": 6,
+          "2021-01": 3,
+          "2021-02": 3,
+          "2021-03": 2,
+          "2021-04": 4,
+          "2021-05": 1,
+          "2021-06": 6,
+          "2021-07": 6,
+          "2021-08": 5,
+          "2021-09": 2,
+          "2021-10": 4,
+          "2021-11": 6,
+          "2021-12": 3,
+          "2022-02": 1,
+          "2022-03": 3,
+          "2022-05": 1,
+          "2022-06": 2,
+          "2022-07": 4,
+          "2022-08": 3,
+          "2022-09": 1,
+          "2022-10": 1,
+          "2022-11": 2,
+          "2022-12": 2
+        }
+      },
+      "SOXL": {
+        "cagr": 4.23,
+        "mdd": 34.48,
+        "sharpe": 0.3,
+        "win_rate": 84.8,
+        "profit_factor": 1.17,
+        "total_trades": 99,
+        "avg_holding_days": 1.5,
+        "avg_win_pct": 1.49,
+        "avg_loss_pct": -7.1,
+        "exit_reasons": {
+          "signal": 10,
+          "take_profit": 83,
+          "stop_loss": 6
+        },
+        "monthly_trade_count": {
+          "2020-01": 3,
+          "2020-02": 3,
+          "2020-04": 3,
+          "2020-05": 3,
+          "2020-06": 6,
+          "2020-07": 4,
+          "2020-08": 3,
+          "2020-09": 4,
+          "2020-10": 2,
+          "2020-11": 5,
+          "2020-12": 5,
+          "2021-01": 2,
+          "2021-02": 3,
+          "2021-03": 4,
+          "2021-04": 2,
+          "2021-05": 3,
+          "2021-06": 3,
+          "2021-07": 3,
+          "2021-08": 5,
+          "2021-09": 4,
+          "2021-10": 3,
+          "2021-11": 5,
+          "2021-12": 2,
+          "2022-02": 1,
+          "2022-03": 3,
+          "2022-05": 2,
+          "2022-07": 3,
+          "2022-08": 4,
+          "2022-10": 1,
+          "2022-11": 4,
+          "2022-12": 1
+        }
+      }
+    }
+  },
+  "out_of_sample": {
+    "A: Tight TP Uptrend Dip": {
+      "TQQQ": {
+        "cagr": -17.91,
+        "mdd": 35.48,
+        "sharpe": -0.643,
+        "win_rate": 60.6,
+        "profit_factor": 0.49,
+        "total_trades": 33,
+        "avg_holding_days": 4.1,
+        "avg_win_pct": 1.68,
+        "avg_loss_pct": -5.33,
+        "exit_reasons": {
+          "signal": 11,
+          "stop_loss": 6,
+          "take_profit": 16
+        }
+      },
+      "SOXL": {
+        "cagr": -39.68,
+        "mdd": 65.45,
+        "sharpe": -1.953,
+        "win_rate": 52.0,
+        "profit_factor": 0.22,
+        "total_trades": 25,
+        "avg_holding_days": 1.8,
+        "avg_win_pct": 2.0,
+        "avg_loss_pct": -10.0,
+        "exit_reasons": {
+          "take_profit": 13,
+          "stop_loss": 12
+        }
+      }
+    },
+    "B: Micro Scalp": {
+      "TQQQ": {
+        "cagr": -21.28,
+        "mdd": 44.57,
+        "sharpe": -0.895,
+        "win_rate": 59.5,
+        "profit_factor": 0.42,
+        "total_trades": 37,
+        "avg_holding_days": 3.2,
+        "avg_win_pct": 1.44,
+        "avg_loss_pct": -5.09,
+        "exit_reasons": {
+          "take_profit": 21,
+          "signal": 15,
+          "stop_loss": 1
+        }
+      },
+      "SOXL": {
+        "cagr": -49.32,
+        "mdd": 74.17,
+        "sharpe": -1.967,
+        "win_rate": 63.0,
+        "profit_factor": 0.25,
+        "total_trades": 46,
+        "avg_holding_days": 2.3,
+        "avg_win_pct": 1.47,
+        "avg_loss_pct": -9.88,
+        "exit_reasons": {
+          "stop_loss": 10,
+          "take_profit": 28,
+          "signal": 7,
+          "end": 1
+        }
+      }
+    },
+    "C: Trend Dip RSI(5)": {
+      "TQQQ": null,
+      "SOXL": {
+        "cagr": -4.1,
+        "mdd": 8.07,
+        "sharpe": -0.702,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "total_trades": 1,
+        "avg_holding_days": 1.0,
+        "avg_loss_pct": -8.0,
+        "exit_reasons": {
+          "stop_loss": 1
+        }
+      }
+    },
+    "D: Momentum Burst": {
+      "TQQQ": {
+        "cagr": 34.05,
+        "mdd": 11.95,
+        "sharpe": 1.31,
+        "win_rate": 80.9,
+        "profit_factor": 2.2,
+        "total_trades": 94,
+        "avg_holding_days": 1.7,
+        "avg_win_pct": 1.45,
+        "avg_loss_pct": -2.79,
+        "exit_reasons": {
+          "take_profit": 73,
+          "signal": 21
+        },
+        "monthly_trade_count": {
+          "2023-01": 5,
+          "2023-02": 2,
+          "2023-03": 6,
+          "2023-04": 2,
+          "2023-05": 5,
+          "2023-06": 5,
+          "2023-07": 6,
+          "2023-08": 2,
+          "2023-09": 2,
+          "2023-10": 2,
+          "2023-11": 4,
+          "2023-12": 5,
+          "2024-01": 6,
+          "2024-02": 3,
+          "2024-03": 4,
+          "2024-04": 2,
+          "2024-05": 5,
+          "2024-06": 5,
+          "2024-07": 4,
+          "2024-08": 2,
+          "2024-09": 4,
+          "2024-10": 5,
+          "2024-11": 4,
+          "2024-12": 4
+        }
+      },
+      "SOXL": {
+        "cagr": 10.87,
+        "mdd": 30.7,
+        "sharpe": 0.46,
+        "win_rate": 83.3,
+        "profit_factor": 1.41,
+        "total_trades": 66,
+        "avg_holding_days": 1.7,
+        "avg_win_pct": 1.47,
+        "avg_loss_pct": -5.24,
+        "exit_reasons": {
+          "take_profit": 54,
+          "stop_loss": 3,
+          "signal": 9
+        },
+        "monthly_trade_count": {
+          "2023-01": 5,
+          "2023-02": 2,
+          "2023-03": 3,
+          "2023-05": 2,
+          "2023-06": 4,
+          "2023-07": 4,
+          "2023-08": 3,
+          "2023-10": 1,
+          "2023-11": 5,
+          "2023-12": 5,
+          "2024-01": 3,
+          "2024-02": 2,
+          "2024-03": 4,
+          "2024-04": 2,
+          "2024-05": 4,
+          "2024-06": 3,
+          "2024-07": 3,
+          "2024-09": 2,
+          "2024-10": 4,
+          "2024-11": 1,
+          "2024-12": 4
+        }
+      }
+    }
+  },
+  "passing_80pct": [
+    {
+      "period": "in_sample",
+      "strategy": "D: Momentum Burst",
+      "ticker": "SOXL",
+      "cagr": 4.23,
+      "mdd": 34.48,
+      "sharpe": 0.3,
+      "win_rate": 84.8,
+      "profit_factor": 1.17,
+      "total_trades": 99,
+      "avg_holding_days": 1.5,
+      "avg_win_pct": 1.49,
+      "avg_loss_pct": -7.1,
+      "exit_reasons": {
+        "signal": 10,
+        "take_profit": 83,
+        "stop_loss": 6
+      },
+      "monthly_trade_count": {
+        "2020-01": 3,
+        "2020-02": 3,
+        "2020-04": 3,
+        "2020-05": 3,
+        "2020-06": 6,
+        "2020-07": 4,
+        "2020-08": 3,
+        "2020-09": 4,
+        "2020-10": 2,
+        "2020-11": 5,
+        "2020-12": 5,
+        "2021-01": 2,
+        "2021-02": 3,
+        "2021-03": 4,
+        "2021-04": 2,
+        "2021-05": 3,
+        "2021-06": 3,
+        "2021-07": 3,
+        "2021-08": 5,
+        "2021-09": 4,
+        "2021-10": 3,
+        "2021-11": 5,
+        "2021-12": 2,
+        "2022-02": 1,
+        "2022-03": 3,
+        "2022-05": 2,
+        "2022-07": 3,
+        "2022-08": 4,
+        "2022-10": 1,
+        "2022-11": 4,
+        "2022-12": 1
+      }
+    },
+    {
+      "period": "out_of_sample",
+      "strategy": "D: Momentum Burst",
+      "ticker": "TQQQ",
+      "cagr": 34.05,
+      "mdd": 11.95,
+      "sharpe": 1.31,
+      "win_rate": 80.9,
+      "profit_factor": 2.2,
+      "total_trades": 94,
+      "avg_holding_days": 1.7,
+      "avg_win_pct": 1.45,
+      "avg_loss_pct": -2.79,
+      "exit_reasons": {
+        "take_profit": 73,
+        "signal": 21
+      },
+      "monthly_trade_count": {
+        "2023-01": 5,
+        "2023-02": 2,
+        "2023-03": 6,
+        "2023-04": 2,
+        "2023-05": 5,
+        "2023-06": 5,
+        "2023-07": 6,
+        "2023-08": 2,
+        "2023-09": 2,
+        "2023-10": 2,
+        "2023-11": 4,
+        "2023-12": 5,
+        "2024-01": 6,
+        "2024-02": 3,
+        "2024-03": 4,
+        "2024-04": 2,
+        "2024-05": 5,
+        "2024-06": 5,
+        "2024-07": 4,
+        "2024-08": 2,
+        "2024-09": 4,
+        "2024-10": 5,
+        "2024-11": 4,
+        "2024-12": 4
+      }
+    },
+    {
+      "period": "out_of_sample",
+      "strategy": "D: Momentum Burst",
+      "ticker": "SOXL",
+      "cagr": 10.87,
+      "mdd": 30.7,
+      "sharpe": 0.46,
+      "win_rate": 83.3,
+      "profit_factor": 1.41,
+      "total_trades": 66,
+      "avg_holding_days": 1.7,
+      "avg_win_pct": 1.47,
+      "avg_loss_pct": -5.24,
+      "exit_reasons": {
+        "take_profit": 54,
+        "stop_loss": 3,
+        "signal": 9
+      },
+      "monthly_trade_count": {
+        "2023-01": 5,
+        "2023-02": 2,
+        "2023-03": 3,
+        "2023-05": 2,
+        "2023-06": 4,
+        "2023-07": 4,
+        "2023-08": 3,
+        "2023-10": 1,
+        "2023-11": 5,
+        "2023-12": 5,
+        "2024-01": 3,
+        "2024-02": 2,
+        "2024-03": 4,
+        "2024-04": 2,
+        "2024-05": 4,
+        "2024-06": 3,
+        "2024-07": 3,
+        "2024-09": 2,
+        "2024-10": 4,
+        "2024-11": 1,
+        "2024-12": 4
+      }
+    }
+  ],
+  "momentum_burst_summary": {
+    "in_sample/TQQQ": {
+      "cagr": 6.9,
+      "mdd": 25.15,
+      "sharpe": 0.386,
+      "win_rate": 76.3,
+      "profit_factor": 1.23,
+      "total_trades": 118,
+      "avg_holding_days": 1.5,
+      "avg_win_pct": 1.49,
+      "avg_loss_pct": -3.89,
+      "exit_reasons": {
+        "signal": 23,
+        "take_profit": 89,
+        "stop_loss": 6
+      },
+      "monthly_trade_count": {
+        "2020-01": 4,
+        "2020-02": 4,
+        "2020-04": 5,
+        "2020-05": 4,
+        "2020-06": 8,
+        "2020-07": 5,
+        "2020-08": 7,
+        "2020-09": 2,
+        "2020-10": 3,
+        "2020-11": 5,
+        "2020-12": 6,
+        "2021-01": 3,
+        "2021-02": 3,
+        "2021-03": 2,
+        "2021-04": 4,
+        "2021-05": 1,
+        "2021-06": 6,
+        "2021-07": 6,
+        "2021-08": 5,
+        "2021-09": 2,
+        "2021-10": 4,
+        "2021-11": 6,
+        "2021-12": 3,
+        "2022-02": 1,
+        "2022-03": 3,
+        "2022-05": 1,
+        "2022-06": 2,
+        "2022-07": 4,
+        "2022-08": 3,
+        "2022-09": 1,
+        "2022-10": 1,
+        "2022-11": 2,
+        "2022-12": 2
+      }
+    },
+    "in_sample/SOXL": {
+      "cagr": 4.23,
+      "mdd": 34.48,
+      "sharpe": 0.3,
+      "win_rate": 84.8,
+      "profit_factor": 1.17,
+      "total_trades": 99,
+      "avg_holding_days": 1.5,
+      "avg_win_pct": 1.49,
+      "avg_loss_pct": -7.1,
+      "exit_reasons": {
+        "signal": 10,
+        "take_profit": 83,
+        "stop_loss": 6
+      },
+      "monthly_trade_count": {
+        "2020-01": 3,
+        "2020-02": 3,
+        "2020-04": 3,
+        "2020-05": 3,
+        "2020-06": 6,
+        "2020-07": 4,
+        "2020-08": 3,
+        "2020-09": 4,
+        "2020-10": 2,
+        "2020-11": 5,
+        "2020-12": 5,
+        "2021-01": 2,
+        "2021-02": 3,
+        "2021-03": 4,
+        "2021-04": 2,
+        "2021-05": 3,
+        "2021-06": 3,
+        "2021-07": 3,
+        "2021-08": 5,
+        "2021-09": 4,
+        "2021-10": 3,
+        "2021-11": 5,
+        "2021-12": 2,
+        "2022-02": 1,
+        "2022-03": 3,
+        "2022-05": 2,
+        "2022-07": 3,
+        "2022-08": 4,
+        "2022-10": 1,
+        "2022-11": 4,
+        "2022-12": 1
+      }
+    },
+    "out_of_sample/TQQQ": {
+      "cagr": 34.05,
+      "mdd": 11.95,
+      "sharpe": 1.31,
+      "win_rate": 80.9,
+      "profit_factor": 2.2,
+      "total_trades": 94,
+      "avg_holding_days": 1.7,
+      "avg_win_pct": 1.45,
+      "avg_loss_pct": -2.79,
+      "exit_reasons": {
+        "take_profit": 73,
+        "signal": 21
+      },
+      "monthly_trade_count": {
+        "2023-01": 5,
+        "2023-02": 2,
+        "2023-03": 6,
+        "2023-04": 2,
+        "2023-05": 5,
+        "2023-06": 5,
+        "2023-07": 6,
+        "2023-08": 2,
+        "2023-09": 2,
+        "2023-10": 2,
+        "2023-11": 4,
+        "2023-12": 5,
+        "2024-01": 6,
+        "2024-02": 3,
+        "2024-03": 4,
+        "2024-04": 2,
+        "2024-05": 5,
+        "2024-06": 5,
+        "2024-07": 4,
+        "2024-08": 2,
+        "2024-09": 4,
+        "2024-10": 5,
+        "2024-11": 4,
+        "2024-12": 4
+      }
+    },
+    "out_of_sample/SOXL": {
+      "cagr": 10.87,
+      "mdd": 30.7,
+      "sharpe": 0.46,
+      "win_rate": 83.3,
+      "profit_factor": 1.41,
+      "total_trades": 66,
+      "avg_holding_days": 1.7,
+      "avg_win_pct": 1.47,
+      "avg_loss_pct": -5.24,
+      "exit_reasons": {
+        "take_profit": 54,
+        "stop_loss": 3,
+        "signal": 9
+      },
+      "monthly_trade_count": {
+        "2023-01": 5,
+        "2023-02": 2,
+        "2023-03": 3,
+        "2023-05": 2,
+        "2023-06": 4,
+        "2023-07": 4,
+        "2023-08": 3,
+        "2023-10": 1,
+        "2023-11": 5,
+        "2023-12": 5,
+        "2024-01": 3,
+        "2024-02": 2,
+        "2024-03": 4,
+        "2024-04": 2,
+        "2024-05": 4,
+        "2024-06": 3,
+        "2024-07": 3,
+        "2024-09": 2,
+        "2024-10": 4,
+        "2024-11": 1,
+        "2024-12": 4
+      }
+    }
+  }
+}
