@@ -163,21 +163,22 @@
     }
 
     async function loadChart(ticker) {
-        if (!ticker) {
+        const chartTicker = ticker || (allTickers.length > 0 ? allTickers[0] : null);
+        if (!chartTicker) {
             if (chart) { chart.destroy(); chart = null; }
-            document.getElementById('chartTitle').textContent = '';
+            document.getElementById('chartTitle').textContent = '종목 데이터 없음';
             return;
         }
-        document.getElementById('chartTitle').textContent = `${ticker} 가격 로딩 중...`;
+        document.getElementById('chartTitle').textContent = `${chartTicker} 가격 로딩 중...`;
         try {
             const resp = await fetch(
-                `/api/strategy/${encodeURIComponent(STRATEGY)}/price?period=${PERIOD}&ticker=${encodeURIComponent(ticker)}`
+                `/api/strategy/${encodeURIComponent(STRATEGY)}/price?period=${PERIOD}&ticker=${encodeURIComponent(chartTicker)}`
             );
             if (!resp.ok) { document.getElementById('chartTitle').textContent = '가격 데이터 없음'; return; }
             const priceData = await resp.json();
 
-            const tradesForTicker = allTrades.filter(t => t.ticker === ticker);
-            renderChart(priceData, tradesForTicker, ticker);
+            const tradesForTicker = allTrades.filter(t => t.ticker === chartTicker);
+            renderChart(priceData, tradesForTicker, chartTicker);
         } catch (e) {
             document.getElementById('chartTitle').textContent = '차트 로드 실패: ' + e.message;
             console.error('Chart load error:', e);
