@@ -25,6 +25,7 @@ from .mfi_mean_reversion import MFIMeanReversionStrategy
 from .parabolic_sar import ParabolicSARStrategy
 from .ttm_squeeze import TTMSqueezeStrategy
 from .trix_momentum import TRIXMomentumStrategy
+from .connors_rsi import ConnorsRSIStrategy, compute_crsi
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -55,4 +56,6 @@ __all__ = [
     "ParabolicSARStrategy",
     "TTMSqueezeStrategy",
     "TRIXMomentumStrategy",
+    "ConnorsRSIStrategy",
+    "compute_crsi",
 ]
