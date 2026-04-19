@@ -1,0 +1,27 @@
+{
+  "best_params": {
+    "trix_period": 10,
+    "signal_period": 9,
+    "stop_loss": 0.04,
+    "take_profit": 0.1
+  },
+  "in_sample": {
+    "cagr": 8.56,
+    "mdd": 2.52,
+    "sharpe": 2.24,
+    "win_rate": 54.7,
+    "profit_factor": 2.71,
+    "total_trades": 223,
+    "avg_holding_days": 10.1
+  },
+  "out_of_sample": {
+    "cagr": 11.21,
+    "mdd": 3.11,
+    "sharpe": 2.701,
+    "win_rate": 56.3,
+    "profit_factor": 2.74,
+    "total_trades": 151,
+    "avg_holding_days": 9.8
+  },
+  "within_60_day_holding": true
+}
