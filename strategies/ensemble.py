@@ -4,7 +4,7 @@ Strategy 12: Cluster Ensemble with Regime Filter
 Combines three strategy clusters with cluster-level weighting:
   - Trend-Following   35%: EMA Crossover, ADX Trend, 52W Breakout, ATR Breakout
   - Momentum          30%: MACD Momentum, MTM, DCB
-  - Mean-Reversion    35%: RSI Reversal, Candle+RSI, VWB, Gap Fill
+  - Mean-Reversion    35%: RSI Reversal, Candle+RSI, VWB
 
 Regime filter (200-day MA + volatility ratio + ADX) scales each cluster's
 effective weight dynamically:
@@ -28,7 +28,6 @@ from .dcb             import DCBStrategy
 from .rsi_reversal    import RSIReversalStrategy, compute_rsi
 from .candle_rsi      import CandleRSIStrategy
 from .vwb             import VWBStrategy
-from .gap_fill        import GapFillStrategy
 
 
 # ── Regime detection helpers ──────────────────────────────────────────────────
@@ -126,7 +125,6 @@ MEAN_REVERSION_STRATEGIES = [
     RSIReversalStrategy(),
     CandleRSIStrategy(),
     VWBStrategy(),
-    GapFillStrategy(gap_threshold=0.015, rsi_oversold=35),
 ]
 
 # Base cluster weights (must sum to 1.0)
