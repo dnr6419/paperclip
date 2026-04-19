@@ -116,6 +116,10 @@
     </div>
 
     <script>
+    window.onerror = function(msg, url, line, col, err) {
+        const el = document.getElementById('chartTitle');
+        if (el) el.textContent = 'JS Error: ' + msg + ' (line ' + line + ')';
+    };
     const STRATEGY = {{ strategy_name | tojson }};
     const PERIOD   = {{ selected_period | tojson }};
 
@@ -126,6 +130,7 @@
     let sortAsc = true;
 
     async function loadTrades() {
+        try {
         const resp = await fetch(`/api/strategy/${encodeURIComponent(STRATEGY)}/trades?period=${PERIOD}`);
         if (!resp.ok) {
             document.getElementById('tradeTableBody').innerHTML =
@@ -150,6 +155,10 @@
         if (allTickers.length > 0) {
             tickerSelect.value = allTickers[0];
             await loadChart(allTickers[0]);
+        }
+        } catch(e) {
+            document.getElementById('chartTitle').textContent = 'loadTrades error: ' + e.message;
+            console.error('loadTrades error:', e);
         }
     }
 

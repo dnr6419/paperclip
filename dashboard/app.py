@@ -581,3 +581,71 @@ async def api_strategy_price(strategy_name: str, ticker: str, period: str = "med
         "dates": [d.strftime("%Y-%m-%d") for d in df.index],
         "closes": [round(float(v), 2) for v in df["close"]],
     }
+
+
+@app.get("/debug/chart-test", response_class=HTMLResponse)
+async def debug_chart_test():
+    return """<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head><body style="background:#0f1117;color:#fff;font-family:sans-serif;padding:20px;">
+<h3 id="status">Loading...</h3>
+<div style="position:relative;height:400px;background:#1a1d27;border-radius:8px;padding:10px;">
+<canvas id="testChart"></canvas>
+</div>
+<pre id="log" style="color:#888;margin-top:12px;font-size:12px;"></pre>
+<script>
+const log = (m) => { document.getElementById('log').textContent += m + '\\n'; };
+try {
+    log('Chart.js version: ' + (typeof Chart !== 'undefined' ? Chart.version : 'NOT LOADED'));
+    if (typeof Chart === 'undefined') {
+        document.getElementById('status').textContent = 'ERROR: Chart.js not loaded';
+    } else {
+        const labels = [];
+        const data = [];
+        for (let i = 0; i < 100; i++) {
+            const d = new Date(2024, 0, 1 + i);
+            if (d.getDay() !== 0 && d.getDay() !== 6) {
+                labels.push(d.toISOString().slice(0, 10));
+                data.push(100 + Math.random() * 20);
+            }
+        }
+        const buyData = new Array(labels.length).fill(null);
+        buyData[10] = data[10];
+        buyData[30] = data[30];
+        const buyRadius = buyData.map(v => v !== null ? 8 : 0);
+        log('labels: ' + labels.length + ', data: ' + data.length);
+        log('buyData non-null: ' + buyData.filter(v => v !== null).length);
+        const ctx = document.getElementById('testChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Price', data: data, borderColor: '#60a5fa', borderWidth: 1.5,
+                      pointRadius: 0, tension: 0, order: 2 },
+                    { label: 'Buy', data: buyData, showLine: false,
+                      backgroundColor: '#22c55e', borderColor: '#16a34a', borderWidth: 1,
+                      pointRadius: buyRadius, pointStyle: 'triangle', pointHoverRadius: 9,
+                      spanGaps: false, order: 1 },
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true, labels: { color: '#aaa' } } },
+                scales: {
+                    x: { ticks: { color: '#888', maxTicksLimit: 10, maxRotation: 0 }, grid: { color: '#1e2030' } },
+                    y: { ticks: { color: '#888' }, grid: { color: '#1e2030' } }
+                }
+            }
+        });
+        log('Chart created successfully, datasets: ' + chart.data.datasets.length);
+        document.getElementById('status').textContent = 'Chart rendered OK';
+        document.getElementById('status').style.color = '#22c55e';
+    }
+} catch(e) {
+    log('ERROR: ' + e.message + '\\n' + e.stack);
+    document.getElementById('status').textContent = 'ERROR: ' + e.message;
+    document.getElementById('status').style.color = '#ef4444';
+}
+</script></body></html>"""
