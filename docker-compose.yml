@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: backtesting
+      POSTGRES_USER: backtest
+      POSTGRES_PASSWORD: backtest
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  dashboard:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      BACKTEST_DB_HOST: db
+      BACKTEST_DB_PORT: "5432"
+      BACKTEST_DB_NAME: backtesting
+      BACKTEST_DB_USER: backtest
+      BACKTEST_DB_PASSWORD: backtest
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
