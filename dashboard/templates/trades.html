@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ strategy_name }} — 체결 차트</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
@@ -171,7 +170,8 @@
             const tradesForTicker = allTrades.filter(t => t.ticker === ticker);
             renderChart(priceData, tradesForTicker, ticker);
         } catch (e) {
-            document.getElementById('chartTitle').textContent = '차트 로드 실패';
+            document.getElementById('chartTitle').textContent = '차트 로드 실패: ' + e.message;
+            console.error('Chart load error:', e);
         }
     }
 
@@ -179,23 +179,26 @@
         document.getElementById('chartTitle').textContent = `${ticker} — ${trades.length}건 체결`;
 
         const dates = priceData.dates;
-        const dateSet = new Set(dates);
+        const dateIndex = {};
+        dates.forEach((d, i) => { dateIndex[d] = i; });
 
-        const buyPoints = trades
-            .filter(t => t.entry_date && dateSet.has(t.entry_date))
-            .map(t => ({
-                x: t.entry_date,
-                y: t.entry_price,
-                trade: t,
-            }));
+        const buyData = new Array(dates.length).fill(null);
+        const sellData = new Array(dates.length).fill(null);
+        const buyMeta = {};
+        const sellMeta = {};
 
-        const sellPoints = trades
-            .filter(t => t.exit_date && dateSet.has(t.exit_date))
-            .map(t => ({
-                x: t.exit_date,
-                y: t.exit_price,
-                trade: t,
-            }));
+        trades.forEach(t => {
+            if (t.entry_date && dateIndex[t.entry_date] !== undefined) {
+                const idx = dateIndex[t.entry_date];
+                buyData[idx] = t.entry_price;
+                buyMeta[idx] = t;
+            }
+            if (t.exit_date && dateIndex[t.exit_date] !== undefined) {
+                const idx = dateIndex[t.exit_date];
+                sellData[idx] = t.exit_price;
+                sellMeta[idx] = t;
+            }
+        });
 
         if (chart) chart.destroy();
 
@@ -218,27 +221,29 @@
                     },
                     {
                         label: '매수',
-                        data: buyPoints,
-                        type: 'scatter',
+                        data: buyData,
+                        showLine: false,
                         backgroundColor: '#22c55e',
                         borderColor: '#16a34a',
                         borderWidth: 1,
-                        pointRadius: 7,
+                        pointRadius: buyData.map(v => v !== null ? 7 : 0),
                         pointStyle: 'triangle',
                         pointHoverRadius: 9,
+                        spanGaps: false,
                         order: 1,
                     },
                     {
                         label: '매도',
-                        data: sellPoints,
-                        type: 'scatter',
+                        data: sellData,
+                        showLine: false,
                         backgroundColor: '#ef4444',
                         borderColor: '#dc2626',
                         borderWidth: 1,
-                        pointRadius: 7,
+                        pointRadius: sellData.map(v => v !== null ? 7 : 0),
                         pointStyle: 'triangle',
                         rotation: 180,
                         pointHoverRadius: 9,
+                        spanGaps: false,
                         order: 2,
                     },
                 ],
@@ -250,19 +255,21 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        filter(item) {
+                            return item.raw !== null;
+                        },
                         callbacks: {
                             title(items) {
-                                const raw = items[0].raw;
-                                if (typeof raw === 'object' && raw.x) return raw.x;
                                 return items[0].label;
                             },
                             label(item) {
-                                const raw = item.raw;
                                 if (item.dataset.label === '종가') {
-                                    const val = typeof raw === 'object' ? raw.y : raw;
-                                    return `종가: ${val.toFixed(2)}`;
+                                    return `종가: ${item.raw.toFixed(2)}`;
                                 }
-                                const t = raw.trade;
+                                const idx = item.dataIndex;
+                                const meta = item.dataset.label === '매수' ? buyMeta : sellMeta;
+                                const t = meta[idx];
+                                if (!t) return `${item.dataset.label}: ${item.raw.toFixed(2)}`;
                                 if (item.dataset.label === '매수') {
                                     return [`매수가: ${t.entry_price.toFixed(2)}`, `→ 청산: ${t.exit_price.toFixed(2)} (${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%)`, `보유: ${t.holding_days}일`];
                                 }
@@ -278,7 +285,6 @@
                 },
                 scales: {
                     x: {
-                        type: 'category',
                         ticks: { color: '#888', font: { size: 11 }, maxTicksLimit: 12, maxRotation: 0 },
                         grid: { color: '#1e2030' },
                     },
