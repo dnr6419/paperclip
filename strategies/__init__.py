@@ -16,6 +16,7 @@ from .leveraged_etf_oversold import LETFMomentumBurstStrategy
 from .keltner_channel_mr import KeltnerChannelMRStrategy
 from .vix_spike_reversion import VIXSpikeReversionStrategy
 from .stoch_mr import StochasticMRStrategy
+from .ichimoku_cloud_breakout import IchimokuCloudBreakoutStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -37,4 +38,5 @@ __all__ = [
     "KeltnerChannelMRStrategy",
     "VIXSpikeReversionStrategy",
     "StochasticMRStrategy",
+    "IchimokuCloudBreakoutStrategy",
 ]
