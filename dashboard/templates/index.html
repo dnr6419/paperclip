@@ -12,7 +12,7 @@
         .header h1 { font-size: 22px; color: #fff; }
         .header p { font-size: 13px; color: #888; margin-top: 4px; }
         .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
         .tab { padding: 8px 20px; border-radius: 6px; background: #1a1d27; border: 1px solid #2a2d3a; color: #aaa; cursor: pointer; font-size: 14px; }
         .tab.active { background: #2563eb; border-color: #2563eb; color: #fff; }
         .section { display: none; }
@@ -36,11 +36,44 @@
         .badge-is { background: #1e3a5f; color: #60a5fa; }
         .badge-oos { background: #1a3a2a; color: #22c55e; }
         .badge-deprecated { background: #3a2a1a; color: #f59e0b; }
+        .badge-buy { background: #1a3a2a; color: #22c55e; }
+        .badge-sell { background: #3a1a1a; color: #ef4444; }
         .card.deprecated { opacity: 0.55; }
         .db-note { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #888; }
         .db-note .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
         .dot-on { background: #22c55e; }
         .dot-off { background: #ef4444; }
+
+        .manual-section { margin-bottom: 16px; }
+        .manual-section h4 { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .manual-list { list-style: none; padding: 0; }
+        .manual-list li { padding: 6px 0 6px 16px; position: relative; font-size: 13px; line-height: 1.5; color: #ccc; }
+        .manual-list li::before { content: ''; position: absolute; left: 0; top: 12px; width: 6px; height: 6px; border-radius: 50%; }
+        .manual-list.buy li::before { background: #22c55e; }
+        .manual-list.sell li::before { background: #ef4444; }
+
+        .params-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .param-tag { background: #12141c; border: 1px solid #2a2d3a; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #aaa; }
+        .param-tag strong { color: #60a5fa; margin-right: 4px; }
+
+        .ticker-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .ticker-chip { background: #12141c; border: 1px solid #2a2d3a; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #ccc; cursor: default; }
+        .ticker-chip .pnl { margin-left: 4px; font-weight: 600; }
+
+        .uploaded-manual { margin-top: 16px; padding: 12px; background: #12141c; border: 1px solid #2a2d3a; border-radius: 8px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; color: #ccc; max-height: 300px; overflow-y: auto; }
+
+        .upload-area { border: 2px dashed #2a2d3a; border-radius: 10px; padding: 24px; text-align: center; margin-top: 12px; transition: border-color 0.2s; }
+        .upload-area:hover { border-color: #2563eb; }
+        .upload-area input[type="file"] { display: none; }
+        .upload-area label { cursor: pointer; color: #60a5fa; font-size: 14px; }
+        .upload-btn { margin-top: 12px; padding: 8px 20px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .upload-btn:disabled { background: #333; cursor: not-allowed; }
+        .upload-status { margin-top: 8px; font-size: 12px; }
+        .upload-status.success { color: #22c55e; }
+        .upload-status.error { color: #ef4444; }
+
+        .strategy-select { background: #12141c; border: 1px solid #2a2d3a; border-radius: 6px; padding: 8px 12px; color: #e0e0e0; font-size: 14px; width: 100%; max-width: 300px; margin-bottom: 16px; }
+        .strategy-select option { background: #12141c; }
     </style>
 </head>
 <body>
@@ -58,6 +91,8 @@
             <div class="tab active" data-tab="overview">Overview</div>
             <div class="tab" data-tab="comparison">Strategy Comparison</div>
             <div class="tab" data-tab="details">Detail Table</div>
+            <div class="tab" data-tab="manuals">매수/매도 매뉴얼</div>
+            <div class="tab" data-tab="upload">매뉴얼 업로드</div>
             {% if db_available %}<div class="tab" data-tab="dbruns">DB Runs</div>{% endif %}
         </div>
 
@@ -186,6 +221,119 @@
             </div>
         </div>
 
+        <!-- Strategy Manuals (매수/매도 매뉴얼) -->
+        <div class="section" id="manuals">
+            <div class="grid">
+                {% for name, manual in strategy_manuals.items() %}
+                <div class="card">
+                    <h3>{{ name }}</h3>
+
+                    <div class="manual-section">
+                        <h4><span class="badge badge-buy">매수 (BUY)</span></h4>
+                        <ul class="manual-list buy">
+                            {% for rule in manual.buy %}
+                            <li>{{ rule }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4><span class="badge badge-sell">매도 (SELL)</span></h4>
+                        <ul class="manual-list sell">
+                            {% for rule in manual.sell %}
+                            <li>{{ rule }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="params-grid">
+                        {% for key, val in manual.params.items() %}
+                        <span class="param-tag"><strong>{{ key }}:</strong> {{ val }}</span>
+                        {% endfor %}
+                    </div>
+
+                    {% if strategy_tickers.get(name) %}
+                    <div class="manual-section" style="margin-top: 16px;">
+                        <h4 style="color: #888; font-size: 13px;">거래 티커 (DB)</h4>
+                        <div class="ticker-list">
+                            {% for t in strategy_tickers[name][:20] %}
+                            <span class="ticker-chip">
+                                {{ t.ticker }}
+                                <span class="pnl {{ 'positive' if t.avg_pnl_pct > 0 else 'negative' }}">
+                                    {{ "%.2f"|format(t.avg_pnl_pct * 100) }}%
+                                </span>
+                                ({{ t.trade_count }}건)
+                            </span>
+                            {% endfor %}
+                            {% if strategy_tickers[name]|length > 20 %}
+                            <span class="ticker-chip" style="color:#888;">+{{ strategy_tickers[name]|length - 20 }}개 더</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if manual.get('uploaded_manual') %}
+                    <div class="manual-section" style="margin-top: 16px;">
+                        <h4 style="color: #888; font-size: 13px;">업로드된 매뉴얼</h4>
+                        <div class="uploaded-manual">{{ manual.uploaded_manual }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Manual Upload (매뉴얼 업로드) -->
+        <div class="section" id="upload">
+            <div class="card">
+                <h3>전략별 매뉴얼 업로드</h3>
+                <p style="font-size: 13px; color: #888; margin-bottom: 16px;">
+                    각 전략의 상세 매수/매도 매뉴얼을 마크다운(.md) 또는 텍스트 파일로 업로드하세요.
+                </p>
+
+                <select class="strategy-select" id="uploadStrategySelect">
+                    {% for name in strategy_manuals.keys() %}
+                    <option value="{{ name }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="manualFile" accept=".md,.txt,.markdown">
+                    <label for="manualFile">파일을 선택하거나 여기에 드래그하세요</label>
+                    <div id="fileName" style="margin-top: 8px; font-size: 12px; color: #888;"></div>
+                </div>
+
+                <button class="upload-btn" id="uploadBtn" disabled>업로드</button>
+                <div class="upload-status" id="uploadStatus"></div>
+
+                <div style="margin-top: 24px;">
+                    <h4 style="font-size: 14px; color: #aaa; margin-bottom: 12px;">업로드 현황</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>전략</th>
+                                <th>매뉴얼 상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name, manual in strategy_manuals.items() %}
+                            <tr>
+                                <td>{{ name }}</td>
+                                <td>
+                                    {% if manual.get('uploaded_manual') %}
+                                    <span class="badge badge-buy">업로드됨</span>
+                                    {% else %}
+                                    <span style="color: #666;">미등록</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- DB Runs -->
         {% if db_available %}
         <div class="section" id="dbruns">
@@ -286,6 +434,73 @@
         makeCalcBarChart('calmarChart', 'Calmar Ratio', m => +(m.cagr / m.mdd).toFixed(2));
         makeBarChart('winrateChart', 'Win Rate (%)', 'win_rate');
         window._chartsRendered = true;
+    }
+
+    // Manual upload logic
+    const fileInput = document.getElementById('manualFile');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const fileNameEl = document.getElementById('fileName');
+    const uploadArea = document.getElementById('uploadArea');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameEl.textContent = fileInput.files[0].name;
+                uploadBtn.disabled = false;
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#2563eb';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#2a2d3a';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#2a2d3a';
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                fileNameEl.textContent = e.dataTransfer.files[0].name;
+                uploadBtn.disabled = false;
+            }
+        });
+
+        uploadBtn.addEventListener('click', async () => {
+            const strategy = document.getElementById('uploadStrategySelect').value;
+            const file = fileInput.files[0];
+            if (!file || !strategy) return;
+
+            uploadBtn.disabled = true;
+            uploadStatus.textContent = '업로드 중...';
+            uploadStatus.className = 'upload-status';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const resp = await fetch(`/api/strategies/${encodeURIComponent(strategy)}/manual`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                const result = await resp.json();
+                if (resp.ok) {
+                    uploadStatus.textContent = `${strategy} 매뉴얼 업로드 완료 (${result.size} bytes)`;
+                    uploadStatus.className = 'upload-status success';
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    uploadStatus.textContent = `오류: ${result.error}`;
+                    uploadStatus.className = 'upload-status error';
+                    uploadBtn.disabled = false;
+                }
+            } catch (err) {
+                uploadStatus.textContent = `업로드 실패: ${err.message}`;
+                uploadStatus.className = 'upload-status error';
+                uploadBtn.disabled = false;
+            }
+        });
     }
     </script>
 </body>
