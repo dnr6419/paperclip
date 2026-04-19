@@ -222,8 +222,12 @@
             document.getElementById('chartTitle').textContent = '가격 데이터 없음';
             return;
         }
-        document.getElementById('chartTitle').textContent =
-            `전체 ${tickersWithData.length}개 종목 — ${allTrades.length}건 체결`;
+        const _buyCount = allTrades.filter(t => t.entry_date).length;
+        const _filledCount = allTrades.filter(t => t.exit_reason !== 'end').length;
+        const _unfilledCount = allTrades.filter(t => t.exit_reason === 'end').length;
+        let _titleParts = [`전체 ${tickersWithData.length}개 종목 — ${_buyCount + _filledCount}건 체결`];
+        if (_unfilledCount > 0) _titleParts.push(`${_unfilledCount}건 미체결`);
+        document.getElementById('chartTitle').textContent = _titleParts.join(', ');
 
         const dates = priceMap[tickersWithData[0]].dates;
         const dateIndex = {};
@@ -377,10 +381,11 @@
     }
 
     function renderChartSingle(priceData, trades, ticker) {
-        const filledCount = trades.filter(t => t.exit_reason !== 'end').length;
-        const unfilledCount = trades.filter(t => t.exit_reason === 'end').length;
-        let titleParts = [`${ticker} — ${filledCount}건 체결`];
-        if (unfilledCount > 0) titleParts.push(`${unfilledCount}건 미체결`);
+        const sBuyCount = trades.filter(t => t.entry_date).length;
+        const sFilledCount = trades.filter(t => t.exit_reason !== 'end').length;
+        const sUnfilledCount = trades.filter(t => t.exit_reason === 'end').length;
+        let titleParts = [`${ticker} — ${sBuyCount + sFilledCount}건 체결`];
+        if (sUnfilledCount > 0) titleParts.push(`${sUnfilledCount}건 미체결`);
         document.getElementById('chartTitle').textContent = titleParts.join(', ');
 
         const dates = priceData.dates;
