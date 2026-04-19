@@ -21,6 +21,7 @@ from .donchian_channel_breakout import DonchianChannelBreakoutStrategy
 from .cci_mean_reversion import CCIMeanReversionStrategy
 from .williams_r_reversion import WilliamsRReversionStrategy
 from .supertrend import SupertrendStrategy
+from .mfi_mean_reversion import MFIMeanReversionStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -47,4 +48,5 @@ __all__ = [
     "CCIMeanReversionStrategy",
     "WilliamsRReversionStrategy",
     "SupertrendStrategy",
+    "MFIMeanReversionStrategy",
 ]
