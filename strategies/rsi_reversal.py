@@ -1,7 +1,7 @@
 """
-Strategy 2: RSI Oversold/Overbought Mean Reversion
-Buy when RSI(14) crosses back above 30 (oversold exit) with price > SMA(200).
-Sell when RSI reaches 65 or -5% stop-loss.
+떡사오팔 (Tteok-Sa-O-Pal) RSI Mean Reversion Strategy
+Buy when RSI(14) crosses back above 40 (사) with price > SMA(200).
+Sell when RSI reaches 80 (팔) or -5% stop-loss.
 """
 import pandas as pd
 import numpy as np
@@ -22,8 +22,8 @@ def compute_rsi(close: pd.Series, period: int = 14) -> pd.Series:
 
 
 class RSIReversalStrategy(BaseStrategy):
-    def __init__(self, rsi_period: int = 14, oversold: float = 40, overbought: float = 70,
-                 sell_rsi: float = 70, sma_period: int = 200):
+    def __init__(self, rsi_period: int = 14, oversold: float = 40, overbought: float = 80,
+                 sell_rsi: float = 80, sma_period: int = 200):
         self.rsi_period = rsi_period
         self.oversold = oversold
         self.overbought = overbought
@@ -57,7 +57,7 @@ class RSIReversalStrategy(BaseStrategy):
         return Signal(
             direction=1,
             stop_loss=0.05,
-            take_profit=0.07,
+            take_profit=1.0,  # exit via RSI signal, not fixed price target
             position_size=0.015 / 0.05,
         )
 
@@ -66,7 +66,7 @@ class RSIReversalStrategy(BaseStrategy):
         pct = (current_price - entry_price) / entry_price
         if pct <= -0.05:
             return -1
-        if pct >= 0.07:
+        if current_rsi >= 80:
             return -1
         if current_rsi < 20:
             return -1
