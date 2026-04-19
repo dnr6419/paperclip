@@ -1,0 +1,25 @@
+{
+  "best_params": {
+    "tenkan_period": 7,
+    "kijun_period": 26,
+    "senkou_b_period": 44
+  },
+  "in_sample": {
+    "cagr": 7.53,
+    "mdd": 2.2,
+    "sharpe": 2.041,
+    "win_rate": 53.8,
+    "profit_factor": 3.54,
+    "total_trades": 104,
+    "avg_holding_days": 25.4
+  },
+  "out_of_sample": {
+    "cagr": 4.28,
+    "mdd": 2.59,
+    "sharpe": 1.304,
+    "win_rate": 42.6,
+    "profit_factor": 1.99,
+    "total_trades": 61,
+    "avg_holding_days": 28.1
+  }
+}
