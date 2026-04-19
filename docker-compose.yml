@@ -5,10 +5,15 @@ services:
       POSTGRES_DB: backtesting
       POSTGRES_USER: backtest
       POSTGRES_PASSWORD: backtest
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backtest -d backtesting"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   dashboard:
     build: .
@@ -21,7 +26,9 @@ services:
       BACKTEST_DB_USER: backtest
       BACKTEST_DB_PASSWORD: backtest
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   pgdata:
