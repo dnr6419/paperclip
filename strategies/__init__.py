@@ -24,6 +24,7 @@ from .supertrend import SupertrendStrategy
 from .mfi_mean_reversion import MFIMeanReversionStrategy
 from .parabolic_sar import ParabolicSARStrategy
 from .ttm_squeeze import TTMSqueezeStrategy
+from .trix_momentum import TRIXMomentumStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -53,4 +54,5 @@ __all__ = [
     "MFIMeanReversionStrategy",
     "ParabolicSARStrategy",
     "TTMSqueezeStrategy",
+    "TRIXMomentumStrategy",
 ]
