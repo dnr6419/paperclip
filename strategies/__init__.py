@@ -18,6 +18,7 @@ from .vix_spike_reversion import VIXSpikeReversionStrategy
 from .stoch_mr import StochasticMRStrategy
 from .ichimoku_cloud_breakout import IchimokuCloudBreakoutStrategy
 from .donchian_channel_breakout import DonchianChannelBreakoutStrategy
+from .cci_mean_reversion import CCIMeanReversionStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -41,4 +42,5 @@ __all__ = [
     "StochasticMRStrategy",
     "IchimokuCloudBreakoutStrategy",
     "DonchianChannelBreakoutStrategy",
+    "CCIMeanReversionStrategy",
 ]
