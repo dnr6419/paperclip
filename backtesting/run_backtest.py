@@ -1,5 +1,5 @@
 """
-Main backtest runner: 10 strategies on synthetic S&P 500 market data.
+Main backtest runner: 11 strategies on synthetic S&P 500 market data.
 In-Sample (2019-2022) / Out-of-Sample (2023-2024).
 """
 import sys, os, json, warnings, inspect
@@ -14,7 +14,7 @@ from strategies import (
     CandleRSIStrategy, ADXTrendStrategy,
     High52WBreakoutStrategy, ATRBreakoutStrategy,
     BBMeanReversionStrategy, VWBStrategy, MTMStrategy,
-    DCBStrategy,
+    DCBStrategy, MACDMomentumStrategy,
 )
 from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
@@ -26,10 +26,11 @@ STRATEGIES = {
     "ADX Trend":        (ADXTrendStrategy(),        {"stop_loss": 0.04, "take_profit": 0.25}),
     "52W Breakout":     (High52WBreakoutStrategy(), {"stop_loss": 0.06, "take_profit": 0.20}),
     "ATR Breakout":     (ATRBreakoutStrategy(),     {"stop_loss": 0.05, "take_profit": 0.20}),
-    "BB Mean Reversion": (BBMeanReversionStrategy(), {"stop_loss": 0.06, "take_profit": 0.12}),
+    "BB Mean Reversion": (BBMeanReversionStrategy(bb_std=1.5, rsi_cap=60.0, sma_period=50, atr_threshold=0.8), {"stop_loss": 0.06, "take_profit": 0.18}),
     "VWB":              (VWBStrategy(),             {"stop_loss": 0.05, "take_profit": 10.0}),
     "MTM":              (MTMStrategy(),             {"stop_loss": 0.05, "take_profit": 0.20}),
     "DCB":              (DCBStrategy(),             {"stop_loss": 0.05, "take_profit": 0.25}),
+    "MACD Momentum":    (MACDMomentumStrategy(),    {"stop_loss": 0.05, "take_profit": 0.25}),
 }
 
 PERIODS = {

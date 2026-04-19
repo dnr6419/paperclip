@@ -10,13 +10,13 @@
       "avg_holding_days": 29.5
     },
     "RSI Reversal": {
-      "cagr": 13.11,
-      "mdd": 7.5,
-      "sharpe": 1.622,
-      "win_rate": 47.0,
-      "profit_factor": 3.99,
-      "total_trades": 115,
-      "avg_holding_days": 34.8
+      "cagr": 14.15,
+      "mdd": 7.37,
+      "sharpe": 1.616,
+      "win_rate": 43.0,
+      "profit_factor": 4.45,
+      "total_trades": 107,
+      "avg_holding_days": 47.1
     },
     "Candle+RSI": {
       "cagr": 20.81,
@@ -55,13 +55,13 @@
       "avg_holding_days": 44.8
     },
     "BB Mean Reversion": {
-      "cagr": 3.36,
-      "mdd": 2.5,
-      "sharpe": 1.487,
-      "win_rate": 69.2,
-      "profit_factor": 4.5,
-      "total_trades": 26,
-      "avg_holding_days": 25.1
+      "cagr": 11.4,
+      "mdd": 5.4,
+      "sharpe": 1.875,
+      "win_rate": 61.3,
+      "profit_factor": 4.67,
+      "total_trades": 80,
+      "avg_holding_days": 55.4
     },
     "VWB": {
       "cagr": 17.62,
@@ -89,6 +89,15 @@
       "profit_factor": 5.52,
       "total_trades": 404,
       "avg_holding_days": 21.9
+    },
+    "MACD Momentum": {
+      "cagr": 11.51,
+      "mdd": 2.75,
+      "sharpe": 2.296,
+      "win_rate": 61.5,
+      "profit_factor": 6.49,
+      "total_trades": 161,
+      "avg_holding_days": 12.9
     }
   },
   "out_of_sample": {
@@ -102,13 +111,13 @@
       "avg_holding_days": 42.2
     },
     "RSI Reversal": {
-      "cagr": 16.63,
-      "mdd": 3.17,
-      "sharpe": 2.993,
-      "win_rate": 75.0,
-      "profit_factor": 12.21,
-      "total_trades": 48,
-      "avg_holding_days": 38.5
+      "cagr": 15.11,
+      "mdd": 6.56,
+      "sharpe": 2.318,
+      "win_rate": 70.3,
+      "profit_factor": 12.23,
+      "total_trades": 37,
+      "avg_holding_days": 65.9
     },
     "Candle+RSI": {
       "cagr": 20.49,
@@ -147,13 +156,13 @@
       "avg_holding_days": 47.6
     },
     "BB Mean Reversion": {
-      "cagr": 8.1,
-      "mdd": 1.81,
-      "sharpe": 2.914,
-      "win_rate": 82.4,
-      "profit_factor": 9.33,
-      "total_trades": 17,
-      "avg_holding_days": 21.4
+      "cagr": 14.81,
+      "mdd": 3.97,
+      "sharpe": 2.417,
+      "win_rate": 69.8,
+      "profit_factor": 7.48,
+      "total_trades": 43,
+      "avg_holding_days": 64.4
     },
     "VWB": {
       "cagr": 15.02,
@@ -181,6 +190,15 @@
       "profit_factor": 7.03,
       "total_trades": 222,
       "avg_holding_days": 22.9
+    },
+    "MACD Momentum": {
+      "cagr": 11.56,
+      "mdd": 2.41,
+      "sharpe": 2.741,
+      "win_rate": 73.3,
+      "profit_factor": 8.37,
+      "total_trades": 75,
+      "avg_holding_days": 15.6
     }
   }
 }

@@ -8,6 +8,7 @@ from .bb_mean_reversion import BBMeanReversionStrategy
 from .vwb import VWBStrategy
 from .mtm import MTMStrategy
 from .dcb import DCBStrategy
+from .macd_momentum import MACDMomentumStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -20,4 +21,5 @@ __all__ = [
     "VWBStrategy",
     "MTMStrategy",
     "DCBStrategy",
+    "MACDMomentumStrategy",
 ]
