@@ -1,0 +1,29 @@
+{
+  "best_params": {
+    "af_init": 0.03,
+    "af_step": 0.02,
+    "af_max": 0.3,
+    "adx_filter": false,
+    "adx_threshold": 20.0,
+    "stop_loss": 0.03
+  },
+  "in_sample": {
+    "cagr": 54.35,
+    "mdd": 5.21,
+    "sharpe": 3.307,
+    "win_rate": 53.0,
+    "profit_factor": 4.07,
+    "total_trades": 828,
+    "avg_holding_days": 11.0
+  },
+  "out_of_sample": {
+    "cagr": 62.52,
+    "mdd": 3.54,
+    "sharpe": 4.627,
+    "win_rate": 59.9,
+    "profit_factor": 5.35,
+    "total_trades": 419,
+    "avg_holding_days": 12.2
+  },
+  "within_60_day_holding": true
+}
