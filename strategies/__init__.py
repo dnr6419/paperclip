@@ -13,6 +13,8 @@ from .gap_fill import GapFillStrategy
 from .dual_momentum import DualMomentumStrategy
 from .ensemble import EnsembleRegimeStrategy, detect_regime
 from .leveraged_etf_oversold import LETFMomentumBurstStrategy
+from .keltner_channel_mr import KeltnerChannelMRStrategy
+from .vix_spike_reversion import VIXSpikeReversionStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -31,4 +33,6 @@ __all__ = [
     "EnsembleRegimeStrategy",
     "detect_regime",
     "LETFMomentumBurstStrategy",
+    "KeltnerChannelMRStrategy",
+    "VIXSpikeReversionStrategy",
 ]
