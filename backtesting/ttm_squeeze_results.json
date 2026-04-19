@@ -1,0 +1,28 @@
+{
+  "best_params": {
+    "bb_period": 18,
+    "bb_mult": 2.2,
+    "kc_mult": 1.8,
+    "mom_period": 8,
+    "stop_loss": 0.04
+  },
+  "in_sample": {
+    "cagr": 14.25,
+    "mdd": 1.96,
+    "sharpe": 3.221,
+    "win_rate": 62.7,
+    "profit_factor": 5.86,
+    "total_trades": 228,
+    "avg_holding_days": 10.4
+  },
+  "out_of_sample": {
+    "cagr": 15.53,
+    "mdd": 2.26,
+    "sharpe": 2.964,
+    "win_rate": 57.5,
+    "profit_factor": 3.84,
+    "total_trades": 146,
+    "avg_holding_days": 10.4
+  },
+  "within_60_day_holding": true
+}
