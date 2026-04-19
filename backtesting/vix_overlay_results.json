@@ -1,0 +1,461 @@
+{
+  "in_sample": {
+    "core_strategy_metrics": {
+      "DCB": {
+        "cagr": 37.95,
+        "mdd": 12.63,
+        "sharpe": 2.478,
+        "win_rate": 62.1,
+        "total_trades": 425
+      },
+      "Candle+RSI": {
+        "cagr": 20.81,
+        "mdd": 3.31,
+        "sharpe": 3.02,
+        "win_rate": 68.6,
+        "total_trades": 255
+      },
+      "MTM": {
+        "cagr": 31.81,
+        "mdd": 7.65,
+        "sharpe": 2.717,
+        "win_rate": 65.2,
+        "total_trades": 569
+      },
+      "MACD Momentum": {
+        "cagr": 49.69,
+        "mdd": 8.22,
+        "sharpe": 2.83,
+        "win_rate": 56.1,
+        "total_trades": 669
+      },
+      "ATR Breakout": {
+        "cagr": 34.81,
+        "mdd": 9.35,
+        "sharpe": 2.337,
+        "win_rate": 52.8,
+        "total_trades": 233
+      }
+    },
+    "vix_spike_reversion_metrics": {
+      "cagr": -4.66,
+      "mdd": 18.46,
+      "sharpe": -1.325,
+      "win_rate": 12.3,
+      "total_trades": 106
+    },
+    "correlation_with_vix": {
+      "DCB": 0.311,
+      "Candle+RSI": 0.258,
+      "MTM": 0.38,
+      "MACD Momentum": 0.333,
+      "ATR Breakout": 0.304
+    },
+    "correlation_matrix": {
+      "DCB": {
+        "DCB": 1.0,
+        "Candle+RSI": 0.45,
+        "MTM": 0.711,
+        "MACD Momentum": 0.808,
+        "ATR Breakout": 0.908,
+        "VIX Spike Reversion": 0.311
+      },
+      "Candle+RSI": {
+        "DCB": 0.45,
+        "Candle+RSI": 1.0,
+        "MTM": 0.441,
+        "MACD Momentum": 0.586,
+        "ATR Breakout": 0.496,
+        "VIX Spike Reversion": 0.258
+      },
+      "MTM": {
+        "DCB": 0.711,
+        "Candle+RSI": 0.441,
+        "MTM": 1.0,
+        "MACD Momentum": 0.645,
+        "ATR Breakout": 0.745,
+        "VIX Spike Reversion": 0.38
+      },
+      "MACD Momentum": {
+        "DCB": 0.808,
+        "Candle+RSI": 0.586,
+        "MTM": 0.645,
+        "MACD Momentum": 1.0,
+        "ATR Breakout": 0.791,
+        "VIX Spike Reversion": 0.333
+      },
+      "ATR Breakout": {
+        "DCB": 0.908,
+        "Candle+RSI": 0.496,
+        "MTM": 0.745,
+        "MACD Momentum": 0.791,
+        "ATR Breakout": 1.0,
+        "VIX Spike Reversion": 0.304
+      },
+      "VIX Spike Reversion": {
+        "DCB": 0.311,
+        "Candle+RSI": 0.258,
+        "MTM": 0.38,
+        "MACD Momentum": 0.333,
+        "ATR Breakout": 0.304,
+        "VIX Spike Reversion": 1.0
+      }
+    },
+    "overlay_sweep": [
+      {
+        "vix_weight": 0.0,
+        "cagr": 36.02,
+        "total_return_pct": 257.72,
+        "annual_vol_pct": 10.62,
+        "sharpe": 2.955,
+        "mdd": -6.28
+      },
+      {
+        "vix_weight": 0.05,
+        "cagr": 34.74,
+        "total_return_pct": 243.94,
+        "annual_vol_pct": 10.38,
+        "sharpe": 2.927,
+        "mdd": -6.16
+      },
+      {
+        "vix_weight": 0.1,
+        "cagr": 33.42,
+        "total_return_pct": 230.16,
+        "annual_vol_pct": 10.14,
+        "sharpe": 2.898,
+        "mdd": -6.05
+      },
+      {
+        "vix_weight": 0.15,
+        "cagr": 32.05,
+        "total_return_pct": 216.37,
+        "annual_vol_pct": 9.89,
+        "sharpe": 2.865,
+        "mdd": -5.94
+      },
+      {
+        "vix_weight": 0.2,
+        "cagr": 30.64,
+        "total_return_pct": 202.59,
+        "annual_vol_pct": 9.62,
+        "sharpe": 2.829,
+        "mdd": -5.82
+      }
+    ],
+    "optimal_vix_weight": 0.0,
+    "optimal_metrics": {
+      "cagr": 36.02,
+      "total_return_pct": 257.72,
+      "annual_vol_pct": 10.62,
+      "sharpe": 2.955,
+      "mdd": -6.28
+    }
+  },
+  "out_of_sample": {
+    "core_strategy_metrics": {
+      "DCB": {
+        "cagr": 60.64,
+        "mdd": 5.13,
+        "sharpe": 4.253,
+        "win_rate": 64.5,
+        "total_trades": 231
+      },
+      "Candle+RSI": {
+        "cagr": 20.49,
+        "mdd": 1.61,
+        "sharpe": 4.057,
+        "win_rate": 76.7,
+        "total_trades": 86
+      },
+      "MTM": {
+        "cagr": 37.35,
+        "mdd": 3.43,
+        "sharpe": 3.681,
+        "win_rate": 61.0,
+        "total_trades": 359
+      },
+      "MACD Momentum": {
+        "cagr": 49.01,
+        "mdd": 5.87,
+        "sharpe": 3.648,
+        "win_rate": 63.2,
+        "total_trades": 345
+      },
+      "ATR Breakout": {
+        "cagr": 43.52,
+        "mdd": 4.45,
+        "sharpe": 3.541,
+        "win_rate": 59.5,
+        "total_trades": 121
+      }
+    },
+    "vix_spike_reversion_metrics": {
+      "cagr": -3.95,
+      "mdd": 8.03,
+      "sharpe": -2.641,
+      "win_rate": 8.1,
+      "total_trades": 37
+    },
+    "correlation_with_vix": {
+      "DCB": 0.205,
+      "Candle+RSI": 0.121,
+      "MTM": 0.267,
+      "MACD Momentum": 0.238,
+      "ATR Breakout": 0.276
+    },
+    "correlation_matrix": {
+      "DCB": {
+        "DCB": 1.0,
+        "Candle+RSI": 0.321,
+        "MTM": 0.716,
+        "MACD Momentum": 0.806,
+        "ATR Breakout": 0.861,
+        "VIX Spike Reversion": 0.205
+      },
+      "Candle+RSI": {
+        "DCB": 0.321,
+        "Candle+RSI": 1.0,
+        "MTM": 0.397,
+        "MACD Momentum": 0.404,
+        "ATR Breakout": 0.38,
+        "VIX Spike Reversion": 0.121
+      },
+      "MTM": {
+        "DCB": 0.716,
+        "Candle+RSI": 0.397,
+        "MTM": 1.0,
+        "MACD Momentum": 0.718,
+        "ATR Breakout": 0.788,
+        "VIX Spike Reversion": 0.267
+      },
+      "MACD Momentum": {
+        "DCB": 0.806,
+        "Candle+RSI": 0.404,
+        "MTM": 0.718,
+        "MACD Momentum": 1.0,
+        "ATR Breakout": 0.792,
+        "VIX Spike Reversion": 0.238
+      },
+      "ATR Breakout": {
+        "DCB": 0.861,
+        "Candle+RSI": 0.38,
+        "MTM": 0.788,
+        "MACD Momentum": 0.792,
+        "ATR Breakout": 1.0,
+        "VIX Spike Reversion": 0.276
+      },
+      "VIX Spike Reversion": {
+        "DCB": 0.205,
+        "Candle+RSI": 0.121,
+        "MTM": 0.267,
+        "MACD Momentum": 0.238,
+        "ATR Breakout": 0.276,
+        "VIX Spike Reversion": 1.0
+      }
+    },
+    "overlay_sweep": [
+      {
+        "vix_weight": 0.0,
+        "cagr": 42.87,
+        "total_return_pct": 109.38,
+        "annual_vol_pct": 8.3,
+        "sharpe": 4.352,
+        "mdd": -3.18
+      },
+      {
+        "vix_weight": 0.05,
+        "cagr": 40.92,
+        "total_return_pct": 103.51,
+        "annual_vol_pct": 8.02,
+        "sharpe": 4.328,
+        "mdd": -3.08
+      },
+      {
+        "vix_weight": 0.1,
+        "cagr": 38.94,
+        "total_return_pct": 97.64,
+        "annual_vol_pct": 7.74,
+        "sharpe": 4.301,
+        "mdd": -2.98
+      },
+      {
+        "vix_weight": 0.15,
+        "cagr": 36.93,
+        "total_return_pct": 91.77,
+        "annual_vol_pct": 7.44,
+        "sharpe": 4.27,
+        "mdd": -2.88
+      },
+      {
+        "vix_weight": 0.2,
+        "cagr": 34.89,
+        "total_return_pct": 85.9,
+        "annual_vol_pct": 7.15,
+        "sharpe": 4.235,
+        "mdd": -2.77
+      }
+    ],
+    "optimal_vix_weight": 0.0,
+    "optimal_metrics": {
+      "cagr": 42.87,
+      "total_return_pct": 109.38,
+      "annual_vol_pct": 8.3,
+      "sharpe": 4.352,
+      "mdd": -3.18
+    }
+  },
+  "full": {
+    "core_strategy_metrics": {
+      "DCB": {
+        "cagr": 46.69,
+        "mdd": 12.63,
+        "sharpe": 3.005,
+        "win_rate": 63.0,
+        "total_trades": 664
+      },
+      "Candle+RSI": {
+        "cagr": 22.81,
+        "mdd": 3.31,
+        "sharpe": 3.251,
+        "win_rate": 70.2,
+        "total_trades": 346
+      },
+      "MTM": {
+        "cagr": 36.38,
+        "mdd": 7.65,
+        "sharpe": 3.042,
+        "win_rate": 64.1,
+        "total_trades": 961
+      },
+      "MACD Momentum": {
+        "cagr": 50.09,
+        "mdd": 8.22,
+        "sharpe": 2.994,
+        "win_rate": 58.4,
+        "total_trades": 1004
+      },
+      "ATR Breakout": {
+        "cagr": 39.1,
+        "mdd": 9.35,
+        "sharpe": 2.671,
+        "win_rate": 53.6,
+        "total_trades": 358
+      }
+    },
+    "vix_spike_reversion_metrics": {
+      "cagr": -4.47,
+      "mdd": 24.95,
+      "sharpe": -1.493,
+      "win_rate": 11.0,
+      "total_trades": 145
+    },
+    "correlation_with_vix": {
+      "DCB": 0.282,
+      "Candle+RSI": 0.216,
+      "MTM": 0.345,
+      "MACD Momentum": 0.311,
+      "ATR Breakout": 0.287
+    },
+    "correlation_matrix": {
+      "DCB": {
+        "DCB": 1.0,
+        "Candle+RSI": 0.379,
+        "MTM": 0.701,
+        "MACD Momentum": 0.804,
+        "ATR Breakout": 0.891,
+        "VIX Spike Reversion": 0.282
+      },
+      "Candle+RSI": {
+        "DCB": 0.379,
+        "Candle+RSI": 1.0,
+        "MTM": 0.418,
+        "MACD Momentum": 0.503,
+        "ATR Breakout": 0.422,
+        "VIX Spike Reversion": 0.216
+      },
+      "MTM": {
+        "DCB": 0.701,
+        "Candle+RSI": 0.418,
+        "MTM": 1.0,
+        "MACD Momentum": 0.663,
+        "ATR Breakout": 0.735,
+        "VIX Spike Reversion": 0.345
+      },
+      "MACD Momentum": {
+        "DCB": 0.804,
+        "Candle+RSI": 0.503,
+        "MTM": 0.663,
+        "MACD Momentum": 1.0,
+        "ATR Breakout": 0.786,
+        "VIX Spike Reversion": 0.311
+      },
+      "ATR Breakout": {
+        "DCB": 0.891,
+        "Candle+RSI": 0.422,
+        "MTM": 0.735,
+        "MACD Momentum": 0.786,
+        "ATR Breakout": 1.0,
+        "VIX Spike Reversion": 0.287
+      },
+      "VIX Spike Reversion": {
+        "DCB": 0.282,
+        "Candle+RSI": 0.216,
+        "MTM": 0.345,
+        "MACD Momentum": 0.311,
+        "ATR Breakout": 0.287,
+        "VIX Spike Reversion": 1.0
+      }
+    },
+    "overlay_sweep": [
+      {
+        "vix_weight": 0.0,
+        "cagr": 40.59,
+        "total_return_pct": 730.54,
+        "annual_vol_pct": 10.37,
+        "sharpe": 3.342,
+        "mdd": -6.28
+      },
+      {
+        "vix_weight": 0.05,
+        "cagr": 39.54,
+        "total_return_pct": 692.77,
+        "annual_vol_pct": 10.18,
+        "sharpe": 3.327,
+        "mdd": -6.16
+      },
+      {
+        "vix_weight": 0.1,
+        "cagr": 38.45,
+        "total_return_pct": 655.01,
+        "annual_vol_pct": 9.99,
+        "sharpe": 3.31,
+        "mdd": -6.05
+      },
+      {
+        "vix_weight": 0.15,
+        "cagr": 37.31,
+        "total_return_pct": 617.24,
+        "annual_vol_pct": 9.79,
+        "sharpe": 3.291,
+        "mdd": -5.94
+      },
+      {
+        "vix_weight": 0.2,
+        "cagr": 36.12,
+        "total_return_pct": 579.48,
+        "annual_vol_pct": 9.58,
+        "sharpe": 3.269,
+        "mdd": -5.82
+      }
+    ],
+    "optimal_vix_weight": 0.0,
+    "optimal_metrics": {
+      "cagr": 40.59,
+      "total_return_pct": 730.54,
+      "annual_vol_pct": 10.37,
+      "sharpe": 3.342,
+      "mdd": -6.28
+    }
+  }
+}
