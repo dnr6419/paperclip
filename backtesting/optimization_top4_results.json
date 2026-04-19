@@ -1,0 +1,1305 @@
+{
+  "macd_momentum": {
+    "best": {
+      "strat_params": {
+        "fast_period": 8,
+        "slow_period": 20,
+        "signal_period": 9
+      },
+      "bt_params": {
+        "stop_loss": 0.04,
+        "take_profit": 0.3
+      },
+      "is": {
+        "cagr": 36.76,
+        "mdd": 5.14,
+        "sharpe": 3.481,
+        "win_rate": 44.3,
+        "profit_factor": 2.82,
+        "trades": 2262,
+        "pass": "True"
+      },
+      "oos": {
+        "cagr": 35.24,
+        "mdd": 4.22,
+        "sharpe": 2.924,
+        "win_rate": 47.3,
+        "profit_factor": 2.87,
+        "trades": 1234,
+        "pass": "True"
+      },
+      "both_pass": "True"
+    },
+    "all": [
+      {
+        "strat_params": {
+          "fast_period": 8,
+          "slow_period": 20,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 36.76,
+          "mdd": 5.14,
+          "sharpe": 3.481,
+          "win_rate": 44.3,
+          "profit_factor": 2.82,
+          "trades": 2262,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 35.24,
+          "mdd": 4.22,
+          "sharpe": 2.924,
+          "win_rate": 47.3,
+          "profit_factor": 2.87,
+          "trades": 1234,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 8,
+          "slow_period": 20,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 37.06,
+          "mdd": 6.09,
+          "sharpe": 3.358,
+          "win_rate": 45.5,
+          "profit_factor": 2.79,
+          "trades": 2262,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 34.02,
+          "mdd": 4.32,
+          "sharpe": 2.802,
+          "win_rate": 47.9,
+          "profit_factor": 2.7,
+          "trades": 1234,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 8,
+          "slow_period": 20,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.2
+        },
+        "is": {
+          "cagr": 31.06,
+          "mdd": 4.87,
+          "sharpe": 3.402,
+          "win_rate": 44.3,
+          "profit_factor": 2.65,
+          "trades": 2262,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 33.5,
+          "mdd": 4.0,
+          "sharpe": 3.219,
+          "win_rate": 47.3,
+          "profit_factor": 2.76,
+          "trades": 1234,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 8,
+          "slow_period": 20,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.2
+        },
+        "is": {
+          "cagr": 31.8,
+          "mdd": 5.76,
+          "sharpe": 3.297,
+          "win_rate": 45.5,
+          "profit_factor": 2.63,
+          "trades": 2262,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 32.09,
+          "mdd": 3.78,
+          "sharpe": 3.032,
+          "win_rate": 47.9,
+          "profit_factor": 2.58,
+          "trades": 1234,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 8,
+          "slow_period": 26,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 34.92,
+          "mdd": 4.86,
+          "sharpe": 3.492,
+          "win_rate": 43.1,
+          "profit_factor": 2.9,
+          "trades": 2123,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 31.83,
+          "mdd": 3.97,
+          "sharpe": 2.835,
+          "win_rate": 46.9,
+          "profit_factor": 2.73,
+          "trades": 1169,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 8,
+          "slow_period": 26,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 35.63,
+          "mdd": 5.51,
+          "sharpe": 3.381,
+          "win_rate": 44.5,
+          "profit_factor": 2.87,
+          "trades": 2123,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 31.28,
+          "mdd": 4.52,
+          "sharpe": 2.753,
+          "win_rate": 47.7,
+          "profit_factor": 2.6,
+          "trades": 1169,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 8,
+          "slow_period": 26,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.2
+        },
+        "is": {
+          "cagr": 29.4,
+          "mdd": 4.57,
+          "sharpe": 3.37,
+          "win_rate": 43.2,
+          "profit_factor": 2.68,
+          "trades": 2123,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 30.4,
+          "mdd": 4.33,
+          "sharpe": 3.034,
+          "win_rate": 47.1,
+          "profit_factor": 2.65,
+          "trades": 1169,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 8,
+          "slow_period": 26,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.2
+        },
+        "is": {
+          "cagr": 30.8,
+          "mdd": 5.21,
+          "sharpe": 3.321,
+          "win_rate": 44.5,
+          "profit_factor": 2.68,
+          "trades": 2123,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 29.61,
+          "mdd": 4.03,
+          "sharpe": 2.908,
+          "win_rate": 48.0,
+          "profit_factor": 2.52,
+          "trades": 1169,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 12,
+          "slow_period": 20,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 33.07,
+          "mdd": 4.32,
+          "sharpe": 3.408,
+          "win_rate": 43.9,
+          "profit_factor": 2.87,
+          "trades": 1952,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 27.21,
+          "mdd": 4.16,
+          "sharpe": 2.654,
+          "win_rate": 44.1,
+          "profit_factor": 2.53,
+          "trades": 1079,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "fast_period": 12,
+          "slow_period": 20,
+          "signal_period": 9
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 33.05,
+          "mdd": 4.62,
+          "sharpe": 3.279,
+          "win_rate": 45.1,
+          "profit_factor": 2.79,
+          "trades": 1952,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 26.51,
+          "mdd": 4.68,
+          "sharpe": 2.545,
+          "win_rate": 44.8,
+          "profit_factor": 2.39,
+          "trades": 1079,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      }
+    ]
+  },
+  "atr_breakout": {
+    "best": {
+      "strat_params": {
+        "lookback": 15,
+        "breakout_mult": 0.5
+      },
+      "bt_params": {
+        "stop_loss": 0.03,
+        "take_profit": 0.15
+      },
+      "is": {
+        "cagr": 36.28,
+        "mdd": 3.55,
+        "sharpe": 3.937,
+        "win_rate": 43.4,
+        "profit_factor": 3.81,
+        "trades": 1066,
+        "pass": "True"
+      },
+      "oos": {
+        "cagr": 27.65,
+        "mdd": 7.13,
+        "sharpe": 2.956,
+        "win_rate": 40.2,
+        "profit_factor": 3.33,
+        "trades": 512,
+        "pass": "True"
+      },
+      "both_pass": "True"
+    },
+    "all": [
+      {
+        "strat_params": {
+          "lookback": 15,
+          "breakout_mult": 0.5
+        },
+        "bt_params": {
+          "stop_loss": 0.03,
+          "take_profit": 0.15
+        },
+        "is": {
+          "cagr": 36.28,
+          "mdd": 3.55,
+          "sharpe": 3.937,
+          "win_rate": 43.4,
+          "profit_factor": 3.81,
+          "trades": 1066,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 27.65,
+          "mdd": 7.13,
+          "sharpe": 2.956,
+          "win_rate": 40.2,
+          "profit_factor": 3.33,
+          "trades": 512,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 15,
+          "breakout_mult": 0.5
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.15
+        },
+        "is": {
+          "cagr": 34.73,
+          "mdd": 4.18,
+          "sharpe": 3.641,
+          "win_rate": 48.0,
+          "profit_factor": 3.44,
+          "trades": 1002,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 27.27,
+          "mdd": 8.68,
+          "sharpe": 2.611,
+          "win_rate": 43.7,
+          "profit_factor": 2.88,
+          "trades": 492,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 15,
+          "breakout_mult": 0.7
+        },
+        "bt_params": {
+          "stop_loss": 0.03,
+          "take_profit": 0.15
+        },
+        "is": {
+          "cagr": 32.59,
+          "mdd": 3.76,
+          "sharpe": 3.902,
+          "win_rate": 46.6,
+          "profit_factor": 4.33,
+          "trades": 886,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 25.4,
+          "mdd": 8.92,
+          "sharpe": 2.37,
+          "win_rate": 42.1,
+          "profit_factor": 3.6,
+          "trades": 435,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 15,
+          "breakout_mult": 0.7
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.15
+        },
+        "is": {
+          "cagr": 31.2,
+          "mdd": 4.02,
+          "sharpe": 3.623,
+          "win_rate": 50.3,
+          "profit_factor": 3.76,
+          "trades": 849,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 23.37,
+          "mdd": 9.44,
+          "sharpe": 2.166,
+          "win_rate": 43.8,
+          "profit_factor": 2.9,
+          "trades": 422,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 20,
+          "breakout_mult": 0.5
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.15
+        },
+        "is": {
+          "cagr": 30.45,
+          "mdd": 3.33,
+          "sharpe": 3.513,
+          "win_rate": 47.7,
+          "profit_factor": 3.41,
+          "trades": 914,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 22.73,
+          "mdd": 8.23,
+          "sharpe": 2.369,
+          "win_rate": 44.9,
+          "profit_factor": 3.03,
+          "trades": 414,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 20,
+          "breakout_mult": 0.5
+        },
+        "bt_params": {
+          "stop_loss": 0.03,
+          "take_profit": 0.15
+        },
+        "is": {
+          "cagr": 31.89,
+          "mdd": 3.03,
+          "sharpe": 3.794,
+          "win_rate": 43.8,
+          "profit_factor": 3.87,
+          "trades": 960,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 22.48,
+          "mdd": 6.73,
+          "sharpe": 2.631,
+          "win_rate": 40.8,
+          "profit_factor": 3.41,
+          "trades": 436,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 20,
+          "breakout_mult": 0.7
+        },
+        "bt_params": {
+          "stop_loss": 0.03,
+          "take_profit": 0.15
+        },
+        "is": {
+          "cagr": 29.69,
+          "mdd": 2.91,
+          "sharpe": 3.921,
+          "win_rate": 47.0,
+          "profit_factor": 4.38,
+          "trades": 807,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 21.73,
+          "mdd": 6.75,
+          "sharpe": 2.576,
+          "win_rate": 44.1,
+          "profit_factor": 3.9,
+          "trades": 367,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 15,
+          "breakout_mult": 0.7
+        },
+        "bt_params": {
+          "stop_loss": 0.03,
+          "take_profit": 0.25
+        },
+        "is": {
+          "cagr": 26.16,
+          "mdd": 4.69,
+          "sharpe": 2.668,
+          "win_rate": 32.6,
+          "profit_factor": 3.88,
+          "trades": 737,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 20.74,
+          "mdd": 9.46,
+          "sharpe": 2.043,
+          "win_rate": 29.9,
+          "profit_factor": 3.32,
+          "trades": 348,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 15,
+          "breakout_mult": 0.5
+        },
+        "bt_params": {
+          "stop_loss": 0.03,
+          "take_profit": 0.25
+        },
+        "is": {
+          "cagr": 27.6,
+          "mdd": 6.54,
+          "sharpe": 2.57,
+          "win_rate": 30.4,
+          "profit_factor": 3.53,
+          "trades": 864,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 20.46,
+          "mdd": 7.94,
+          "sharpe": 2.138,
+          "win_rate": 27.4,
+          "profit_factor": 2.98,
+          "trades": 405,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "lookback": 20,
+          "breakout_mult": 0.7
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.15
+        },
+        "is": {
+          "cagr": 28.4,
+          "mdd": 3.2,
+          "sharpe": 3.663,
+          "win_rate": 50.6,
+          "profit_factor": 3.8,
+          "trades": 777,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 20.09,
+          "mdd": 7.07,
+          "sharpe": 2.367,
+          "win_rate": 45.8,
+          "profit_factor": 3.13,
+          "trades": 358,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      }
+    ]
+  },
+  "dcb": {
+    "best": {
+      "strat_params": {
+        "entry_period": 15,
+        "adx_threshold": 20.0
+      },
+      "bt_params": {
+        "stop_loss": 0.04,
+        "take_profit": 0.3
+      },
+      "is": {
+        "cagr": 36.99,
+        "mdd": 4.0,
+        "sharpe": 3.41,
+        "win_rate": 51.9,
+        "profit_factor": 4.28,
+        "trades": 1323,
+        "pass": "True"
+      },
+      "oos": {
+        "cagr": 26.62,
+        "mdd": 8.93,
+        "sharpe": 2.3,
+        "win_rate": 45.6,
+        "profit_factor": 3.01,
+        "trades": 712,
+        "pass": "True"
+      },
+      "both_pass": "True"
+    },
+    "all": [
+      {
+        "strat_params": {
+          "entry_period": 15,
+          "adx_threshold": 20.0
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 36.99,
+          "mdd": 4.0,
+          "sharpe": 3.41,
+          "win_rate": 51.9,
+          "profit_factor": 4.28,
+          "trades": 1323,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 26.62,
+          "mdd": 8.93,
+          "sharpe": 2.3,
+          "win_rate": 45.6,
+          "profit_factor": 3.01,
+          "trades": 712,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 20,
+          "adx_threshold": 20.0
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 31.12,
+          "mdd": 3.93,
+          "sharpe": 3.192,
+          "win_rate": 52.0,
+          "profit_factor": 4.29,
+          "trades": 1156,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 25.51,
+          "mdd": 10.19,
+          "sharpe": 2.124,
+          "win_rate": 47.3,
+          "profit_factor": 3.38,
+          "trades": 594,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 15,
+          "adx_threshold": 20.0
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 36.4,
+          "mdd": 4.3,
+          "sharpe": 3.346,
+          "win_rate": 52.9,
+          "profit_factor": 4.13,
+          "trades": 1304,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 25.42,
+          "mdd": 8.62,
+          "sharpe": 2.234,
+          "win_rate": 46.3,
+          "profit_factor": 2.84,
+          "trades": 702,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 15,
+          "adx_threshold": 20.0
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.2
+        },
+        "is": {
+          "cagr": 40.79,
+          "mdd": 4.26,
+          "sharpe": 3.896,
+          "win_rate": 51.7,
+          "profit_factor": 4.14,
+          "trades": 1429,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 25.01,
+          "mdd": 6.2,
+          "sharpe": 2.788,
+          "win_rate": 45.6,
+          "profit_factor": 2.81,
+          "trades": 754,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 20,
+          "adx_threshold": 20.0
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 31.02,
+          "mdd": 4.22,
+          "sharpe": 3.164,
+          "win_rate": 53.4,
+          "profit_factor": 4.25,
+          "trades": 1135,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 24.46,
+          "mdd": 10.11,
+          "sharpe": 2.055,
+          "win_rate": 47.9,
+          "profit_factor": 3.16,
+          "trades": 587,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 15,
+          "adx_threshold": 20.0
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.2
+        },
+        "is": {
+          "cagr": 39.44,
+          "mdd": 4.76,
+          "sharpe": 3.768,
+          "win_rate": 52.7,
+          "profit_factor": 3.97,
+          "trades": 1406,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 24.23,
+          "mdd": 6.51,
+          "sharpe": 2.61,
+          "win_rate": 46.6,
+          "profit_factor": 2.68,
+          "trades": 741,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 20,
+          "adx_threshold": 20.0
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.2
+        },
+        "is": {
+          "cagr": 33.87,
+          "mdd": 3.84,
+          "sharpe": 3.547,
+          "win_rate": 52.3,
+          "profit_factor": 4.19,
+          "trades": 1243,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 23.31,
+          "mdd": 6.76,
+          "sharpe": 2.63,
+          "win_rate": 47.4,
+          "profit_factor": 3.1,
+          "trades": 629,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 15,
+          "adx_threshold": 25.0
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 30.26,
+          "mdd": 4.24,
+          "sharpe": 3.289,
+          "win_rate": 49.1,
+          "profit_factor": 3.89,
+          "trades": 1166,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 23.03,
+          "mdd": 6.89,
+          "sharpe": 2.346,
+          "win_rate": 45.7,
+          "profit_factor": 3.01,
+          "trades": 619,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 20,
+          "adx_threshold": 20.0
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.2
+        },
+        "is": {
+          "cagr": 33.32,
+          "mdd": 4.31,
+          "sharpe": 3.483,
+          "win_rate": 53.5,
+          "profit_factor": 4.1,
+          "trades": 1222,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 22.6,
+          "mdd": 7.36,
+          "sharpe": 2.421,
+          "win_rate": 48.1,
+          "profit_factor": 2.93,
+          "trades": 621,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      },
+      {
+        "strat_params": {
+          "entry_period": 15,
+          "adx_threshold": 25.0
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 0.3
+        },
+        "is": {
+          "cagr": 29.86,
+          "mdd": 4.4,
+          "sharpe": 3.23,
+          "win_rate": 50.3,
+          "profit_factor": 3.71,
+          "trades": 1151,
+          "pass": "True"
+        },
+        "oos": {
+          "cagr": 22.41,
+          "mdd": 7.5,
+          "sharpe": 2.176,
+          "win_rate": 46.6,
+          "profit_factor": 2.87,
+          "trades": 610,
+          "pass": "True"
+        },
+        "both_pass": "True"
+      }
+    ]
+  },
+  "vwb": {
+    "best": {
+      "strat_params": {
+        "breakout_mult": 0.5,
+        "vol_multiplier": 1.2
+      },
+      "bt_params": {
+        "stop_loss": 0.04,
+        "take_profit": 10.0
+      },
+      "is": {
+        "cagr": 19.28,
+        "mdd": 20.87,
+        "sharpe": 1.149,
+        "win_rate": 19.7,
+        "profit_factor": 8.95,
+        "trades": 229,
+        "pass": "False"
+      },
+      "oos": {
+        "cagr": 15.61,
+        "mdd": 22.39,
+        "sharpe": 0.817,
+        "win_rate": 19.6,
+        "profit_factor": 4.24,
+        "trades": 168,
+        "pass": "False"
+      },
+      "both_pass": "False"
+    },
+    "all": [
+      {
+        "strat_params": {
+          "breakout_mult": 0.5,
+          "vol_multiplier": 1.2
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 19.28,
+          "mdd": 20.87,
+          "sharpe": 1.149,
+          "win_rate": 19.7,
+          "profit_factor": 8.95,
+          "trades": 229,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 15.61,
+          "mdd": 22.39,
+          "sharpe": 0.817,
+          "win_rate": 19.6,
+          "profit_factor": 4.24,
+          "trades": 168,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.3,
+          "vol_multiplier": 1.2
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 18.98,
+          "mdd": 21.68,
+          "sharpe": 1.112,
+          "win_rate": 18.4,
+          "profit_factor": 8.15,
+          "trades": 250,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 15.41,
+          "mdd": 22.52,
+          "sharpe": 0.801,
+          "win_rate": 18.0,
+          "profit_factor": 3.9,
+          "trades": 183,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.5,
+          "vol_multiplier": 1.2
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 18.24,
+          "mdd": 21.75,
+          "sharpe": 1.084,
+          "win_rate": 20.8,
+          "profit_factor": 7.73,
+          "trades": 216,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 15.27,
+          "mdd": 22.65,
+          "sharpe": 0.8,
+          "win_rate": 22.4,
+          "profit_factor": 3.96,
+          "trades": 152,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.7,
+          "vol_multiplier": 1.2
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 19.57,
+          "mdd": 20.93,
+          "sharpe": 1.177,
+          "win_rate": 20.8,
+          "profit_factor": 9.62,
+          "trades": 212,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 15.25,
+          "mdd": 22.3,
+          "sharpe": 0.81,
+          "win_rate": 21.4,
+          "profit_factor": 4.48,
+          "trades": 154,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.3,
+          "vol_multiplier": 1.2
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 17.79,
+          "mdd": 22.64,
+          "sharpe": 1.044,
+          "win_rate": 19.3,
+          "profit_factor": 6.95,
+          "trades": 238,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 15.18,
+          "mdd": 22.82,
+          "sharpe": 0.788,
+          "win_rate": 21.1,
+          "profit_factor": 3.77,
+          "trades": 161,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.7,
+          "vol_multiplier": 1.2
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 18.81,
+          "mdd": 21.92,
+          "sharpe": 1.125,
+          "win_rate": 22.4,
+          "profit_factor": 8.55,
+          "trades": 196,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 14.93,
+          "mdd": 22.54,
+          "sharpe": 0.792,
+          "win_rate": 24.1,
+          "profit_factor": 4.14,
+          "trades": 141,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.3,
+          "vol_multiplier": 1.5
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 19.04,
+          "mdd": 21.03,
+          "sharpe": 1.142,
+          "win_rate": 18.9,
+          "profit_factor": 8.67,
+          "trades": 233,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 14.84,
+          "mdd": 22.54,
+          "sharpe": 0.781,
+          "win_rate": 18.9,
+          "profit_factor": 3.94,
+          "trades": 175,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.5,
+          "vol_multiplier": 1.5
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 19.42,
+          "mdd": 20.34,
+          "sharpe": 1.184,
+          "win_rate": 20.3,
+          "profit_factor": 9.39,
+          "trades": 217,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 14.72,
+          "mdd": 22.42,
+          "sharpe": 0.784,
+          "win_rate": 20.4,
+          "profit_factor": 4.19,
+          "trades": 162,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.7,
+          "vol_multiplier": 1.5
+        },
+        "bt_params": {
+          "stop_loss": 0.04,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 19.42,
+          "mdd": 20.22,
+          "sharpe": 1.196,
+          "win_rate": 20.1,
+          "profit_factor": 9.79,
+          "trades": 204,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 14.68,
+          "mdd": 22.25,
+          "sharpe": 0.786,
+          "win_rate": 22.1,
+          "profit_factor": 4.5,
+          "trades": 149,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      },
+      {
+        "strat_params": {
+          "breakout_mult": 0.3,
+          "vol_multiplier": 1.5
+        },
+        "bt_params": {
+          "stop_loss": 0.05,
+          "take_profit": 10.0
+        },
+        "is": {
+          "cagr": 17.92,
+          "mdd": 21.7,
+          "sharpe": 1.077,
+          "win_rate": 19.8,
+          "profit_factor": 7.39,
+          "trades": 222,
+          "pass": "False"
+        },
+        "oos": {
+          "cagr": 14.64,
+          "mdd": 22.65,
+          "sharpe": 0.769,
+          "win_rate": 21.5,
+          "profit_factor": 3.72,
+          "trades": 158,
+          "pass": "False"
+        },
+        "both_pass": "False"
+      }
+    ]
+  }
+}
