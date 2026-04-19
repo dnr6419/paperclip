@@ -3,6 +3,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "==> Local changes detected, stashing..."
+    git stash save "pre-deploy-$(date +%Y%m%d-%H%M%S)"
+fi
+
 echo "==> Pulling latest from origin/main..."
 git pull origin main
 
