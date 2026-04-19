@@ -1,5 +1,5 @@
 """
-Period-based backtest runner: 10 strategies × 3 periods (단기/중기/장기).
+Period-based backtest runner: 13 strategies × 3 periods (단기/중기/장기).
 Results are merged into results.json under short_term, medium_term, long_term keys.
 """
 import sys, os, json, warnings, inspect
@@ -14,7 +14,8 @@ from strategies import (
     CandleRSIStrategy, ADXTrendStrategy,
     High52WBreakoutStrategy, ATRBreakoutStrategy,
     BBMeanReversionStrategy, VWBStrategy, MTMStrategy,
-    DCBStrategy,
+    DCBStrategy, MACDMomentumStrategy,
+    GapFillStrategy, DualMomentumStrategy,
 )
 from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
@@ -31,6 +32,9 @@ STRATEGIES = {
     "VWB":                (VWBStrategy(),             {"stop_loss": 0.05, "take_profit": 10.0}),
     "MTM":                (MTMStrategy(),             {"stop_loss": 0.05, "take_profit": 0.20}),
     "DCB":                (DCBStrategy(),             {"stop_loss": 0.05, "take_profit": 0.25}),
+    "MACD Momentum":      (MACDMomentumStrategy(),    {"stop_loss": 0.05, "take_profit": 0.25}),
+    "Gap Fill":           (GapFillStrategy(),         {"stop_loss": 0.03, "take_profit": 0.05}),
+    "Dual Momentum":      (DualMomentumStrategy(),    {"stop_loss": 0.05, "take_profit": 0.30}),
 }
 
 PERIODS = {

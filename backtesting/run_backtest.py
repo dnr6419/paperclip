@@ -180,9 +180,18 @@ def main():
         print(f"  {strat:<20} {w*100:5.1f}%  (Sharpe={sharpe}, MDD={mdd}%)")
 
     out_path = os.path.join(os.path.dirname(__file__), "results.json")
+    try:
+        with open(out_path) as f:
+            existing = json.load(f)
+    except Exception:
+        existing = {}
+
+    existing.update(output)
+
     with open(out_path, "w") as f:
-        json.dump(output, f, indent=2, ensure_ascii=False)
-    print(f"\nResults saved to {out_path}")
+        json.dump(existing, f, indent=2, ensure_ascii=False)
+    print(f"\nResults merged into {out_path}")
+    print("Keys present:", list(existing.keys()))
     return output
 
 
