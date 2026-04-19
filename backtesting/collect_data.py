@@ -15,7 +15,8 @@ from backtesting.db import get_connection, get_es_client, ensure_es_indices, OHL
 
 START_DATE = "2019-01-01"
 END_DATE = "2024-12-31"
-BATCH_SLEEP = 0.3
+BATCH_SLEEP = 2.0
+MAX_RETRIES = 3
 
 SP500_TICKERS = [
     # Technology
@@ -64,6 +65,30 @@ def fetch_ohlcv(ticker: str, start: str, end: str) -> pd.DataFrame | None:
     df.columns = ["open", "high", "low", "close", "volume"]
     df.index.name = "date"
     return df
+
+
+def fetch_ohlcv_batch(tickers: list[str], start: str, end: str) -> dict[str, pd.DataFrame]:
+    raw = yf.download(tickers, start=start, end=end, auto_adjust=True,
+                      progress=True, group_by="ticker", threads=False)
+    result = {}
+    if raw.empty:
+        return result
+    for ticker in tickers:
+        try:
+            if len(tickers) == 1:
+                df = raw.copy()
+            else:
+                df = raw[ticker].copy()
+            df = df.dropna(subset=["Close"])
+            if df.empty:
+                continue
+            df = df[["Open", "High", "Low", "Close", "Volume"]].copy()
+            df.columns = ["open", "high", "low", "close", "volume"]
+            df.index.name = "date"
+            result[ticker] = df
+        except (KeyError, TypeError):
+            continue
+    return result
 
 
 def insert_ohlcv_batch(cur, stock_id, df: pd.DataFrame):
@@ -146,36 +171,67 @@ def collect_sp500(tickers, start, end):
     ensure_es_indices(es)
     print("  Elasticsearch connected and indices ready")
 
-    with get_connection() as conn:
-        cur = conn.cursor()
-        for i, ticker in enumerate(tickers, 1):
-            try:
-                info = yf.Ticker(ticker).info
-                name = info.get("shortName") or info.get("longName") or ticker
-                market = get_market_for_ticker(ticker)
-                stock_id = upsert_stock(cur, ticker, name, market)
+    batch_size = 10
+    for batch_start in range(0, len(tickers), batch_size):
+        batch = tickers[batch_start:batch_start + batch_size]
+        batch_num = batch_start // batch_size + 1
+        total_batches = (len(tickers) + batch_size - 1) // batch_size
+        print(f"\n  Batch {batch_num}/{total_batches}: {', '.join(batch)}")
 
-                df = fetch_ohlcv(ticker, start, end)
+        for attempt in range(MAX_RETRIES):
+            try:
+                data = fetch_ohlcv_batch(batch, start, end)
+                break
+            except Exception as e:
+                if attempt < MAX_RETRIES - 1:
+                    wait = BATCH_SLEEP * (2 ** (attempt + 1))
+                    print(f"    Download failed, retry in {wait}s... ({e})")
+                    time.sleep(wait)
+                else:
+                    print(f"    Batch download FAILED: {e}")
+                    for t in batch:
+                        failed.append((t, str(e)))
+                    data = {}
+
+        if not data:
+            print(f"    No data returned for this batch")
+            for t in batch:
+                if t not in [f[0] for f in failed]:
+                    failed.append((t, "no data"))
+            time.sleep(BATCH_SLEEP)
+            continue
+
+        with get_connection() as conn:
+            cur = conn.cursor()
+            for i, ticker in enumerate(batch, batch_start + 1):
+                df = data.get(ticker)
                 if df is None or df.empty:
-                    print(f"  [{i}/{len(tickers)}] {ticker}: no data")
+                    print(f"    [{i}/{len(tickers)}] {ticker}: no data")
                     continue
 
-                count = insert_ohlcv_batch(cur, stock_id, df)
-                total_rows += count
+                try:
+                    market = get_market_for_ticker(ticker)
+                    stock_id = upsert_stock(cur, ticker, ticker, market)
+                    count = insert_ohlcv_batch(cur, stock_id, df)
+                    total_rows += count
 
-                index_stock_es(es, ticker, name, market, stock_id)
-                es_count = index_ohlcv_es(es, ticker, stock_id, df)
-                es_rows += es_count
+                    try:
+                        index_stock_es(es, ticker, ticker, market, stock_id)
+                        es_count = index_ohlcv_es(es, ticker, stock_id, df)
+                        es_rows += es_count
+                    except Exception as es_err:
+                        es_count = 0
+                        print(f"    [{i}/{len(tickers)}] {ticker}: ES write failed ({es_err}), PG ok")
 
-                print(f"  [{i}/{len(tickers)}] {ticker} ({name}): {count} PG + {es_count} ES rows")
+                    print(f"    [{i}/{len(tickers)}] {ticker}: {count} PG + {es_count} ES rows")
+                    conn.commit()
 
-                conn.commit()
-                time.sleep(BATCH_SLEEP)
+                except Exception as e:
+                    failed.append((ticker, str(e)))
+                    print(f"    [{i}/{len(tickers)}] {ticker}: FAILED — {e}")
+                    conn.rollback()
 
-            except Exception as e:
-                failed.append((ticker, str(e)))
-                print(f"  [{i}/{len(tickers)}] {ticker}: FAILED — {e}")
-                conn.rollback()
+        time.sleep(BATCH_SLEEP)
 
     return total_rows, es_rows, failed
 
