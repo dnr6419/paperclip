@@ -364,7 +364,12 @@
     }
 
     document.getElementById('tickerSelect').addEventListener('change', async (e) => {
-        await loadChart(e.target.value);
+        const ticker = e.target.value;
+        document.getElementById('tableTickerFilter').value = ticker;
+        const trades = filteredTrades();
+        renderTable(trades);
+        renderStats(trades);
+        await loadChart(ticker);
     });
 
     document.getElementById('tableTickerFilter').addEventListener('change', () => {
