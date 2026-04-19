@@ -1,0 +1,204 @@
+{
+  "in_sample": {
+    "EMA Crossover": {
+      "cagr": 6.5,
+      "mdd": 1.75,
+      "sharpe": 2.195,
+      "win_rate": 39.7,
+      "profit_factor": 3.19,
+      "total_trades": 297,
+      "avg_holding_days": 23.8
+    },
+    "RSI Reversal": {
+      "cagr": 6.68,
+      "mdd": 3.76,
+      "sharpe": 1.467,
+      "win_rate": 29.9,
+      "profit_factor": 2.68,
+      "total_trades": 264,
+      "avg_holding_days": 39.0
+    },
+    "Candle+RSI": {
+      "cagr": 6.11,
+      "mdd": 1.51,
+      "sharpe": 2.325,
+      "win_rate": 56.5,
+      "profit_factor": 4.07,
+      "total_trades": 368,
+      "avg_holding_days": 13.1
+    },
+    "ADX Trend": {
+      "cagr": 5.79,
+      "mdd": 3.43,
+      "sharpe": 1.422,
+      "win_rate": 27.1,
+      "profit_factor": 2.22,
+      "total_trades": 299,
+      "avg_holding_days": 41.1
+    },
+    "52W Breakout": {
+      "cagr": 8.02,
+      "mdd": 2.68,
+      "sharpe": 2.402,
+      "win_rate": 56.9,
+      "profit_factor": 4.41,
+      "total_trades": 144,
+      "avg_holding_days": 33.6
+    },
+    "ATR Breakout": {
+      "cagr": 26.57,
+      "mdd": 4.54,
+      "sharpe": 2.932,
+      "win_rate": 41.7,
+      "profit_factor": 3.53,
+      "total_trades": 669,
+      "avg_holding_days": 32.6
+    },
+    "VWB": {
+      "cagr": 22.3,
+      "mdd": 2.38,
+      "sharpe": 3.841,
+      "win_rate": 67.8,
+      "profit_factor": 7.55,
+      "total_trades": 774,
+      "avg_holding_days": 11.3
+    },
+    "MTM": {
+      "cagr": 14.25,
+      "mdd": 2.41,
+      "sharpe": 2.837,
+      "win_rate": 49.6,
+      "profit_factor": 2.86,
+      "total_trades": 1091,
+      "avg_holding_days": 9.8
+    },
+    "DCB": {
+      "cagr": 26.23,
+      "mdd": 4.4,
+      "sharpe": 3.014,
+      "win_rate": 49.6,
+      "profit_factor": 3.53,
+      "total_trades": 1020,
+      "avg_holding_days": 16.2
+    },
+    "MACD Momentum": {
+      "cagr": 27.54,
+      "mdd": 5.35,
+      "sharpe": 3.105,
+      "win_rate": 43.8,
+      "profit_factor": 2.6,
+      "total_trades": 1737,
+      "avg_holding_days": 15.4
+    },
+    "Gap Fill": {
+      "cagr": 0.9,
+      "mdd": 2.74,
+      "sharpe": 0.291,
+      "win_rate": 48.2,
+      "profit_factor": 1.26,
+      "total_trades": 490,
+      "avg_holding_days": 1.7
+    }
+  },
+  "out_of_sample": {
+    "EMA Crossover": {
+      "cagr": 5.0,
+      "mdd": 1.67,
+      "sharpe": 1.431,
+      "win_rate": 37.0,
+      "profit_factor": 2.51,
+      "total_trades": 162,
+      "avg_holding_days": 24.2
+    },
+    "RSI Reversal": {
+      "cagr": 7.16,
+      "mdd": 2.62,
+      "sharpe": 1.486,
+      "win_rate": 38.1,
+      "profit_factor": 3.3,
+      "total_trades": 97,
+      "avg_holding_days": 46.2
+    },
+    "Candle+RSI": {
+      "cagr": 7.22,
+      "mdd": 0.86,
+      "sharpe": 3.003,
+      "win_rate": 55.6,
+      "profit_factor": 4.1,
+      "total_trades": 207,
+      "avg_holding_days": 12.4
+    },
+    "ADX Trend": {
+      "cagr": 8.33,
+      "mdd": 2.87,
+      "sharpe": 1.88,
+      "win_rate": 35.8,
+      "profit_factor": 3.03,
+      "total_trades": 148,
+      "avg_holding_days": 50.0
+    },
+    "52W Breakout": {
+      "cagr": 4.38,
+      "mdd": 3.86,
+      "sharpe": 1.013,
+      "win_rate": 42.6,
+      "profit_factor": 2.47,
+      "total_trades": 47,
+      "avg_holding_days": 47.4
+    },
+    "ATR Breakout": {
+      "cagr": 17.81,
+      "mdd": 6.84,
+      "sharpe": 2.261,
+      "win_rate": 38.4,
+      "profit_factor": 2.99,
+      "total_trades": 302,
+      "avg_holding_days": 35.7
+    },
+    "VWB": {
+      "cagr": 18.26,
+      "mdd": 4.4,
+      "sharpe": 3.012,
+      "win_rate": 67.3,
+      "profit_factor": 6.91,
+      "total_trades": 367,
+      "avg_holding_days": 11.1
+    },
+    "MTM": {
+      "cagr": 8.97,
+      "mdd": 2.66,
+      "sharpe": 2.06,
+      "win_rate": 46.7,
+      "profit_factor": 2.03,
+      "total_trades": 593,
+      "avg_holding_days": 10.2
+    },
+    "DCB": {
+      "cagr": 19.96,
+      "mdd": 5.58,
+      "sharpe": 2.516,
+      "win_rate": 47.4,
+      "profit_factor": 3.0,
+      "total_trades": 511,
+      "avg_holding_days": 15.6
+    },
+    "MACD Momentum": {
+      "cagr": 24.86,
+      "mdd": 4.45,
+      "sharpe": 2.543,
+      "win_rate": 45.1,
+      "profit_factor": 2.34,
+      "total_trades": 977,
+      "avg_holding_days": 15.6
+    },
+    "Gap Fill": {
+      "cagr": -0.45,
+      "mdd": 2.79,
+      "sharpe": -0.195,
+      "win_rate": 47.1,
+      "profit_factor": 0.84,
+      "total_trades": 102,
+      "avg_holding_days": 1.7
+    }
+  }
+}
