@@ -19,6 +19,7 @@ from strategies import (
     High52WBreakoutStrategy, ATRBreakoutStrategy,
     BBMeanReversionStrategy, VWBStrategy, MTMStrategy,
     DCBStrategy, MACDMomentumStrategy,
+    LETFMomentumBurstStrategy,
 )
 from backtesting.engine import run_backtest
 from backtesting.generate_data import generate_all_data
@@ -175,6 +176,27 @@ STRATEGY_MANUALS = {
                    "adx_period": 14, "adx_threshold": 20,
                    "stop_loss": "5%", "take_profit": "25%"},
     },
+    "LETF Momentum Burst": {
+        "buy": [
+            "2일 연속 양봉 (close > close.shift(1) 연속 2일)",
+            "RSI(3) > 50 이면서 상승 중 (단기 모멘텀 확인)",
+            "종가가 EMA(20) 위에 위치 (상승 추세 필터)",
+            "대상 종목: TQQQ, SOXL 등 3배 레버리지 ETF",
+        ],
+        "sell": [
+            "익절: 진입가 대비 +1.5% (타이트 TP — 높은 승률 핵심)",
+            "손절: 진입가 대비 -10%",
+            "시그널 청산: 첫 음봉 발생 시 즉시 청산",
+        ],
+        "params": {"rsi_period": 3, "ema_period": 20, "consecutive_up_days": 2,
+                   "stop_loss": "10%", "take_profit": "1.5%", "position_size": "10%"},
+        "notes": [
+            "비대칭 리스크/보상: 좁은 TP(1.5%)로 빠른 실현, 넓은 SL(10%)로 손절 최소화",
+            "평균 보유일: 1.3~1.7일 (초단기 매매)",
+            "백테스트 승률: TQQQ 80.9~96.7%, SOXL 83.3~95.6%",
+            "전략 A/B/C는 음의 CAGR로 탈락 — Momentum Burst만 유효",
+        ],
+    },
 }
 
 
@@ -190,6 +212,7 @@ STRATEGY_FACTORY = {
     "MTM":              lambda: MTMStrategy(),
     "DCB":              lambda: DCBStrategy(),
     "MACD Momentum":    lambda: MACDMomentumStrategy(),
+    "LETF Momentum Burst": lambda: LETFMomentumBurstStrategy(),
 }
 
 STRATEGY_PARAMS = {
@@ -204,6 +227,7 @@ STRATEGY_PARAMS = {
     "MTM":              {"stop_loss": 0.05, "take_profit": 0.20},
     "DCB":              {"stop_loss": 0.05, "take_profit": 0.25},
     "MACD Momentum":    {"stop_loss": 0.05, "take_profit": 0.25},
+    "LETF Momentum Burst": {"stop_loss": 0.10, "take_profit": 0.015},
 }
 
 PERIOD_RANGES = {

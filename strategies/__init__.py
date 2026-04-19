@@ -12,6 +12,7 @@ from .macd_momentum import MACDMomentumStrategy
 from .gap_fill import GapFillStrategy
 from .dual_momentum import DualMomentumStrategy
 from .ensemble import EnsembleRegimeStrategy, detect_regime
+from .leveraged_etf_oversold import LETFMomentumBurstStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -29,4 +30,5 @@ __all__ = [
     "DualMomentumStrategy",
     "EnsembleRegimeStrategy",
     "detect_regime",
+    "LETFMomentumBurstStrategy",
 ]
