@@ -1,0 +1,26 @@
+{
+  "best_params": {
+    "wr_period": 10,
+    "oversold": -75.0,
+    "overbought": -25.0,
+    "sma_filter": 30
+  },
+  "in_sample": {
+    "cagr": 29.35,
+    "mdd": 3.3,
+    "sharpe": 3.618,
+    "win_rate": 78.9,
+    "profit_factor": 5.84,
+    "total_trades": 361,
+    "avg_holding_days": 7.2
+  },
+  "out_of_sample": {
+    "cagr": 22.4,
+    "mdd": 1.92,
+    "sharpe": 4.184,
+    "win_rate": 76.5,
+    "profit_factor": 4.61,
+    "total_trades": 183,
+    "avg_holding_days": 7.0
+  }
+}
