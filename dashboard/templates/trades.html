@@ -73,6 +73,7 @@
             <div class="legend-row">
                 <span><span class="legend-dot dot-buy"></span>매수 (BUY)</span>
                 <span><span class="legend-dot dot-sell"></span>매도 (SELL)</span>
+                <span><span style="display:inline-block;width:10px;height:10px;margin-right:5px;color:#f59e0b;font-weight:bold;font-size:14px;line-height:10px;">✕</span>미체결</span>
                 <span style="margin-left:auto;color:#888;font-size:12px;" id="chartTitle"></span>
             </div>
             <div class="chart-wrap">
@@ -247,8 +248,10 @@
 
         const buyData = new Array(dates.length).fill(null);
         const sellData = new Array(dates.length).fill(null);
+        const unfilledData = new Array(dates.length).fill(null);
         const buyMeta = {};
         const sellMeta = {};
+        const unfilledMeta = {};
 
         allTrades.forEach(t => {
             const pd = priceMap[t.ticker];
@@ -262,8 +265,14 @@
             }
             if (t.exit_date && dateIndex[t.exit_date] !== undefined) {
                 const idx = dateIndex[t.exit_date];
-                sellData[idx] = ((t.exit_price - base) / base) * 100;
-                sellMeta[idx] = t;
+                const normPrice = ((t.exit_price - base) / base) * 100;
+                if (t.exit_reason === 'end') {
+                    unfilledData[idx] = normPrice;
+                    unfilledMeta[idx] = t;
+                } else {
+                    sellData[idx] = normPrice;
+                    sellMeta[idx] = t;
+                }
             }
         });
 
@@ -292,6 +301,18 @@
             pointHoverRadius: 10,
             order: 2,
         });
+        datasets.push({
+            label: '미체결',
+            data: unfilledData,
+            showLine: false,
+            backgroundColor: '#f59e0b',
+            borderColor: '#d97706',
+            borderWidth: 2,
+            pointRadius: unfilledData.map(v => v !== null ? 9 : 0),
+            pointStyle: 'crossRot',
+            pointHoverRadius: 11,
+            order: 0,
+        });
 
         if (chart) chart.destroy();
         const ctx = document.getElementById('tradeChart').getContext('2d');
@@ -314,15 +335,25 @@
                         callbacks: {
                             title(items) { return items[0].label; },
                             label(item) {
-                                if (item.dataset.label === '매수' || item.dataset.label === '매도') {
+                                if (item.dataset.label === '매수' || item.dataset.label === '매도' || item.dataset.label === '미체결') {
                                     const idx = item.dataIndex;
-                                    const meta = item.dataset.label === '매수' ? buyMeta : sellMeta;
+                                    let meta;
+                                    if (item.dataset.label === '매수') meta = buyMeta;
+                                    else if (item.dataset.label === '매도') meta = sellMeta;
+                                    else meta = unfilledMeta;
                                     const t = meta[idx];
                                     if (!t) return `${item.dataset.label}: ${item.raw.toFixed(1)}%`;
                                     if (item.dataset.label === '매수') {
-                                        return [`${t.ticker} 매수 $${t.entry_price.toFixed(2)}`,
+                                        const tag = t.exit_reason === 'end' ? ' [미체결]' : '';
+                                        return [`${t.ticker} 매수 $${t.entry_price.toFixed(2)}${tag}`,
                                                 `→ 청산 $${t.exit_price.toFixed(2)} (${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%)`,
                                                 `보유: ${t.holding_days}일`];
+                                    }
+                                    if (item.dataset.label === '미체결') {
+                                        return [`✕ ${t.ticker} 미체결 $${t.exit_price.toFixed(2)}`,
+                                                `진입 $${t.entry_price.toFixed(2)}`,
+                                                `수익률: ${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%`,
+                                                `보유: ${t.holding_days}일 (기간 종료)`];
                                     }
                                     return [`${t.ticker} 매도 $${t.exit_price.toFixed(2)}`,
                                             `진입 $${t.entry_price.toFixed(2)}`,
@@ -346,7 +377,11 @@
     }
 
     function renderChartSingle(priceData, trades, ticker) {
-        document.getElementById('chartTitle').textContent = `${ticker} — ${trades.length}건 체결`;
+        const filledCount = trades.filter(t => t.exit_reason !== 'end').length;
+        const unfilledCount = trades.filter(t => t.exit_reason === 'end').length;
+        let titleParts = [`${ticker} — ${filledCount}건 체결`];
+        if (unfilledCount > 0) titleParts.push(`${unfilledCount}건 미체결`);
+        document.getElementById('chartTitle').textContent = titleParts.join(', ');
 
         const dates = priceData.dates;
         const dateIndex = {};
@@ -354,8 +389,10 @@
 
         const buyData = new Array(dates.length).fill(null);
         const sellData = new Array(dates.length).fill(null);
+        const unfilledData = new Array(dates.length).fill(null);
         const buyMeta = {};
         const sellMeta = {};
+        const unfilledMeta = {};
 
         trades.forEach(t => {
             if (t.entry_date && dateIndex[t.entry_date] !== undefined) {
@@ -365,8 +402,13 @@
             }
             if (t.exit_date && dateIndex[t.exit_date] !== undefined) {
                 const idx = dateIndex[t.exit_date];
-                sellData[idx] = t.exit_price;
-                sellMeta[idx] = t;
+                if (t.exit_reason === 'end') {
+                    unfilledData[idx] = t.exit_price;
+                    unfilledMeta[idx] = t;
+                } else {
+                    sellData[idx] = t.exit_price;
+                    sellMeta[idx] = t;
+                }
             }
         });
 
@@ -386,7 +428,7 @@
                         pointRadius: 0,
                         pointHoverRadius: 0,
                         tension: 0,
-                        order: 3,
+                        order: 4,
                     },
                     {
                         label: '매수',
@@ -398,7 +440,6 @@
                         pointRadius: buyData.map(v => v !== null ? 7 : 0),
                         pointStyle: 'triangle',
                         pointHoverRadius: 9,
-                        spanGaps: false,
                         order: 1,
                     },
                     {
@@ -412,8 +453,19 @@
                         pointStyle: 'triangle',
                         rotation: 180,
                         pointHoverRadius: 9,
-                        spanGaps: false,
                         order: 2,
+                    },
+                    {
+                        label: '미체결',
+                        data: unfilledData,
+                        showLine: false,
+                        backgroundColor: '#f59e0b',
+                        borderColor: '#d97706',
+                        borderWidth: 2,
+                        pointRadius: unfilledData.map(v => v !== null ? 8 : 0),
+                        pointStyle: 'crossRot',
+                        pointHoverRadius: 10,
+                        order: 0,
                     },
                 ],
             },
@@ -432,11 +484,18 @@
                                     return `종가: ${item.raw.toFixed(2)}`;
                                 }
                                 const idx = item.dataIndex;
-                                const meta = item.dataset.label === '매수' ? buyMeta : sellMeta;
+                                let meta;
+                                if (item.dataset.label === '매수') meta = buyMeta;
+                                else if (item.dataset.label === '매도') meta = sellMeta;
+                                else meta = unfilledMeta;
                                 const t = meta[idx];
                                 if (!t) return `${item.dataset.label}: ${item.raw.toFixed(2)}`;
                                 if (item.dataset.label === '매수') {
-                                    return [`매수가: ${t.entry_price.toFixed(2)}`, `→ 청산: ${t.exit_price.toFixed(2)} (${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%)`, `보유: ${t.holding_days}일`];
+                                    const reason = t.exit_reason === 'end' ? ' [미체결]' : '';
+                                    return [`매수가: ${t.entry_price.toFixed(2)}${reason}`, `→ 청산: ${t.exit_price.toFixed(2)} (${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%)`, `보유: ${t.holding_days}일`];
+                                }
+                                if (item.dataset.label === '미체결') {
+                                    return [`✕ 미체결 $${t.exit_price.toFixed(2)}`, `진입: $${t.entry_price.toFixed(2)}`, `수익률: ${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%`, `보유: ${t.holding_days}일 (기간 종료)`];
                                 }
                                 return [`매도가: ${t.exit_price.toFixed(2)}`, `진입: ${t.entry_price.toFixed(2)}`, `수익률: ${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%`, `보유: ${t.holding_days}일`];
                             },
@@ -489,7 +548,7 @@
                 <td>${t.entry_price?.toFixed(2) ?? '-'}</td>
                 <td>${t.exit_price?.toFixed(2) ?? '-'}</td>
                 <td class="${t.pnl_pct >= 0 ? 'positive' : 'negative'}">${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct?.toFixed(2)}%</td>
-                <td>${t.holding_days ?? '-'}일</td>
+                <td>${t.holding_days ?? '-'}일${t.exit_reason === 'end' ? ' <span style="color:#f59e0b;font-weight:600;">✕미체결</span>' : ''}</td>
             </tr>
         `).join('');
     }

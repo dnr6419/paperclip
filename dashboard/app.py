@@ -266,6 +266,7 @@ def _run_strategy_trades(strategy_name: str, period: str) -> list:
                     "exit_price": round(float(t.exit_price), 2),
                     "pnl_pct": round(float(t.pnl_pct) * 100, 2),
                     "holding_days": (t.exit_date - t.entry_date).days if t.exit_date and t.entry_date else None,
+                    "exit_reason": getattr(t, "exit_reason", None),
                 })
         except Exception:
             pass
