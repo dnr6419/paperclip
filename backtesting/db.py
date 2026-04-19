@@ -1,11 +1,13 @@
 """
 Database connection and migration utilities.
 Reads config from environment variables or .env file.
+Supports PostgreSQL and Elasticsearch dual-write.
 """
 import os
 import glob
 import psycopg2
 from contextlib import contextmanager
+from elasticsearch import Elasticsearch
 
 DB_CONFIG = {
     "host": os.getenv("BACKTEST_DB_HOST", "localhost"),
@@ -14,6 +16,59 @@ DB_CONFIG = {
     "user": os.getenv("BACKTEST_DB_USER", "backtest"),
     "password": os.getenv("BACKTEST_DB_PASSWORD", "backtest"),
 }
+
+ES_CONFIG = {
+    "hosts": [os.getenv("BACKTEST_ES_URL", "https://192.168.45.75:9200")],
+    "basic_auth": (
+        os.getenv("BACKTEST_ES_USER", "elastic"),
+        os.getenv("BACKTEST_ES_PASSWORD", "DOF2026!"),
+    ),
+    "verify_certs": False,
+}
+
+OHLCV_INDEX = "ohlcv_daily"
+STOCKS_INDEX = "stocks"
+
+
+def get_es_client() -> Elasticsearch:
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    return Elasticsearch(**ES_CONFIG)
+
+
+def ensure_es_indices(es: Elasticsearch):
+    if not es.indices.exists(index=STOCKS_INDEX):
+        es.indices.create(index=STOCKS_INDEX, body={
+            "mappings": {
+                "properties": {
+                    "ticker": {"type": "keyword"},
+                    "name": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
+                    "market": {"type": "keyword"},
+                    "sector": {"type": "keyword"},
+                    "industry": {"type": "keyword"},
+                    "is_active": {"type": "boolean"},
+                }
+            }
+        })
+
+    if not es.indices.exists(index=OHLCV_INDEX):
+        es.indices.create(index=OHLCV_INDEX, body={
+            "mappings": {
+                "properties": {
+                    "ticker": {"type": "keyword"},
+                    "stock_id": {"type": "long"},
+                    "date": {"type": "date", "format": "yyyy-MM-dd"},
+                    "open": {"type": "float"},
+                    "high": {"type": "float"},
+                    "low": {"type": "float"},
+                    "close": {"type": "float"},
+                    "volume": {"type": "long"},
+                    "adj_close": {"type": "float"},
+                    "adj_factor": {"type": "float"},
+                    "source": {"type": "keyword"},
+                }
+            }
+        })
 
 
 @contextmanager

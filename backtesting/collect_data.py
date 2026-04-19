@@ -1,6 +1,7 @@
 """
 S&P 500 OHLCV data collector using yfinance.
 Collects 6 years of daily data for 50 representative S&P 500 tickers.
+Dual-writes to PostgreSQL and Elasticsearch.
 """
 import os
 import sys
@@ -10,7 +11,7 @@ import pandas as pd
 import yfinance as yf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from backtesting.db import get_connection
+from backtesting.db import get_connection, get_es_client, ensure_es_indices, OHLCV_INDEX, STOCKS_INDEX
 
 START_DATE = "2019-01-01"
 END_DATE = "2024-12-31"
@@ -92,6 +93,45 @@ def insert_ohlcv_batch(cur, stock_id, df: pd.DataFrame):
     return len(rows)
 
 
+def index_stock_es(es, ticker, name, market, stock_id):
+    es.index(index=STOCKS_INDEX, id=ticker, document={
+        "ticker": ticker,
+        "name": name,
+        "market": market,
+        "stock_id": stock_id,
+        "is_active": True,
+    })
+
+
+def index_ohlcv_es(es, ticker, stock_id, df: pd.DataFrame):
+    from elasticsearch.helpers import bulk
+
+    actions = []
+    for date, row in df.iterrows():
+        doc_id = f"{ticker}_{date.strftime('%Y-%m-%d')}"
+        actions.append({
+            "_index": OHLCV_INDEX,
+            "_id": doc_id,
+            "_source": {
+                "ticker": ticker,
+                "stock_id": stock_id,
+                "date": date.strftime("%Y-%m-%d"),
+                "open": float(row["open"]),
+                "high": float(row["high"]),
+                "low": float(row["low"]),
+                "close": float(row["close"]),
+                "volume": int(row["volume"]),
+                "adj_close": float(row["close"]),
+                "adj_factor": 1.0,
+                "source": "yfinance",
+            },
+        })
+
+    if actions:
+        bulk(es, actions, raise_on_error=False)
+    return len(actions)
+
+
 def collect_sp500(tickers, start, end):
     print(f"\n{'='*60}")
     print(f"Collecting S&P 500 — {len(tickers)} tickers")
@@ -99,7 +139,12 @@ def collect_sp500(tickers, start, end):
     print(f"{'='*60}")
 
     total_rows = 0
+    es_rows = 0
     failed = []
+
+    es = get_es_client()
+    ensure_es_indices(es)
+    print("  Elasticsearch connected and indices ready")
 
     with get_connection() as conn:
         cur = conn.cursor()
@@ -117,7 +162,12 @@ def collect_sp500(tickers, start, end):
 
                 count = insert_ohlcv_batch(cur, stock_id, df)
                 total_rows += count
-                print(f"  [{i}/{len(tickers)}] {ticker} ({name}): {count} rows")
+
+                index_stock_es(es, ticker, name, market, stock_id)
+                es_count = index_ohlcv_es(es, ticker, stock_id, df)
+                es_rows += es_count
+
+                print(f"  [{i}/{len(tickers)}] {ticker} ({name}): {count} PG + {es_count} ES rows")
 
                 conn.commit()
                 time.sleep(BATCH_SLEEP)
@@ -127,19 +177,22 @@ def collect_sp500(tickers, start, end):
                 print(f"  [{i}/{len(tickers)}] {ticker}: FAILED — {e}")
                 conn.rollback()
 
-    return total_rows, failed
+    return total_rows, es_rows, failed
 
 
 def main():
     print("OHLCV Data Collection — S&P 500 (50 representative tickers)")
     print(f"Period: {START_DATE} ~ {END_DATE}")
-    print(f"Tickers: {len(SP500_TICKERS)}\n")
+    print(f"Tickers: {len(SP500_TICKERS)}")
+    print(f"Targets: PostgreSQL + Elasticsearch\n")
 
-    rows, failed = collect_sp500(SP500_TICKERS, START_DATE, END_DATE)
+    pg_rows, es_rows, failed = collect_sp500(SP500_TICKERS, START_DATE, END_DATE)
 
     print(f"\n{'='*60}")
     print(f"Collection Complete")
-    print(f"  Total: {rows} rows, {len(failed)} failures")
+    print(f"  PostgreSQL: {pg_rows} rows")
+    print(f"  Elasticsearch: {es_rows} rows")
+    print(f"  Failures: {len(failed)}")
 
     if failed:
         print("\nFailed tickers:")

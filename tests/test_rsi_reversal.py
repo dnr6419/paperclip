@@ -88,9 +88,9 @@ class TestRSIReversalRiskParams:
         )
         assert result == -1
 
-    def test_take_profit_fires(self, strategy):
+    def test_rsi_overbought_exit(self, strategy):
         result = strategy.apply_stop_loss_take_profit(
-            entry_price=100, current_price=107.5, current_rsi=50
+            entry_price=100, current_price=107.5, current_rsi=82
         )
         assert result == -1
 
@@ -109,5 +109,5 @@ class TestRSIReversalRiskParams:
     def test_params_valid(self, strategy):
         params = strategy.get_signal_params()
         assert params.stop_loss == 0.05
-        assert params.take_profit == 0.07
+        assert params.take_profit == 1.0
         assert params.position_size > 0

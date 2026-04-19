@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS stocks (
     id          BIGSERIAL PRIMARY KEY,
     ticker      VARCHAR(10)  NOT NULL UNIQUE,
     name        VARCHAR(100) NOT NULL,
-    market      VARCHAR(10)  NOT NULL CHECK (market IN ('KOSPI','KOSDAQ')),
+    market      VARCHAR(10)  NOT NULL CHECK (market IN ('KOSPI','KOSDAQ','NYSE','NASDAQ')),
     sector      VARCHAR(100),
     industry    VARCHAR(100),
     is_active   BOOLEAN      NOT NULL DEFAULT TRUE,
