@@ -208,7 +208,7 @@
                             ('medium_term', 'badge-mt', '중기'),
                             ('long_term', 'badge-lt', '장기')
                         ] %}
-                        {% for name, m in static_results[period_key].items() if m %}
+                        {% for name, m in (static_results.get(period_key, {})).items() if m %}
                         <tr>
                             <td>{{ name }}</td>
                             <td><span class="badge {{ badge_cls }}">{{ badge_lbl }}</span></td>
@@ -385,6 +385,9 @@
 
     <script>
     const data = {{ static_results | tojson }};
+    data.short_term = data.short_term || data.out_of_sample || {};
+    data.medium_term = data.medium_term || data.in_sample || {};
+    data.long_term = data.long_term || data.in_sample || {};
     const strategies = Object.keys(data.short_term).filter(s => data.short_term[s] !== null);
 
     document.querySelectorAll('.tab').forEach(tab => {

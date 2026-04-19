@@ -286,7 +286,14 @@ def _get_db():
 
 def _load_static_results():
     with open(RESULTS_JSON) as f:
-        return json.load(f)
+        data = json.load(f)
+    if "short_term" not in data:
+        is_data = data.get("in_sample", {})
+        oos_data = data.get("out_of_sample", {})
+        data["short_term"] = oos_data
+        data["medium_term"] = is_data
+        data["long_term"] = is_data
+    return data
 
 
 def _load_db_runs(conn):
