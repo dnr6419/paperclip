@@ -13,6 +13,7 @@ from strategies import (
     EMACrossoverStrategy, RSIReversalStrategy,
     CandleRSIStrategy, ADXTrendStrategy,
     High52WBreakoutStrategy, MACDZeroCrossStrategy,
+    ATRBreakoutStrategy,
 )
 from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
@@ -24,6 +25,7 @@ STRATEGIES = {
     "ADX Trend":        (ADXTrendStrategy(),        {"stop_loss": 0.04, "take_profit": 0.25}),
     "52W Breakout":     (High52WBreakoutStrategy(), {"stop_loss": 0.06, "take_profit": 0.20}),
     "MACD Zero-Cross":  (MACDZeroCrossStrategy(),   {"stop_loss": 0.05, "take_profit": 0.25}),
+    "ATR Breakout":     (ATRBreakoutStrategy(),     {"stop_loss": 0.05, "take_profit": 0.20}),
 }
 
 PERIODS = {
@@ -76,7 +78,7 @@ def run_on_universe(strategy, params, stock_data, sp500_data):
 
 def main():
     print("=" * 60)
-    print("BACKTESTING RUNNER — 6 Strategies, Synthetic S&P 500 Universe")
+    print("BACKTESTING RUNNER — 7 Strategies, Synthetic S&P 500 Universe")
     print("=" * 60)
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")
