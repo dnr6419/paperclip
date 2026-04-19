@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backtesting Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
+        .header { background: #1a1d27; padding: 20px 32px; border-bottom: 1px solid #2a2d3a; }
+        .header h1 { font-size: 22px; color: #fff; }
+        .header p { font-size: 13px; color: #888; margin-top: 4px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+        .tab { padding: 8px 20px; border-radius: 6px; background: #1a1d27; border: 1px solid #2a2d3a; color: #aaa; cursor: pointer; font-size: 14px; }
+        .tab.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        .card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 10px; padding: 20px; }
+        .card h3 { font-size: 16px; margin-bottom: 16px; color: #fff; }
+        .metrics-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+        .metric { flex: 1; min-width: 80px; text-align: center; padding: 10px 6px; background: #12141c; border-radius: 8px; }
+        .metric .label { font-size: 11px; color: #888; text-transform: uppercase; }
+        .metric .value { font-size: 20px; font-weight: 700; margin-top: 2px; }
+        .positive { color: #22c55e; }
+        .negative { color: #ef4444; }
+        .neutral { color: #60a5fa; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 10px 12px; color: #888; border-bottom: 1px solid #2a2d3a; font-weight: 500; }
+        td { padding: 10px 12px; border-bottom: 1px solid #1e2030; }
+        tr:hover { background: #1e2030; }
+        .chart-wrap { position: relative; height: 300px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-is { background: #1e3a5f; color: #60a5fa; }
+        .badge-oos { background: #1a3a2a; color: #22c55e; }
+        .db-note { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #888; }
+        .db-note .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .dot-on { background: #22c55e; }
+        .dot-off { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Backtesting Results Dashboard</h1>
+        <p>전략별 백테스팅 성과 비교 및 분석</p>
+    </div>
+    <div class="container">
+        <div class="db-note">
+            <span class="dot {{ 'dot-on' if db_available else 'dot-off' }}"></span>
+            DB {{ '연결됨' if db_available else '미연결 — results.json 데이터 사용 중' }}
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="overview">Overview</div>
+            <div class="tab" data-tab="comparison">Strategy Comparison</div>
+            <div class="tab" data-tab="details">Detail Table</div>
+            {% if db_available %}<div class="tab" data-tab="dbruns">DB Runs</div>{% endif %}
+        </div>
+
+        <!-- Overview -->
+        <div class="section active" id="overview">
+            <div class="grid">
+                {% for name, m in static_results.out_of_sample.items() %}
+                <div class="card">
+                    <h3>{{ name }} <span class="badge badge-oos">OOS</span></h3>
+                    <div class="metrics-row">
+                        <div class="metric">
+                            <div class="label">CAGR</div>
+                            <div class="value {{ 'positive' if m.cagr > 0 else 'negative' }}">{{ "%.1f"|format(m.cagr) }}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="label">MDD</div>
+                            <div class="value negative">{{ "%.1f"|format(m.mdd) }}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="label">Sharpe</div>
+                            <div class="value {{ 'positive' if m.sharpe > 1.5 else 'neutral' }}">{{ "%.2f"|format(m.sharpe) }}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="label">Win Rate</div>
+                            <div class="value {{ 'positive' if m.win_rate > 50 else 'neutral' }}">{{ "%.1f"|format(m.win_rate) }}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="label">Trades</div>
+                            <div class="value neutral">{{ m.total_trades }}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="label">PF</div>
+                            <div class="value {{ 'positive' if m.profit_factor > 2 else 'neutral' }}">{{ "%.1f"|format(m.profit_factor) }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Comparison Charts -->
+        <div class="section" id="comparison">
+            <div class="grid">
+                <div class="card">
+                    <h3>CAGR Comparison (IS vs OOS)</h3>
+                    <div class="chart-wrap"><canvas id="cagrChart"></canvas></div>
+                </div>
+                <div class="card">
+                    <h3>Sharpe Ratio (IS vs OOS)</h3>
+                    <div class="chart-wrap"><canvas id="sharpeChart"></canvas></div>
+                </div>
+                <div class="card">
+                    <h3>Max Drawdown (IS vs OOS)</h3>
+                    <div class="chart-wrap"><canvas id="mddChart"></canvas></div>
+                </div>
+                <div class="card">
+                    <h3>Win Rate (IS vs OOS)</h3>
+                    <div class="chart-wrap"><canvas id="winrateChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="section" id="details">
+            <div class="card">
+                <h3>전략별 상세 지표</h3>
+                <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>Period</th>
+                            <th>CAGR (%)</th>
+                            <th>MDD (%)</th>
+                            <th>Sharpe</th>
+                            <th>Win Rate (%)</th>
+                            <th>PF</th>
+                            <th>Trades</th>
+                            <th>Avg Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name, m in static_results.in_sample.items() %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            <td><span class="badge badge-is">IS</span></td>
+                            <td class="{{ 'positive' if m.cagr > 0 else 'negative' }}">{{ "%.2f"|format(m.cagr) }}</td>
+                            <td class="negative">{{ "%.2f"|format(m.mdd) }}</td>
+                            <td>{{ "%.3f"|format(m.sharpe) }}</td>
+                            <td>{{ "%.1f"|format(m.win_rate) }}</td>
+                            <td>{{ "%.2f"|format(m.profit_factor) }}</td>
+                            <td>{{ m.total_trades }}</td>
+                            <td>{{ "%.1f"|format(m.avg_holding_days) }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% for name, m in static_results.out_of_sample.items() %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            <td><span class="badge badge-oos">OOS</span></td>
+                            <td class="{{ 'positive' if m.cagr > 0 else 'negative' }}">{{ "%.2f"|format(m.cagr) }}</td>
+                            <td class="negative">{{ "%.2f"|format(m.mdd) }}</td>
+                            <td>{{ "%.3f"|format(m.sharpe) }}</td>
+                            <td>{{ "%.1f"|format(m.win_rate) }}</td>
+                            <td>{{ "%.2f"|format(m.profit_factor) }}</td>
+                            <td>{{ m.total_trades }}</td>
+                            <td>{{ "%.1f"|format(m.avg_holding_days) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- DB Runs -->
+        {% if db_available %}
+        <div class="section" id="dbruns">
+            <div class="card">
+                <h3>Database Backtest Runs</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>Period</th>
+                            <th>CAGR (%)</th>
+                            <th>MDD (%)</th>
+                            <th>Sharpe</th>
+                            <th>Win Rate (%)</th>
+                            <th>Trades</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in db_runs %}
+                        <tr data-run-id="{{ r.id }}">
+                            <td>{{ r.strategy_name }}</td>
+                            <td>{{ r.start_date }} ~ {{ r.end_date }}</td>
+                            <td>{{ "%.2f"|format(r.cagr or 0) }}</td>
+                            <td>{{ "%.2f"|format(r.mdd or 0) }}</td>
+                            <td>{{ "%.3f"|format(r.sharpe or 0) }}</td>
+                            <td>{{ "%.1f"|format(r.win_rate or 0) }}</td>
+                            <td>{{ r.total_trades or 0 }}</td>
+                            <td>{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not db_runs %}
+                        <tr><td colspan="8" style="text-align:center;color:#666;">No completed runs in database</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+    const data = {{ static_results | tojson }};
+    const strategies = Object.keys(data.out_of_sample);
+
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+            if (tab.dataset.tab === 'comparison' && !window._chartsRendered) renderCharts();
+        });
+    });
+
+    const chartColors = { is: 'rgba(96, 165, 250, 0.8)', oos: 'rgba(34, 197, 94, 0.8)' };
+    const defaultOpts = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#aaa', font: { size: 12 } } } },
+        scales: {
+            x: { ticks: { color: '#888', font: { size: 11 } }, grid: { color: '#1e2030' } },
+            y: { ticks: { color: '#888' }, grid: { color: '#1e2030' } }
+        }
+    };
+
+    function makeBarChart(id, label, key) {
+        return new Chart(document.getElementById(id), {
+            type: 'bar',
+            data: {
+                labels: strategies,
+                datasets: [
+                    { label: 'In-Sample', data: strategies.map(s => data.in_sample[s][key]), backgroundColor: chartColors.is },
+                    { label: 'Out-of-Sample', data: strategies.map(s => data.out_of_sample[s][key]), backgroundColor: chartColors.oos }
+                ]
+            },
+            options: defaultOpts
+        });
+    }
+
+    function renderCharts() {
+        makeBarChart('cagrChart', 'CAGR (%)', 'cagr');
+        makeBarChart('sharpeChart', 'Sharpe Ratio', 'sharpe');
+        makeBarChart('mddChart', 'Max Drawdown (%)', 'mdd');
+        makeBarChart('winrateChart', 'Win Rate (%)', 'win_rate');
+        window._chartsRendered = true;
+    }
+    </script>
+</body>
+</html>

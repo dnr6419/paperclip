@@ -3,3 +3,6 @@ pandas>=2.0
 psycopg2-binary>=2.9
 yfinance>=0.2
 pytest>=9.0
+fastapi>=0.110
+uvicorn>=0.29
+jinja2>=3.1
