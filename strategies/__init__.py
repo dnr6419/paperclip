@@ -23,6 +23,7 @@ from .williams_r_reversion import WilliamsRReversionStrategy
 from .supertrend import SupertrendStrategy
 from .mfi_mean_reversion import MFIMeanReversionStrategy
 from .parabolic_sar import ParabolicSARStrategy
+from .ttm_squeeze import TTMSqueezeStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -51,4 +52,5 @@ __all__ = [
     "SupertrendStrategy",
     "MFIMeanReversionStrategy",
     "ParabolicSARStrategy",
+    "TTMSqueezeStrategy",
 ]
