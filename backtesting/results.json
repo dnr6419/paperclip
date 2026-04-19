@@ -55,13 +55,13 @@
       "avg_holding_days": 44.8
     },
     "BB Mean Reversion": {
-      "cagr": 10.19,
-      "mdd": 3.35,
-      "sharpe": 2.145,
-      "win_rate": 71.3,
-      "profit_factor": 4.93,
-      "total_trades": 87,
-      "avg_holding_days": 36.2
+      "cagr": 3.36,
+      "mdd": 2.5,
+      "sharpe": 1.487,
+      "win_rate": 69.2,
+      "profit_factor": 4.5,
+      "total_trades": 26,
+      "avg_holding_days": 25.1
     },
     "VWB": {
       "cagr": 17.62,
@@ -80,6 +80,15 @@
       "profit_factor": 5.13,
       "total_trades": 603,
       "avg_holding_days": 10.3
+    },
+    "DCB": {
+      "cagr": 40.8,
+      "mdd": 13.64,
+      "sharpe": 2.406,
+      "win_rate": 59.4,
+      "profit_factor": 5.52,
+      "total_trades": 404,
+      "avg_holding_days": 21.9
     }
   },
   "out_of_sample": {
@@ -138,13 +147,13 @@
       "avg_holding_days": 47.6
     },
     "BB Mean Reversion": {
-      "cagr": 13.12,
-      "mdd": 2.1,
-      "sharpe": 2.904,
-      "win_rate": 79.2,
-      "profit_factor": 8.97,
-      "total_trades": 48,
-      "avg_holding_days": 38.3
+      "cagr": 8.1,
+      "mdd": 1.81,
+      "sharpe": 2.914,
+      "win_rate": 82.4,
+      "profit_factor": 9.33,
+      "total_trades": 17,
+      "avg_holding_days": 21.4
     },
     "VWB": {
       "cagr": 15.02,
@@ -163,6 +172,15 @@
       "profit_factor": 4.81,
       "total_trades": 372,
       "avg_holding_days": 10.2
+    },
+    "DCB": {
+      "cagr": 62.1,
+      "mdd": 5.3,
+      "sharpe": 4.066,
+      "win_rate": 62.2,
+      "profit_factor": 7.03,
+      "total_trades": 222,
+      "avg_holding_days": 22.9
     }
   }
 }
