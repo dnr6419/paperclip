@@ -82,6 +82,7 @@
         .badge-st { background: #2a1a3a; color: #c084fc; }
         .badge-mt { background: #1e3a5f; color: #60a5fa; }
         .badge-lt { background: #1a3a2a; color: #22c55e; }
+        .trades-link:hover { color: #93c5fd; text-decoration: underline !important; }
     </style>
 </head>
 <body>
@@ -142,7 +143,8 @@
                         </div>
                         <div class="metric">
                             <div class="label">Trades</div>
-                            <div class="value neutral">{{ m.total_trades }}</div>
+                            <a href="/strategy/{{ name | urlencode }}/trades?period={{ selected_period }}"
+                               class="value neutral trades-link" style="text-decoration:none;display:block;">{{ m.total_trades }}</a>
                         </div>
                         <div class="metric">
                             <div class="label">PF</div>

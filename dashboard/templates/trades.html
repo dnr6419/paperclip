@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ strategy_name }} — 체결 차트</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
+        .header { background: #1a1d27; padding: 20px 32px; border-bottom: 1px solid #2a2d3a; display: flex; align-items: center; gap: 16px; }
+        .header a { color: #60a5fa; font-size: 14px; text-decoration: none; }
+        .header a:hover { text-decoration: underline; }
+        .header h1 { font-size: 20px; color: #fff; }
+        .header p { font-size: 13px; color: #888; margin-top: 2px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+        .period-btn { padding: 6px 16px; border-radius: 6px; background: #12141c; border: 1px solid #2a2d3a; color: #aaa; cursor: pointer; font-size: 13px; text-decoration: none; transition: all 0.15s; }
+        .period-btn:hover { border-color: #2563eb; color: #60a5fa; }
+        .period-btn.active { background: #1e3a5f; border-color: #2563eb; color: #60a5fa; font-weight: 600; }
+        .ticker-select { background: #12141c; border: 1px solid #2a2d3a; border-radius: 6px; padding: 6px 12px; color: #e0e0e0; font-size: 14px; cursor: pointer; }
+        .ticker-select option { background: #12141c; }
+        .card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .card h3 { font-size: 15px; color: #fff; margin-bottom: 16px; }
+        .chart-wrap { position: relative; height: 420px; }
+        .legend-row { display: flex; gap: 20px; margin-bottom: 12px; font-size: 13px; color: #aaa; }
+        .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+        .dot-buy { background: #22c55e; }
+        .dot-sell { background: #ef4444; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 10px 12px; color: #888; border-bottom: 1px solid #2a2d3a; font-weight: 500; cursor: pointer; user-select: none; }
+        th:hover { color: #aaa; }
+        td { padding: 10px 12px; border-bottom: 1px solid #1e2030; }
+        tr:hover { background: #1e2030; }
+        .positive { color: #22c55e; }
+        .negative { color: #ef4444; }
+        .neutral { color: #60a5fa; }
+        .loading { color: #888; font-size: 14px; text-align: center; padding: 48px; }
+        .error-msg { color: #ef4444; font-size: 14px; padding: 16px; }
+        .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .stat { background: #12141c; border-radius: 8px; padding: 10px 16px; text-align: center; }
+        .stat .slabel { font-size: 11px; color: #888; text-transform: uppercase; }
+        .stat .sval { font-size: 18px; font-weight: 700; margin-top: 2px; }
+        .filter-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+        .filter-row label { font-size: 13px; color: #888; }
+        select.filter-select { background: #12141c; border: 1px solid #2a2d3a; border-radius: 6px; padding: 4px 10px; color: #e0e0e0; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <a href="/?period={{ selected_period }}">← 대시보드</a>
+            <h1 style="margin-top:6px;">{{ strategy_name }} — 트레이드 체결 차트</h1>
+            <p>매수/매도 체결 시점이 표시된 가격 차트</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <span style="font-size:13px;color:#666;">기간:</span>
+            {% for key, label in period_labels.items() %}
+            <a href="/strategy/{{ strategy_name | urlencode }}/trades?period={{ key }}"
+               class="period-btn {{ 'active' if selected_period == key }}">{{ label }}</a>
+            {% endfor %}
+            <span style="font-size:13px;color:#666;margin-left:8px;">종목:</span>
+            <select class="ticker-select" id="tickerSelect">
+                <option value="">로딩 중...</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <div class="stat-row" id="statsRow"></div>
+            <div class="legend-row">
+                <span><span class="legend-dot dot-buy"></span>매수 (BUY)</span>
+                <span><span class="legend-dot dot-sell"></span>매도 (SELL)</span>
+                <span style="margin-left:auto;color:#888;font-size:12px;" id="chartTitle"></span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="tradeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>체결 내역</h3>
+            <div class="filter-row">
+                <label>종목 필터:</label>
+                <select class="filter-select" id="tableTickerFilter">
+                    <option value="">전체</option>
+                </select>
+                <label style="margin-left:12px;">방향:</label>
+                <select class="filter-select" id="tableDirectionFilter">
+                    <option value="">전체</option>
+                    <option value="win">수익</option>
+                    <option value="loss">손실</option>
+                </select>
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="tradeTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('ticker')">종목</th>
+                            <th onclick="sortTable('entry_date')">진입일</th>
+                            <th onclick="sortTable('exit_date')">청산일</th>
+                            <th onclick="sortTable('entry_price')">진입가</th>
+                            <th onclick="sortTable('exit_price')">청산가</th>
+                            <th onclick="sortTable('pnl_pct')">수익률</th>
+                            <th onclick="sortTable('holding_days')">보유일수</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradeTableBody">
+                        <tr><td colspan="7" class="loading">데이터 로딩 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const STRATEGY = {{ strategy_name | tojson }};
+    const PERIOD   = {{ selected_period | tojson }};
+
+    let allTrades = [];
+    let allTickers = [];
+    let chart = null;
+    let sortKey = 'entry_date';
+    let sortAsc = true;
+
+    async function loadTrades() {
+        const resp = await fetch(`/api/strategy/${encodeURIComponent(STRATEGY)}/trades?period=${PERIOD}`);
+        if (!resp.ok) {
+            document.getElementById('tradeTableBody').innerHTML =
+                `<tr><td colspan="7" class="error-msg">데이터 로드 실패</td></tr>`;
+            return;
+        }
+        const data = await resp.json();
+        allTrades = data.trades;
+        allTickers = data.tickers;
+
+        const tickerSelect = document.getElementById('tickerSelect');
+        tickerSelect.innerHTML = `<option value="">전체 (${allTickers.length}개 종목)</option>` +
+            allTickers.map(t => `<option value="${t}">${t}</option>`).join('');
+
+        const tableFilter = document.getElementById('tableTickerFilter');
+        tableFilter.innerHTML = `<option value="">전체</option>` +
+            allTickers.map(t => `<option value="${t}">${t}</option>`).join('');
+
+        renderTable(allTrades);
+        renderStats(allTrades);
+
+        if (allTickers.length > 0) {
+            tickerSelect.value = allTickers[0];
+            await loadChart(allTickers[0]);
+        }
+    }
+
+    async function loadChart(ticker) {
+        if (!ticker) {
+            if (chart) { chart.destroy(); chart = null; }
+            document.getElementById('chartTitle').textContent = '';
+            return;
+        }
+        document.getElementById('chartTitle').textContent = `${ticker} 가격 로딩 중...`;
+        try {
+            const resp = await fetch(
+                `/api/strategy/${encodeURIComponent(STRATEGY)}/price?period=${PERIOD}&ticker=${encodeURIComponent(ticker)}`
+            );
+            if (!resp.ok) { document.getElementById('chartTitle').textContent = '가격 데이터 없음'; return; }
+            const priceData = await resp.json();
+
+            const tradesForTicker = allTrades.filter(t => t.ticker === ticker);
+            renderChart(priceData, tradesForTicker, ticker);
+        } catch (e) {
+            document.getElementById('chartTitle').textContent = '차트 로드 실패';
+        }
+    }
+
+    function renderChart(priceData, trades, ticker) {
+        document.getElementById('chartTitle').textContent = `${ticker} — ${trades.length}건 체결`;
+
+        const pricePoints = priceData.dates.map((d, i) => ({ x: d, y: priceData.closes[i] }));
+
+        const buyPoints = trades
+            .filter(t => t.entry_date)
+            .map(t => ({
+                x: t.entry_date,
+                y: t.entry_price,
+                trade: t,
+            }));
+
+        const sellPoints = trades
+            .filter(t => t.exit_date)
+            .map(t => ({
+                x: t.exit_date,
+                y: t.exit_price,
+                trade: t,
+            }));
+
+        if (chart) chart.destroy();
+
+        const ctx = document.getElementById('tradeChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: '종가',
+                        data: pricePoints,
+                        borderColor: '#60a5fa',
+                        backgroundColor: 'transparent',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        tension: 0,
+                        order: 3,
+                    },
+                    {
+                        label: '매수',
+                        data: buyPoints,
+                        type: 'scatter',
+                        backgroundColor: '#22c55e',
+                        borderColor: '#16a34a',
+                        borderWidth: 1,
+                        pointRadius: 7,
+                        pointStyle: 'triangle',
+                        pointHoverRadius: 9,
+                        order: 1,
+                    },
+                    {
+                        label: '매도',
+                        data: sellPoints,
+                        type: 'scatter',
+                        backgroundColor: '#ef4444',
+                        borderColor: '#dc2626',
+                        borderWidth: 1,
+                        pointRadius: 7,
+                        pointStyle: 'triangle',
+                        rotation: 180,
+                        pointHoverRadius: 9,
+                        order: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'nearest', intersect: true },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title(items) {
+                                return items[0].raw.x;
+                            },
+                            label(item) {
+                                const raw = item.raw;
+                                if (item.dataset.label === '종가') {
+                                    return `종가: ${raw.y.toFixed(2)}`;
+                                }
+                                const t = raw.trade;
+                                if (item.dataset.label === '매수') {
+                                    return [`매수가: ${t.entry_price.toFixed(2)}`, `→ 청산: ${t.exit_price.toFixed(2)} (${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%)`, `보유: ${t.holding_days}일`];
+                                }
+                                return [`매도가: ${t.exit_price.toFixed(2)}`, `진입: ${t.entry_price.toFixed(2)}`, `수익률: ${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%`, `보유: ${t.holding_days}일`];
+                            },
+                        },
+                        backgroundColor: '#1a1d27',
+                        borderColor: '#2a2d3a',
+                        borderWidth: 1,
+                        titleColor: '#aaa',
+                        bodyColor: '#e0e0e0',
+                    },
+                },
+                scales: {
+                    x: {
+                        type: 'category',
+                        ticks: { color: '#888', font: { size: 11 }, maxTicksLimit: 12, maxRotation: 0 },
+                        grid: { color: '#1e2030' },
+                    },
+                    y: {
+                        ticks: { color: '#888', font: { size: 11 } },
+                        grid: { color: '#1e2030' },
+                    },
+                },
+            },
+        });
+    }
+
+    function renderStats(trades) {
+        if (!trades.length) { document.getElementById('statsRow').innerHTML = ''; return; }
+        const wins = trades.filter(t => t.pnl_pct > 0);
+        const winRate = (wins.length / trades.length * 100).toFixed(1);
+        const avgPnl = (trades.reduce((s, t) => s + t.pnl_pct, 0) / trades.length).toFixed(2);
+        const avgDays = trades.filter(t => t.holding_days).reduce((s, t) => s + t.holding_days, 0) / trades.filter(t => t.holding_days).length;
+        const tickers = new Set(trades.map(t => t.ticker)).size;
+        document.getElementById('statsRow').innerHTML = `
+            <div class="stat"><div class="slabel">총 체결</div><div class="sval neutral">${trades.length}건</div></div>
+            <div class="stat"><div class="slabel">승률</div><div class="sval ${+winRate > 50 ? 'positive' : 'neutral'}">${winRate}%</div></div>
+            <div class="stat"><div class="slabel">평균 수익률</div><div class="sval ${+avgPnl >= 0 ? 'positive' : 'negative'}">${+avgPnl >= 0 ? '+' : ''}${avgPnl}%</div></div>
+            <div class="stat"><div class="slabel">평균 보유일</div><div class="sval neutral">${avgDays.toFixed(1)}일</div></div>
+            <div class="stat"><div class="slabel">거래 종목수</div><div class="sval neutral">${tickers}개</div></div>
+        `;
+    }
+
+    function renderTable(trades) {
+        const tbody = document.getElementById('tradeTableBody');
+        if (!trades.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="loading">체결 내역 없음</td></tr>';
+            return;
+        }
+        const sorted = [...trades].sort((a, b) => {
+            const av = a[sortKey] ?? '', bv = b[sortKey] ?? '';
+            return sortAsc ? (av < bv ? -1 : av > bv ? 1 : 0) : (av > bv ? -1 : av < bv ? 1 : 0);
+        });
+        tbody.innerHTML = sorted.map(t => `
+            <tr>
+                <td class="neutral">${t.ticker}</td>
+                <td>${t.entry_date || '-'}</td>
+                <td>${t.exit_date || '-'}</td>
+                <td>${t.entry_price?.toFixed(2) ?? '-'}</td>
+                <td>${t.exit_price?.toFixed(2) ?? '-'}</td>
+                <td class="${t.pnl_pct >= 0 ? 'positive' : 'negative'}">${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct?.toFixed(2)}%</td>
+                <td>${t.holding_days ?? '-'}일</td>
+            </tr>
+        `).join('');
+    }
+
+    function sortTable(key) {
+        if (sortKey === key) sortAsc = !sortAsc;
+        else { sortKey = key; sortAsc = true; }
+        renderTable(filteredTrades());
+    }
+
+    function filteredTrades() {
+        const tickerF = document.getElementById('tableTickerFilter').value;
+        const dirF = document.getElementById('tableDirectionFilter').value;
+        return allTrades.filter(t => {
+            if (tickerF && t.ticker !== tickerF) return false;
+            if (dirF === 'win' && t.pnl_pct <= 0) return false;
+            if (dirF === 'loss' && t.pnl_pct > 0) return false;
+            return true;
+        });
+    }
+
+    document.getElementById('tickerSelect').addEventListener('change', async (e) => {
+        await loadChart(e.target.value);
+    });
+
+    document.getElementById('tableTickerFilter').addEventListener('change', () => {
+        renderTable(filteredTrades());
+        renderStats(filteredTrades());
+    });
+
+    document.getElementById('tableDirectionFilter').addEventListener('change', () => {
+        renderTable(filteredTrades());
+        renderStats(filteredTrades());
+    });
+
+    loadTrades();
+    </script>
+</body>
+</html>

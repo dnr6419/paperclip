@@ -1,13 +1,27 @@
 import json
 import os
+import sys
+import inspect
 from pathlib import Path
 from contextlib import asynccontextmanager
+from typing import Optional
 
 import psycopg2
 import psycopg2.extras
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from strategies import (
+    EMACrossoverStrategy, RSIReversalStrategy,
+    CandleRSIStrategy, ADXTrendStrategy,
+    High52WBreakoutStrategy, ATRBreakoutStrategy,
+    BBMeanReversionStrategy, VWBStrategy, MTMStrategy,
+    DCBStrategy, MACDMomentumStrategy,
+)
+from backtesting.engine import run_backtest
+from backtesting.generate_data import generate_all_data
 
 RESULTS_JSON = Path(__file__).resolve().parent.parent / "backtesting" / "results.json"
 MANUALS_DIR = Path(__file__).resolve().parent / "manuals"
@@ -162,6 +176,103 @@ STRATEGY_MANUALS = {
                    "stop_loss": "5%", "take_profit": "25%"},
     },
 }
+
+
+STRATEGY_FACTORY = {
+    "EMA Crossover":    lambda: EMACrossoverStrategy(),
+    "RSI Reversal":     lambda: RSIReversalStrategy(),
+    "Candle+RSI":       lambda: CandleRSIStrategy(),
+    "ADX Trend":        lambda: ADXTrendStrategy(),
+    "52W Breakout":     lambda: High52WBreakoutStrategy(),
+    "ATR Breakout":     lambda: ATRBreakoutStrategy(),
+    "BB Mean Reversion": lambda: BBMeanReversionStrategy(bb_std=1.5, rsi_cap=60.0, sma_period=50, atr_threshold=0.8),
+    "VWB":              lambda: VWBStrategy(),
+    "MTM":              lambda: MTMStrategy(),
+    "DCB":              lambda: DCBStrategy(),
+    "MACD Momentum":    lambda: MACDMomentumStrategy(),
+}
+
+STRATEGY_PARAMS = {
+    "EMA Crossover":    {"stop_loss": 0.04, "take_profit": 0.30},
+    "RSI Reversal":     {"stop_loss": 0.04, "take_profit": 0.25},
+    "Candle+RSI":       {"stop_loss": 0.04, "take_profit": 0.20},
+    "ADX Trend":        {"stop_loss": 0.04, "take_profit": 0.25},
+    "52W Breakout":     {"stop_loss": 0.06, "take_profit": 0.20},
+    "ATR Breakout":     {"stop_loss": 0.05, "take_profit": 0.20},
+    "BB Mean Reversion": {"stop_loss": 0.06, "take_profit": 0.18},
+    "VWB":              {"stop_loss": 0.05, "take_profit": 10.0},
+    "MTM":              {"stop_loss": 0.05, "take_profit": 0.20},
+    "DCB":              {"stop_loss": 0.05, "take_profit": 0.25},
+    "MACD Momentum":    {"stop_loss": 0.05, "take_profit": 0.25},
+}
+
+PERIOD_RANGES = {
+    "short_term":  ("2024-07-01", "2024-12-31"),
+    "medium_term": ("2023-01-01", "2024-12-31"),
+    "long_term":   ("2019-01-01", "2024-12-31"),
+}
+
+_market_data_cache: Optional[dict] = None
+_trades_cache: dict = {}
+
+
+def _get_market_data() -> dict:
+    global _market_data_cache
+    if _market_data_cache is None:
+        _market_data_cache = generate_all_data("2019-01-01", "2024-12-31")
+    return _market_data_cache
+
+
+def _run_strategy_trades(strategy_name: str, period: str) -> list:
+    key = (strategy_name, period)
+    if key in _trades_cache:
+        return _trades_cache[key]
+
+    all_data = _get_market_data()
+    sp500_data = all_data.get("SP500")
+    stock_data_full = {k: v for k, v in all_data.items() if k != "SP500"}
+
+    start, end = PERIOD_RANGES[period]
+    stock_data = {k: v.loc[start:end] for k, v in stock_data_full.items()}
+    sp500 = sp500_data.loc[start:end] if sp500_data is not None else None
+
+    strategy = STRATEGY_FACTORY[strategy_name]()
+    params = dict(STRATEGY_PARAMS[strategy_name])
+
+    all_trades = []
+    for ticker, df in stock_data.items():
+        if len(df) < 50:
+            continue
+        try:
+            sig = inspect.signature(strategy.generate_signals)
+            if "market_close" in sig.parameters:
+                mc = sp500["close"].reindex(df.index, method="ffill") if sp500 is not None else None
+                signals = strategy.generate_signals(df, market_close=mc)
+            else:
+                signals = strategy.generate_signals(df)
+            if (signals == 1).sum() == 0:
+                continue
+            bt_params = dict(params)
+            if hasattr(strategy, "last_atr") and strategy.last_atr is not None:
+                bt_params["trailing_atr_series"] = strategy.last_atr
+                bt_params["trailing_atr_mult"] = strategy.atr_mult
+            r = run_backtest(df, signals, position_size=1.0, initial_capital=100_000, **bt_params)
+            for t in r.trades:
+                all_trades.append({
+                    "ticker": ticker,
+                    "entry_date": t.entry_date.strftime("%Y-%m-%d") if t.entry_date else None,
+                    "exit_date": t.exit_date.strftime("%Y-%m-%d") if t.exit_date else None,
+                    "entry_price": round(float(t.entry_price), 2),
+                    "exit_price": round(float(t.exit_price), 2),
+                    "pnl_pct": round(float(t.pnl_pct) * 100, 2),
+                    "holding_days": (t.exit_date - t.entry_date).days if t.exit_date and t.entry_date else None,
+                })
+        except Exception:
+            pass
+
+    all_trades.sort(key=lambda x: x["entry_date"] or "")
+    _trades_cache[key] = all_trades
+    return all_trades
 
 
 def _get_db():
@@ -426,3 +537,47 @@ async def upload_manual(strategy_name: str, file: UploadFile = File(...)):
     path = MANUALS_DIR / f"{safe_name}.md"
     path.write_text(text, encoding="utf-8")
     return {"ok": True, "strategy": strategy_name, "size": len(text)}
+
+
+@app.get("/strategy/{strategy_name}/trades", response_class=HTMLResponse)
+async def strategy_trades_page(request: Request, strategy_name: str, period: str = "medium_term"):
+    if strategy_name not in STRATEGY_FACTORY:
+        return HTMLResponse(content="Strategy not found", status_code=404)
+    if period not in PERIOD_LABELS:
+        period = "medium_term"
+    return templates.TemplateResponse(
+        request=request,
+        name="trades.html",
+        context={
+            "strategy_name": strategy_name,
+            "selected_period": period,
+            "period_labels": PERIOD_LABELS,
+        },
+    )
+
+
+@app.get("/api/strategy/{strategy_name}/trades")
+async def api_strategy_trades(strategy_name: str, period: str = "medium_term"):
+    if strategy_name not in STRATEGY_FACTORY:
+        return JSONResponse(status_code=404, content={"error": f"Unknown strategy: {strategy_name}"})
+    if period not in PERIOD_RANGES:
+        return JSONResponse(status_code=400, content={"error": f"Unknown period: {period}"})
+    trades = _run_strategy_trades(strategy_name, period)
+    tickers = sorted(set(t["ticker"] for t in trades))
+    return {"strategy": strategy_name, "period": period, "trades": trades, "tickers": tickers}
+
+
+@app.get("/api/strategy/{strategy_name}/price")
+async def api_strategy_price(strategy_name: str, ticker: str, period: str = "medium_term"):
+    if period not in PERIOD_RANGES:
+        return JSONResponse(status_code=400, content={"error": f"Unknown period: {period}"})
+    all_data = _get_market_data()
+    if ticker not in all_data:
+        return JSONResponse(status_code=404, content={"error": f"Unknown ticker: {ticker}"})
+    start, end = PERIOD_RANGES[period]
+    df = all_data[ticker].loc[start:end]
+    return {
+        "ticker": ticker,
+        "dates": [d.strftime("%Y-%m-%d") for d in df.index],
+        "closes": [round(float(v), 2) for v in df["close"]],
+    }
