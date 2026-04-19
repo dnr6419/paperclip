@@ -1,0 +1,28 @@
+{
+  "best_params": {
+    "cci_period": 30,
+    "oversold": -80.0,
+    "overbought": 80.0,
+    "sma_filter": 100
+  },
+  "in_sample": {
+    "cagr": 10.35,
+    "mdd": 3.02,
+    "sharpe": 2.573,
+    "win_rate": 71.9,
+    "profit_factor": 3.97,
+    "total_trades": 146,
+    "avg_holding_days": 12.2,
+    "pass_fail": "PASS"
+  },
+  "out_of_sample": {
+    "cagr": 14.29,
+    "mdd": 1.73,
+    "sharpe": 3.325,
+    "win_rate": 81.0,
+    "profit_factor": 6.96,
+    "total_trades": 84,
+    "avg_holding_days": 14.7,
+    "pass_fail": "PASS"
+  }
+}
