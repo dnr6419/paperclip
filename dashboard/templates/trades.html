@@ -153,8 +153,7 @@
         renderStats(allTrades);
 
         if (allTickers.length > 0) {
-            tickerSelect.value = allTickers[0];
-            await loadChart(allTickers[0]);
+            await loadChart('');
         }
         } catch(e) {
             document.getElementById('chartTitle').textContent = 'loadTrades error: ' + e.message;
@@ -162,30 +161,191 @@
         }
     }
 
+    const TICKER_COLORS = [
+        '#60a5fa','#f59e0b','#a78bfa','#34d399','#f472b6',
+        '#fb923c','#38bdf8','#c084fc','#4ade80','#fb7185',
+        '#facc15','#2dd4bf','#e879f9','#818cf8','#fbbf24',
+    ];
+
     async function loadChart(ticker) {
-        const chartTicker = ticker || (allTickers.length > 0 ? allTickers[0] : null);
-        if (!chartTicker) {
+        if (!ticker && allTickers.length > 0) {
+            await loadChartAll();
+            return;
+        }
+        if (!ticker) {
             if (chart) { chart.destroy(); chart = null; }
             document.getElementById('chartTitle').textContent = '종목 데이터 없음';
             return;
         }
-        document.getElementById('chartTitle').textContent = `${chartTicker} 가격 로딩 중...`;
+        document.getElementById('chartTitle').textContent = `${ticker} 가격 로딩 중...`;
         try {
             const resp = await fetch(
-                `/api/strategy/${encodeURIComponent(STRATEGY)}/price?period=${PERIOD}&ticker=${encodeURIComponent(chartTicker)}`
+                `/api/strategy/${encodeURIComponent(STRATEGY)}/price?period=${PERIOD}&ticker=${encodeURIComponent(ticker)}`
             );
             if (!resp.ok) { document.getElementById('chartTitle').textContent = '가격 데이터 없음'; return; }
             const priceData = await resp.json();
-
-            const tradesForTicker = allTrades.filter(t => t.ticker === chartTicker);
-            renderChart(priceData, tradesForTicker, chartTicker);
+            const tradesForTicker = allTrades.filter(t => t.ticker === ticker);
+            renderChartSingle(priceData, tradesForTicker, ticker);
         } catch (e) {
             document.getElementById('chartTitle').textContent = '차트 로드 실패: ' + e.message;
             console.error('Chart load error:', e);
         }
     }
 
-    function renderChart(priceData, trades, ticker) {
+    async function loadChartAll() {
+        document.getElementById('chartTitle').textContent = '전체 종목 로딩 중...';
+        try {
+            const priceMap = {};
+            const fetches = allTickers.map(async t => {
+                const r = await fetch(`/api/strategy/${encodeURIComponent(STRATEGY)}/price?period=${PERIOD}&ticker=${encodeURIComponent(t)}`);
+                if (r.ok) priceMap[t] = await r.json();
+            });
+            await Promise.all(fetches);
+            renderChartAll(priceMap);
+        } catch (e) {
+            document.getElementById('chartTitle').textContent = '차트 로드 실패: ' + e.message;
+            console.error('Chart load error:', e);
+        }
+    }
+
+    function normalize(closes) {
+        if (!closes.length) return [];
+        const base = closes[0];
+        if (base === 0) return closes.map(() => 0);
+        return closes.map(c => ((c - base) / base) * 100);
+    }
+
+    function renderChartAll(priceMap) {
+        const tickersWithData = allTickers.filter(t => priceMap[t]);
+        if (!tickersWithData.length) {
+            document.getElementById('chartTitle').textContent = '가격 데이터 없음';
+            return;
+        }
+        document.getElementById('chartTitle').textContent =
+            `전체 ${tickersWithData.length}개 종목 — ${allTrades.length}건 체결`;
+
+        const dates = priceMap[tickersWithData[0]].dates;
+        const dateIndex = {};
+        dates.forEach((d, i) => { dateIndex[d] = i; });
+
+        const datasets = [];
+        tickersWithData.forEach((ticker, ti) => {
+            const color = TICKER_COLORS[ti % TICKER_COLORS.length];
+            const norm = normalize(priceMap[ticker].closes);
+            datasets.push({
+                label: ticker,
+                data: norm,
+                borderColor: color,
+                backgroundColor: 'transparent',
+                borderWidth: 1.2,
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                tension: 0,
+                order: 10 + ti,
+            });
+        });
+
+        const buyData = new Array(dates.length).fill(null);
+        const sellData = new Array(dates.length).fill(null);
+        const buyMeta = {};
+        const sellMeta = {};
+
+        allTrades.forEach(t => {
+            const pd = priceMap[t.ticker];
+            if (!pd) return;
+            const base = pd.closes[0];
+            if (base === 0) return;
+            if (t.entry_date && dateIndex[t.entry_date] !== undefined) {
+                const idx = dateIndex[t.entry_date];
+                buyData[idx] = ((t.entry_price - base) / base) * 100;
+                buyMeta[idx] = t;
+            }
+            if (t.exit_date && dateIndex[t.exit_date] !== undefined) {
+                const idx = dateIndex[t.exit_date];
+                sellData[idx] = ((t.exit_price - base) / base) * 100;
+                sellMeta[idx] = t;
+            }
+        });
+
+        datasets.push({
+            label: '매수',
+            data: buyData,
+            showLine: false,
+            backgroundColor: '#22c55e',
+            borderColor: '#16a34a',
+            borderWidth: 2,
+            pointRadius: buyData.map(v => v !== null ? 8 : 0),
+            pointStyle: 'triangle',
+            pointHoverRadius: 10,
+            order: 1,
+        });
+        datasets.push({
+            label: '매도',
+            data: sellData,
+            showLine: false,
+            backgroundColor: '#ef4444',
+            borderColor: '#dc2626',
+            borderWidth: 2,
+            pointRadius: sellData.map(v => v !== null ? 8 : 0),
+            pointStyle: 'triangle',
+            rotation: 180,
+            pointHoverRadius: 10,
+            order: 2,
+        });
+
+        if (chart) chart.destroy();
+        const ctx = document.getElementById('tradeChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: dates, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'nearest', intersect: true },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: { color: '#aaa', font: { size: 11 }, boxWidth: 12, padding: 8,
+                            filter: (item) => item.text !== '매수' && item.text !== '매도' },
+                    },
+                    tooltip: {
+                        filter(item) { return item.raw !== null; },
+                        callbacks: {
+                            title(items) { return items[0].label; },
+                            label(item) {
+                                if (item.dataset.label === '매수' || item.dataset.label === '매도') {
+                                    const idx = item.dataIndex;
+                                    const meta = item.dataset.label === '매수' ? buyMeta : sellMeta;
+                                    const t = meta[idx];
+                                    if (!t) return `${item.dataset.label}: ${item.raw.toFixed(1)}%`;
+                                    if (item.dataset.label === '매수') {
+                                        return [`${t.ticker} 매수 $${t.entry_price.toFixed(2)}`,
+                                                `→ 청산 $${t.exit_price.toFixed(2)} (${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%)`,
+                                                `보유: ${t.holding_days}일`];
+                                    }
+                                    return [`${t.ticker} 매도 $${t.exit_price.toFixed(2)}`,
+                                            `진입 $${t.entry_price.toFixed(2)}`,
+                                            `수익률: ${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%`];
+                                }
+                                return `${item.dataset.label}: ${item.raw.toFixed(1)}%`;
+                            },
+                        },
+                        backgroundColor: '#1a1d27', borderColor: '#2a2d3a', borderWidth: 1,
+                        titleColor: '#aaa', bodyColor: '#e0e0e0',
+                    },
+                },
+                scales: {
+                    x: { ticks: { color: '#888', font: { size: 11 }, maxTicksLimit: 12, maxRotation: 0 },
+                         grid: { color: '#1e2030' } },
+                    y: { ticks: { color: '#888', font: { size: 11 },
+                         callback: v => v.toFixed(0) + '%' }, grid: { color: '#1e2030' } },
+                },
+            },
+        });
+    }
+
+    function renderChartSingle(priceData, trades, ticker) {
         document.getElementById('chartTitle').textContent = `${ticker} — ${trades.length}건 체결`;
 
         const dates = priceData.dates;
@@ -211,7 +371,6 @@
         });
 
         if (chart) chart.destroy();
-
         const ctx = document.getElementById('tradeChart').getContext('2d');
         chart = new Chart(ctx, {
             type: 'line',
@@ -265,13 +424,9 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        filter(item) {
-                            return item.raw !== null;
-                        },
+                        filter(item) { return item.raw !== null; },
                         callbacks: {
-                            title(items) {
-                                return items[0].label;
-                            },
+                            title(items) { return items[0].label; },
                             label(item) {
                                 if (item.dataset.label === '종가') {
                                     return `종가: ${item.raw.toFixed(2)}`;
@@ -286,22 +441,15 @@
                                 return [`매도가: ${t.exit_price.toFixed(2)}`, `진입: ${t.entry_price.toFixed(2)}`, `수익률: ${t.pnl_pct >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%`, `보유: ${t.holding_days}일`];
                             },
                         },
-                        backgroundColor: '#1a1d27',
-                        borderColor: '#2a2d3a',
-                        borderWidth: 1,
-                        titleColor: '#aaa',
-                        bodyColor: '#e0e0e0',
+                        backgroundColor: '#1a1d27', borderColor: '#2a2d3a', borderWidth: 1,
+                        titleColor: '#aaa', bodyColor: '#e0e0e0',
                     },
                 },
                 scales: {
-                    x: {
-                        ticks: { color: '#888', font: { size: 11 }, maxTicksLimit: 12, maxRotation: 0 },
-                        grid: { color: '#1e2030' },
-                    },
-                    y: {
-                        ticks: { color: '#888', font: { size: 11 } },
-                        grid: { color: '#1e2030' },
-                    },
+                    x: { ticks: { color: '#888', font: { size: 11 }, maxTicksLimit: 12, maxRotation: 0 },
+                         grid: { color: '#1e2030' } },
+                    y: { ticks: { color: '#888', font: { size: 11 } },
+                         grid: { color: '#1e2030' } },
                 },
             },
         });
@@ -373,8 +521,12 @@
     });
 
     document.getElementById('tableTickerFilter').addEventListener('change', () => {
-        renderTable(filteredTrades());
-        renderStats(filteredTrades());
+        const ticker = document.getElementById('tableTickerFilter').value;
+        document.getElementById('tickerSelect').value = ticker;
+        const trades = filteredTrades();
+        renderTable(trades);
+        renderStats(trades);
+        loadChart(ticker);
     });
 
     document.getElementById('tableDirectionFilter').addEventListener('change', () => {
