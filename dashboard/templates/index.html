@@ -35,6 +35,8 @@
         .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
         .badge-is { background: #1e3a5f; color: #60a5fa; }
         .badge-oos { background: #1a3a2a; color: #22c55e; }
+        .badge-deprecated { background: #3a2a1a; color: #f59e0b; }
+        .card.deprecated { opacity: 0.55; }
         .db-note { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #888; }
         .db-note .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
         .dot-on { background: #22c55e; }
@@ -63,8 +65,9 @@
         <div class="section active" id="overview">
             <div class="grid">
                 {% for name, m in static_results.out_of_sample.items() %}
-                <div class="card">
-                    <h3>{{ name }} <span class="badge badge-oos">OOS</span></h3>
+                {% set is_deprecated = (name == 'MACD Zero-Cross') %}
+                <div class="card{{ ' deprecated' if is_deprecated }}">
+                    <h3>{{ name }} <span class="badge badge-oos">OOS</span>{% if is_deprecated %} <span class="badge badge-deprecated">폐기됨</span>{% endif %}</h3>
                     <div class="metrics-row">
                         <div class="metric">
                             <div class="label">CAGR</div>
@@ -77,6 +80,10 @@
                         <div class="metric">
                             <div class="label">Sharpe</div>
                             <div class="value {{ 'positive' if m.sharpe > 1.5 else 'neutral' }}">{{ "%.2f"|format(m.sharpe) }}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="label">Calmar</div>
+                            <div class="value {{ 'positive' if (m.cagr / m.mdd) > 2 else 'neutral' }}">{{ "%.2f"|format(m.cagr / m.mdd) }}</div>
                         </div>
                         <div class="metric">
                             <div class="label">Win Rate</div>
@@ -112,6 +119,10 @@
                     <div class="chart-wrap"><canvas id="mddChart"></canvas></div>
                 </div>
                 <div class="card">
+                    <h3>Calmar Ratio (IS vs OOS)</h3>
+                    <div class="chart-wrap"><canvas id="calmarChart"></canvas></div>
+                </div>
+                <div class="card">
                     <h3>Win Rate (IS vs OOS)</h3>
                     <div class="chart-wrap"><canvas id="winrateChart"></canvas></div>
                 </div>
@@ -130,6 +141,7 @@
                             <th>Period</th>
                             <th>CAGR (%)</th>
                             <th>MDD (%)</th>
+                            <th>Calmar</th>
                             <th>Sharpe</th>
                             <th>Win Rate (%)</th>
                             <th>PF</th>
@@ -139,11 +151,13 @@
                     </thead>
                     <tbody>
                         {% for name, m in static_results.in_sample.items() %}
-                        <tr>
-                            <td>{{ name }}</td>
+                        {% set is_deprecated = (name == 'MACD Zero-Cross') %}
+                        <tr{% if is_deprecated %} style="opacity:0.55"{% endif %}>
+                            <td>{{ name }}{% if is_deprecated %} <span class="badge badge-deprecated">폐기됨</span>{% endif %}</td>
                             <td><span class="badge badge-is">IS</span></td>
                             <td class="{{ 'positive' if m.cagr > 0 else 'negative' }}">{{ "%.2f"|format(m.cagr) }}</td>
                             <td class="negative">{{ "%.2f"|format(m.mdd) }}</td>
+                            <td>{{ "%.2f"|format(m.cagr / m.mdd) }}</td>
                             <td>{{ "%.3f"|format(m.sharpe) }}</td>
                             <td>{{ "%.1f"|format(m.win_rate) }}</td>
                             <td>{{ "%.2f"|format(m.profit_factor) }}</td>
@@ -152,11 +166,13 @@
                         </tr>
                         {% endfor %}
                         {% for name, m in static_results.out_of_sample.items() %}
-                        <tr>
-                            <td>{{ name }}</td>
+                        {% set is_deprecated = (name == 'MACD Zero-Cross') %}
+                        <tr{% if is_deprecated %} style="opacity:0.55"{% endif %}>
+                            <td>{{ name }}{% if is_deprecated %} <span class="badge badge-deprecated">폐기됨</span>{% endif %}</td>
                             <td><span class="badge badge-oos">OOS</span></td>
                             <td class="{{ 'positive' if m.cagr > 0 else 'negative' }}">{{ "%.2f"|format(m.cagr) }}</td>
                             <td class="negative">{{ "%.2f"|format(m.mdd) }}</td>
+                            <td>{{ "%.2f"|format(m.cagr / m.mdd) }}</td>
                             <td>{{ "%.3f"|format(m.sharpe) }}</td>
                             <td>{{ "%.1f"|format(m.win_rate) }}</td>
                             <td>{{ "%.2f"|format(m.profit_factor) }}</td>
@@ -249,10 +265,25 @@
         });
     }
 
+    function makeCalcBarChart(id, label, calcFn) {
+        return new Chart(document.getElementById(id), {
+            type: 'bar',
+            data: {
+                labels: strategies,
+                datasets: [
+                    { label: 'In-Sample', data: strategies.map(s => calcFn(data.in_sample[s])), backgroundColor: chartColors.is },
+                    { label: 'Out-of-Sample', data: strategies.map(s => calcFn(data.out_of_sample[s])), backgroundColor: chartColors.oos }
+                ]
+            },
+            options: defaultOpts
+        });
+    }
+
     function renderCharts() {
         makeBarChart('cagrChart', 'CAGR (%)', 'cagr');
         makeBarChart('sharpeChart', 'Sharpe Ratio', 'sharpe');
         makeBarChart('mddChart', 'Max Drawdown (%)', 'mdd');
+        makeCalcBarChart('calmarChart', 'Calmar Ratio', m => +(m.cagr / m.mdd).toFixed(2));
         makeBarChart('winrateChart', 'Win Rate (%)', 'win_rate');
         window._chartsRendered = true;
     }
