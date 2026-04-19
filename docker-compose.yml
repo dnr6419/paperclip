@@ -44,6 +44,7 @@ services:
       BACKTEST_DB_PASSWORD: backtest
       ELK_HOST: elasticsearch
       ELK_PORT: "9200"
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
     depends_on:
       db:
         condition: service_healthy
