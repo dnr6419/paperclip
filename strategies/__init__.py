@@ -17,6 +17,7 @@ from .keltner_channel_mr import KeltnerChannelMRStrategy
 from .vix_spike_reversion import VIXSpikeReversionStrategy
 from .stoch_mr import StochasticMRStrategy
 from .ichimoku_cloud_breakout import IchimokuCloudBreakoutStrategy
+from .donchian_channel_breakout import DonchianChannelBreakoutStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -39,4 +40,5 @@ __all__ = [
     "VIXSpikeReversionStrategy",
     "StochasticMRStrategy",
     "IchimokuCloudBreakoutStrategy",
+    "DonchianChannelBreakoutStrategy",
 ]
