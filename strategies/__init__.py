@@ -20,6 +20,7 @@ from .ichimoku_cloud_breakout import IchimokuCloudBreakoutStrategy
 from .donchian_channel_breakout import DonchianChannelBreakoutStrategy
 from .cci_mean_reversion import CCIMeanReversionStrategy
 from .williams_r_reversion import WilliamsRReversionStrategy
+from .supertrend import SupertrendStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -45,4 +46,5 @@ __all__ = [
     "DonchianChannelBreakoutStrategy",
     "CCIMeanReversionStrategy",
     "WilliamsRReversionStrategy",
+    "SupertrendStrategy",
 ]
