@@ -6,6 +6,7 @@ from .high52w_breakout import High52WBreakoutStrategy
 from .atr_breakout import ATRBreakoutStrategy
 from .bb_mean_reversion import BBMeanReversionStrategy
 from .vwb import VWBStrategy
+from .mtm import MTMStrategy
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -16,4 +17,5 @@ __all__ = [
     "ATRBreakoutStrategy",
     "BBMeanReversionStrategy",
     "VWBStrategy",
+    "MTMStrategy",
 ]

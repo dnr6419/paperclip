@@ -13,7 +13,7 @@ from strategies import (
     EMACrossoverStrategy, RSIReversalStrategy,
     CandleRSIStrategy, ADXTrendStrategy,
     High52WBreakoutStrategy, ATRBreakoutStrategy,
-    BBMeanReversionStrategy, VWBStrategy,
+    BBMeanReversionStrategy, VWBStrategy, MTMStrategy,
 )
 from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
@@ -27,6 +27,7 @@ STRATEGIES = {
     "ATR Breakout":     (ATRBreakoutStrategy(),     {"stop_loss": 0.05, "take_profit": 0.20}),
     "BB Mean Reversion": (BBMeanReversionStrategy(), {"stop_loss": 0.06, "take_profit": 0.12}),
     "VWB":              (VWBStrategy(),             {"stop_loss": 0.05, "take_profit": 10.0}),
+    "MTM":              (MTMStrategy(),             {"stop_loss": 0.05, "take_profit": 0.20}),
 }
 
 PERIODS = {
@@ -83,7 +84,7 @@ def run_on_universe(strategy, params, stock_data, sp500_data):
 
 def main():
     print("=" * 60)
-    print("BACKTESTING RUNNER — 8 Active Strategies, Synthetic S&P 500 Universe")
+    print("BACKTESTING RUNNER — 9 Active Strategies, Synthetic S&P 500 Universe")
     print("=" * 60)
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")

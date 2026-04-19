@@ -71,6 +71,15 @@
       "profit_factor": 12.48,
       "total_trades": 211,
       "avg_holding_days": 12.5
+    },
+    "MTM": {
+      "cagr": 35.15,
+      "mdd": 6.69,
+      "sharpe": 2.879,
+      "win_rate": 64.8,
+      "profit_factor": 5.13,
+      "total_trades": 603,
+      "avg_holding_days": 10.3
     }
   },
   "out_of_sample": {
@@ -145,6 +154,15 @@
       "profit_factor": 7.85,
       "total_trades": 115,
       "avg_holding_days": 12.6
+    },
+    "MTM": {
+      "cagr": 39.17,
+      "mdd": 3.81,
+      "sharpe": 3.746,
+      "win_rate": 61.8,
+      "profit_factor": 4.81,
+      "total_trades": 372,
+      "avg_holding_days": 10.2
     }
   }
 }
