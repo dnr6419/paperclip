@@ -53,6 +53,15 @@
       "profit_factor": 5.06,
       "total_trades": 260,
       "avg_holding_days": 44.8
+    },
+    "BB Mean Reversion": {
+      "cagr": 10.19,
+      "mdd": 3.35,
+      "sharpe": 2.145,
+      "win_rate": 71.3,
+      "profit_factor": 4.93,
+      "total_trades": 87,
+      "avg_holding_days": 36.2
     }
   },
   "out_of_sample": {
@@ -109,6 +118,15 @@
       "profit_factor": 6.72,
       "total_trades": 133,
       "avg_holding_days": 47.6
+    },
+    "BB Mean Reversion": {
+      "cagr": 13.12,
+      "mdd": 2.1,
+      "sharpe": 2.904,
+      "win_rate": 79.2,
+      "profit_factor": 8.97,
+      "total_trades": 48,
+      "avg_holding_days": 38.3
     }
   }
 }
