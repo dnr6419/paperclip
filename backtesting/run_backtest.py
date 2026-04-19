@@ -13,7 +13,7 @@ from strategies import (
     EMACrossoverStrategy, RSIReversalStrategy,
     CandleRSIStrategy, ADXTrendStrategy,
     High52WBreakoutStrategy, ATRBreakoutStrategy,
-    BBMeanReversionStrategy,
+    BBMeanReversionStrategy, VWBStrategy,
 )
 from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
@@ -26,6 +26,7 @@ STRATEGIES = {
     "52W Breakout":     (High52WBreakoutStrategy(), {"stop_loss": 0.06, "take_profit": 0.20}),
     "ATR Breakout":     (ATRBreakoutStrategy(),     {"stop_loss": 0.05, "take_profit": 0.20}),
     "BB Mean Reversion": (BBMeanReversionStrategy(), {"stop_loss": 0.06, "take_profit": 0.12}),
+    "VWB":              (VWBStrategy(),             {"stop_loss": 0.05, "take_profit": 10.0}),
 }
 
 PERIODS = {
@@ -67,7 +68,11 @@ def run_on_universe(strategy, params, stock_data, sp500_data):
                 signals = strategy.generate_signals(df)
             if (signals == 1).sum() == 0:
                 continue
-            r = run_backtest(df, signals, position_size=1.0, initial_capital=IC, **params)
+            bt_params = dict(params)
+            if hasattr(strategy, "last_atr") and strategy.last_atr is not None:
+                bt_params["trailing_atr_series"] = strategy.last_atr
+                bt_params["trailing_atr_mult"] = strategy.atr_mult
+            r = run_backtest(df, signals, position_size=1.0, initial_capital=IC, **bt_params)
             r.strategy_name = ""
             r.ticker = ticker
             results.append(r)
@@ -78,7 +83,7 @@ def run_on_universe(strategy, params, stock_data, sp500_data):
 
 def main():
     print("=" * 60)
-    print("BACKTESTING RUNNER — 7 Active Strategies, Synthetic S&P 500 Universe")
+    print("BACKTESTING RUNNER — 8 Active Strategies, Synthetic S&P 500 Universe")
     print("=" * 60)
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")

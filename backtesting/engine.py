@@ -43,6 +43,8 @@ def run_backtest(
     take_profit: float,
     position_size: float = 0.1,
     initial_capital: float = 10_000_000,
+    trailing_atr_series: Optional[pd.Series] = None,
+    trailing_atr_mult: float = 2.0,
 ) -> BacktestResult:
     """
     df: OHLCV with lowercase columns, DatetimeIndex
@@ -58,6 +60,7 @@ def run_backtest(
     entry_price = 0.0
     entry_date = None
     shares = 0
+    high_water = 0.0
 
     closes = df["close"].values
     highs = df["high"].values if "high" in df.columns else closes
@@ -71,8 +74,18 @@ def run_backtest(
         low = lows[i]
 
         if in_position:
-            # Check stop-loss and take-profit intraday (using high/low)
+            # Track high water mark for trailing stop
+            high_water = max(high_water, high)
+
+            # Hard stop floor
             sl_price = entry_price * (1 - stop_loss)
+
+            # Trailing ATR stop overrides hard stop when it's higher
+            if trailing_atr_series is not None:
+                atr_val = trailing_atr_series.iloc[i]
+                trailing_sl = high_water - trailing_atr_mult * atr_val
+                sl_price = max(sl_price, trailing_sl)
+
             tp_price = entry_price * (1 + take_profit)
             exit_price = None
             exit_reason = None
@@ -100,6 +113,7 @@ def run_backtest(
                 )
                 trades.append(trade)
                 in_position = False
+                high_water = 0.0
 
         elif signals.iloc[i] == 1 and not in_position:
             # Enter at next bar open (approximated as current close for daily)
@@ -109,6 +123,7 @@ def run_backtest(
             capital -= shares * entry_price
             entry_date = dates[i]
             in_position = True
+            high_water = entry_price
 
         equity.append(capital + (shares * price if in_position else 0))
 
