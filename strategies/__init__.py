@@ -26,6 +26,7 @@ from .parabolic_sar import ParabolicSARStrategy
 from .ttm_squeeze import TTMSqueezeStrategy
 from .trix_momentum import TRIXMomentumStrategy
 from .connors_rsi import ConnorsRSIStrategy, compute_crsi
+from .schaff_trend_cycle import SchaffTrendCycleStrategy, compute_stc
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -58,4 +59,6 @@ __all__ = [
     "TRIXMomentumStrategy",
     "ConnorsRSIStrategy",
     "compute_crsi",
+    "SchaffTrendCycleStrategy",
+    "compute_stc",
 ]
