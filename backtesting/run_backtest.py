@@ -1,5 +1,5 @@
 """
-Main backtest runner: 10 strategies on synthetic S&P 500 market data.
+Main backtest runner: 11 strategies on synthetic S&P 500 market data.
 In-Sample (2019-2022) / Out-of-Sample (2023-2024).
 """
 import sys, os, json, warnings, inspect
@@ -14,6 +14,7 @@ from strategies import (
     CandleRSIStrategy, ADXTrendStrategy,
     High52WBreakoutStrategy, ATRBreakoutStrategy,
     VWBStrategy, MTMStrategy, DCBStrategy, MACDMomentumStrategy,
+    GapFillStrategy,
 )
 from backtesting.engine import run_backtest, BacktestResult, _compute_metrics
 from backtesting.generate_data import generate_all_data
@@ -29,6 +30,7 @@ STRATEGIES = {
     "MTM":              (MTMStrategy(),             {"stop_loss": 0.05, "take_profit": 0.20}),
     "DCB":              (DCBStrategy(),             {"stop_loss": 0.05, "take_profit": 0.25}),
     "MACD Momentum":    (MACDMomentumStrategy(),    {"stop_loss": 0.05, "take_profit": 0.25}),
+    "Gap Fill":         (GapFillStrategy(),         {"stop_loss": 0.03, "take_profit": 0.05}),
 }
 
 PERIODS = {
@@ -85,7 +87,7 @@ def run_on_universe(strategy, params, stock_data, sp500_data):
 
 def main():
     print("=" * 60)
-    print("BACKTESTING RUNNER — 10 Active Strategies, Synthetic S&P 500 Universe")
+    print("BACKTESTING RUNNER — 11 Active Strategies, Synthetic S&P 500 Universe")
     print("=" * 60)
     print("\nGenerating synthetic market data (2019-2024)...", flush=True)
     all_data = generate_all_data("2019-01-01", "2024-12-31")
