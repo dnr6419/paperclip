@@ -30,6 +30,8 @@ from .schaff_trend_cycle import SchaffTrendCycleStrategy, compute_stc
 from .tsi_momentum import TSIMomentumStrategy, compute_tsi
 from .elder_ray import ElderRayStrategy, compute_elder_ray
 from .aroon_oscillator import AroonOscillatorStrategy, compute_aroon
+from .coppock_curve import CoppockCurveStrategy, compute_coppock
+from .cmf import CMFStrategy, compute_cmf
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -70,4 +72,8 @@ __all__ = [
     "compute_elder_ray",
     "AroonOscillatorStrategy",
     "compute_aroon",
+    "CoppockCurveStrategy",
+    "compute_coppock",
+    "CMFStrategy",
+    "compute_cmf",
 ]
