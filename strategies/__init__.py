@@ -28,6 +28,7 @@ from .trix_momentum import TRIXMomentumStrategy
 from .connors_rsi import ConnorsRSIStrategy, compute_crsi
 from .schaff_trend_cycle import SchaffTrendCycleStrategy, compute_stc
 from .tsi_momentum import TSIMomentumStrategy, compute_tsi
+from .elder_ray import ElderRayStrategy, compute_elder_ray
 
 __all__ = [
     "EMACrossoverStrategy",
@@ -64,4 +65,6 @@ __all__ = [
     "compute_stc",
     "TSIMomentumStrategy",
     "compute_tsi",
+    "ElderRayStrategy",
+    "compute_elder_ray",
 ]
