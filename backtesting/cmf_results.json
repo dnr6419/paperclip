@@ -1,0 +1,29 @@
+{
+  "best_params": {
+    "period": 10,
+    "buy_threshold": 0.03,
+    "sell_threshold": -0.03,
+    "stop_loss": 0.03,
+    "take_profit": 0.1
+  },
+  "in_sample": {
+    "cagr": 31.22,
+    "mdd": 2.34,
+    "sharpe": 4.102,
+    "win_rate": 50.0,
+    "profit_factor": 2.69,
+    "total_trades": 2628,
+    "avg_holding_days": 7.1
+  },
+  "out_of_sample": {
+    "cagr": 23.83,
+    "mdd": 3.14,
+    "sharpe": 3.786,
+    "win_rate": 49.5,
+    "profit_factor": 2.57,
+    "total_trades": 1207,
+    "avg_holding_days": 7.6
+  },
+  "within_60_day_holding": true,
+  "verdict": "DUAL_PASS"
+}

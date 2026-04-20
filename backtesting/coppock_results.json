@@ -1,0 +1,29 @@
+{
+  "best_params": {
+    "roc_long": 11,
+    "roc_short": 11,
+    "wma_period": 6,
+    "stop_loss": 0.05,
+    "take_profit": 0.2
+  },
+  "in_sample": {
+    "cagr": 11.55,
+    "mdd": 8.0,
+    "sharpe": 1.562,
+    "win_rate": 41.3,
+    "profit_factor": 1.66,
+    "total_trades": 1515,
+    "avg_holding_days": 15.8
+  },
+  "out_of_sample": {
+    "cagr": -0.67,
+    "mdd": 6.87,
+    "sharpe": -0.077,
+    "win_rate": 29.7,
+    "profit_factor": 0.98,
+    "total_trades": 791,
+    "avg_holding_days": 15.4
+  },
+  "within_60_day_holding": true,
+  "verdict": "IS_ONLY"
+}
