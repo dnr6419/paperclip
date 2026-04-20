@@ -1,0 +1,27 @@
+{
+  "best_params": {
+    "ema_period": 13,
+    "stop_loss": 0.04,
+    "take_profit": 0.08
+  },
+  "in_sample": {
+    "cagr": 30.68,
+    "mdd": 2.43,
+    "sharpe": 4.575,
+    "win_rate": 55.6,
+    "profit_factor": 3.18,
+    "total_trades": 2853,
+    "avg_holding_days": 6.2
+  },
+  "out_of_sample": {
+    "cagr": 32.45,
+    "mdd": 1.95,
+    "sharpe": 4.983,
+    "win_rate": 57.0,
+    "profit_factor": 3.29,
+    "total_trades": 1456,
+    "avg_holding_days": 6.0
+  },
+  "within_60_day_holding": true,
+  "verdict": "DUAL_PASS"
+}
