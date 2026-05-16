@@ -1,0 +1,55 @@
+name: paperclip-remote
+
+services:
+  relay:
+    build: .
+    image: paperclip-remote-relay
+    expose:
+      - "8765"
+    ports:
+      # Host binding for the relay port. Defaults to localhost-only so
+      # the port is not accidentally exposed to the LAN. Override in
+      # `.env` if you want LAN access (옵션 A) — e.g.
+      #   RELAY_BIND=0.0.0.0
+      - "${RELAY_BIND:-127.0.0.1}:8765:8765"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8765/healthz').status==200 else 1)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - paperclip
+
+  # Optional: terminate TLS in front of the relay and auto-renew via
+  # Let's Encrypt. Enable with `docker compose --profile tls up -d`
+  # after setting DOMAIN in .env (e.g. DOMAIN=remote.example.com).
+  # The Caddyfile here is intentionally minimal — see Caddy docs to
+  # bolt on basic-auth, geo restrictions, fail2ban, etc.
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["tls"]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3 (optional)
+    environment:
+      - DOMAIN
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      relay:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - paperclip
+
+networks:
+  paperclip:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
