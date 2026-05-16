@@ -32,7 +32,7 @@ import com.paperclip.remote.pair.PairingController
 import com.paperclip.remote.playback.VideoSurface
 
 @Composable
-fun ControllerScreen() {
+fun ControllerScreen(onScanQr: () -> Unit = {}) {
     val vm: MainViewModel = viewModel()
     val state by vm.pairing.state.collectAsStateWithLifecycle()
     val relayUrl by vm.relayUrl.collectAsStateWithLifecycle()
@@ -58,6 +58,11 @@ fun ControllerScreen() {
 
         when (val s = state) {
             is PairingController.State.Idle, is PairingController.State.Failed -> {
+                Button(
+                    onClick = onScanQr,
+                    enabled = relayUrl.startsWith("ws"),
+                ) { Text("Scan QR") }
+                Text("— or —", modifier = Modifier.padding(vertical = 8.dp))
                 OutlinedTextField(
                     value = code,
                     onValueChange = { code = it.uppercase() },
@@ -72,7 +77,6 @@ fun ControllerScreen() {
                     enabled = relayUrl.startsWith("ws") && code.length == 6,
                     modifier = Modifier.padding(top = 12.dp),
                 ) { Text("Connect") }
-                // QR-scan path lives in a follow-up commit (CameraX).
                 error?.let { Text(it, modifier = Modifier.padding(top = 8.dp)) }
                 if (s is PairingController.State.Failed) {
                     Text("Last attempt: ${s.reason}", modifier = Modifier.padding(top = 16.dp))
