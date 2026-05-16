@@ -2,9 +2,14 @@ package com.paperclip.remote.input
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Path
+import android.os.Bundle
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import com.paperclip.remote.session.SessionHolder
 import com.paperclip.remote.transport.ControlMessage
 import com.paperclip.remote.transport.SecureChannel
@@ -89,11 +94,13 @@ class RemoteInputService : AccessibilityService() {
             .filterIsInstance<SecureChannel.Plain.Text>()
             .collectLatest { plain ->
                 when (val msg = plain.message) {
-                    is ControlMessage.Tap   -> doTap(msg.x.toFloat(), msg.y.toFloat())
-                    is ControlMessage.Swipe -> doSwipe(msg.x1.toFloat(), msg.y1.toFloat(),
-                                                     msg.x2.toFloat(), msg.y2.toFloat(),
-                                                     msg.ms.toLong().coerceAtLeast(50L))
-                    is ControlMessage.Key   -> doKey(msg.code)
+                    is ControlMessage.Tap       -> doTap(msg.x.toFloat(), msg.y.toFloat())
+                    is ControlMessage.Swipe     -> doSwipe(msg.x1.toFloat(), msg.y1.toFloat(),
+                                                           msg.x2.toFloat(), msg.y2.toFloat(),
+                                                           msg.ms.toLong().coerceAtLeast(50L))
+                    is ControlMessage.Key       -> doKey(msg.code)
+                    is ControlMessage.Type      -> doType(msg.text)
+                    is ControlMessage.Clipboard -> doClipboard(msg.text)
                     else -> { /* not an input frame */ }
                 }
             }
@@ -120,6 +127,33 @@ class RemoteInputService : AccessibilityService() {
             else -> return
         }
         performGlobalAction(action)
+    }
+
+    private fun doType(text: String) {
+        val root = rootInActiveWindow ?: run {
+            Log.d(TAG, "type: no active window"); return
+        }
+        val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: run {
+            Log.d(TAG, "type: no focused input"); return
+        }
+        val args = Bundle().apply {
+            putCharSequence(
+                AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
+                text,
+            )
+        }
+        val ok = focused.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+        if (!ok) Log.w(TAG, "type: ACTION_SET_TEXT rejected by node")
+    }
+
+    private fun doClipboard(text: String) {
+        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
+        try {
+            cm.setPrimaryClip(ClipData.newPlainText("paperclip-remote", text))
+        } catch (e: SecurityException) {
+            // Android Q+ blocks background clipboard writes; documented caveat.
+            Log.w(TAG, "clipboard: write blocked (app not foreground)", e)
+        }
     }
 
     companion object {

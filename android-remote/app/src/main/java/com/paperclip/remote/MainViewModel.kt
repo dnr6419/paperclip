@@ -1,6 +1,8 @@
 package com.paperclip.remote
 
 import android.app.Application
+import android.content.ClipboardManager
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -121,6 +123,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         SessionHolder.get()?.sendText(
             ControlMessage.Swipe(x1, y1, x2, y2, durMs, System.currentTimeMillis())
         )
+    }
+
+    /** Controller-side: inject text into the controlled phone's focused field. */
+    fun sendType(text: String) {
+        if (text.isEmpty()) return
+        SessionHolder.get()?.sendText(
+            ControlMessage.Type(text, System.currentTimeMillis())
+        )
+    }
+
+    /** Either side: push the local clipboard to the peer. */
+    fun sendMyClipboard(): Boolean {
+        val cm = getApplication<Application>().getSystemService(Context.CLIPBOARD_SERVICE)
+                as? ClipboardManager ?: return false
+        val clip = cm.primaryClip ?: return false
+        if (clip.itemCount == 0) return false
+        val text = clip.getItemAt(0).coerceToText(getApplication()).toString()
+        if (text.isEmpty()) return false
+        SessionHolder.get()?.sendText(
+            ControlMessage.Clipboard(text, System.currentTimeMillis())
+        ) ?: return false
+        return true
     }
 
     fun sendFile(uri: Uri, displayName: String, mime: String) {

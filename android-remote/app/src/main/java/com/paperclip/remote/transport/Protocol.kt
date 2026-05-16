@@ -38,6 +38,25 @@ sealed interface ControlMessage {
     @Serializable @SerialName("key")
     data class Key(val code: String, val ts: Long = 0L) : ControlMessage
 
+    /**
+     * Inject text at the currently focused EditText on the controlled
+     * phone. Handled by the AccessibilityService via
+     * `AccessibilityNodeInfo.ACTION_SET_TEXT`. Silently no-ops if no
+     * focused text field exists.
+     */
+    @Serializable @SerialName("type")
+    data class Type(val text: String, val ts: Long = 0L) : ControlMessage
+
+    /**
+     * Push the sender's clipboard onto the peer. Receiver attempts
+     * `ClipboardManager.setPrimaryClip` — on Android Q+ this requires
+     * the receiver app to be in the foreground (or an IME), so the
+     * call may silently no-op on a background controlled phone. See
+     * PROTOCOL.md §clipboard caveats.
+     */
+    @Serializable @SerialName("clipboard")
+    data class Clipboard(val text: String, val ts: Long = 0L) : ControlMessage
+
     @Serializable @SerialName("quality")
     data class Quality(val bitrate: Int, val fps: Int, val scale: Double) : ControlMessage
 

@@ -76,6 +76,30 @@ controller sees `ready`, it must not send input events.
 - `ts`: controller-side `SystemClock.elapsedRealtime()` ms — used by the
   controlled side to drop stale events when its queue backs up.
 
+#### `type` — controller injects text into the controlled phone's focused field
+
+```json
+{"t": "type", "text": "hello world", "ts": 123456789}
+```
+
+Handled by the AccessibilityService on the controlled side via
+`AccessibilityNodeInfo.ACTION_SET_TEXT` on the currently input-focused
+node. Silently no-ops if no text field has focus; this is intentional
+so a stray frame doesn't surprise the user.
+
+#### `clipboard` — push the sender's clipboard to the peer
+
+```json
+{"t": "clipboard", "text": "https://example.com/...", "ts": 123456789}
+```
+
+Receiver attempts `ClipboardManager.setPrimaryClip`. On Android Q
+(API 29) and later, the platform restricts background clipboard writes
+to the foreground app or default IME, so the call may silently no-op
+if the receiver app is not currently in the foreground. Suitable for
+"I'm typing on the controller, paste this on the controlled phone
+which is also on-screen"; not suitable for unattended scenarios.
+
 #### `quality` — controller tunes the encoder
 
 ```json

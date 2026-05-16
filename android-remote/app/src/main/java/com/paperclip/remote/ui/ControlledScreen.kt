@@ -117,6 +117,7 @@ fun ControlledScreen() {
                 Text("Paired " + (if (s.isResumed) "(resumed)" else "(first time)"),
                      modifier = Modifier.padding(bottom = 16.dp))
                 ShareScreenSection(context = context)
+                ClipboardOnlySection()
                 FileTransferSection()
             }
             is PairingController.State.Failed -> {

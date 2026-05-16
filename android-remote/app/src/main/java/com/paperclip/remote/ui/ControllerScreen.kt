@@ -116,6 +116,7 @@ fun ControllerScreen(onScanQr: () -> Unit = {}) {
                         onSwipe = vm::sendSwipe,
                     )
                 }
+                TextEntrySection()
                 FileTransferSection()
                 OutlinedButton(onClick = vm::cancelPairing,
                                modifier = Modifier.padding(top = 16.dp)) {
