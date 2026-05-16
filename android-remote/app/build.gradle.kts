@@ -53,4 +53,12 @@ dependencies {
 
     // QR generation; scanning will come with CameraX in a follow-up commit.
     implementation("com.google.zxing:core:3.5.3")
+
+    // X25519 + HKDF. ChaCha20-Poly1305 uses platform javax.crypto (API 28+).
+    implementation("com.google.crypto.tink:tink-android:1.13.0")
+    // Long-lived identity key storage backed by Android Keystore.
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("com.google.crypto.tink:tink:1.13.0")
 }

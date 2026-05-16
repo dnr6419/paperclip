@@ -88,9 +88,10 @@ Two pairing paths:
    ephemeral keypair. Encodes a QR containing:
    `room_id || identity_pubkey_controlled || ephemeral_pubkey_controlled
    || nonce`.
-2. Controller scans QR. Confirms a 4-word safety phrase derived from
-   `SHA-256(identity_pubkey_controlled)` matches what the controlled
-   phone displays. (Defense against relay-side MITM substituting keys.)
+2. Controller scans QR. Both phones display a **16-hex-character safety
+   code** (64 bits, formatted `XXXX-XXXX-XXXX-XXXX`) derived from the
+   two identity pubkeys. The user must confirm the codes match —
+   relay-substituted keys produce different codes.
 3. Both sides perform X25519(my_identity_priv, their_identity_pub) +
    X25519(my_ephemeral_priv, their_ephemeral_pub), feed both into HKDF
    with a transcript hash → session key.

@@ -184,11 +184,20 @@ nonce counter starting at 0.
 
 1. Controlled side displays a QR with
    `room_id || id_pub_controlled || nonce_qr`. The controller side scans.
-2. Controller derives a **safety phrase** (4 words from the BIP-39
-   English wordlist via `id_pub_controlled[0..6]` → 11-bit indices,
-   discarding the last bit) and shows it on screen. Controlled side
-   shows the same phrase. The user must accept the match. This is the
-   only step that defeats a relay-side MITM.
+2. Both phones display the same **16-hex safety code** (64 bits,
+   rendered `XXXX-XXXX-XXXX-XXXX`) derived from the two identity
+   pubkeys:
+
+   ```
+   safety_code(a_pub, b_pub) =
+     SHA-256("paperclip-remote v2 safety" || lo || hi).hex()[:16]
+   where lo, hi = sorted(a_pub, b_pub)  (byte-lex)
+   ```
+
+   The user must confirm both phones show the same code; if a relay
+   substituted either key, the codes will differ. 64 bits gives
+   ≈ 1.8×10¹⁹ work for an offline second-preimage, comfortable margin
+   for the QR-display window.
 3. After acceptance, store the peer's `id_pub` keyed by alias.
 
 **Resumed pairing (identity pubkeys already known):**
@@ -210,7 +219,7 @@ on-the-wire frame =
   || (if BINARY) original tag byte    (1 byte)
   || ChaCha20-Poly1305(
         key   = session_key_for_my_direction,
-        nonce = 12-byte LE of nonce_counter (zero-padded),
+        nonce = 4 zero bytes || u64_be(nonce_counter)    (12 bytes total),
         aad   = u64_be(nonce_counter) || frame_kind_byte [|| tag],
         plaintext = original payload
      )                                (M + 16 bytes)
