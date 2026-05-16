@@ -25,15 +25,24 @@ the development container; map to the real numbers when filing.
 | DOF-R-13 | `7bea284` | README rewrite with Mermaid diagrams + usage guide |
 | DOF-R-14 | `1dcc536` | Text injection + clipboard push (v1.1 SEED items) |
 
-## Open follow-ups (not on this branch yet)
+## Continued on this branch
+
+| Working ID | Commit(s) | Scope |
+|---|---|---|
+| DOF-R-15 | `7e77ad5` | `docs/device-acceptance.md` ledger + measurement playbook (first on-device run pending) |
+| DOF-R-16 | `d6be006` | Hardware-key chip row (BACK / HOME / RECENTS / NOTIFICATIONS) |
+| DOF-R-17 | `58750ff` | Live bitrate Quality control slider + dispatch in ScreenCaptureService |
+| DOF-R-18 | `8fb7076` | Gradle 8.7 wrapper checked in + single-module settings.gradle.kts fix |
+| DOF-R-19 | `dfb0498` | Auto-resume watchdog on socket drop + silent resumed-pair confirm |
+
+## Open
 
 | Working ID | Scope |
 |---|---|
-| DOF-R-15 | On-device acceptance run per SEED §11 DoD on at least one hardware pair, recorded under `docs/device-acceptance.md` |
-| DOF-R-16 | Hardware-key chip row (BACK/HOME/RECENTS) on ControllerScreen |
-| DOF-R-17 | Quality control (`ControlMessage.Quality` UI surface to tune bitrate/fps live) |
-| DOF-R-18 | Gradle wrapper checked in so CI can build without Android Studio |
-| DOF-R-19 | Foreground reconnect/auto-resume on `feature/android-remote-control` socket flap |
+| DOF-R-15a | First on-device acceptance run with all five M1–M5 metrics filled in |
+| DOF-R-20 | Camera flip / torch toggle in QrScannerScreen |
+| DOF-R-21 | FPS / scale knobs (encoder restart, not live like bitrate) |
+| DOF-R-22 | Multi-peer fan-out (1 controller → N controlled) — out of MVP, future |
 
 ## Commit convention going forward
 
