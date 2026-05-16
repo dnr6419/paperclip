@@ -6,6 +6,8 @@ import com.paperclip.remote.crypto.IdentityStore
 import com.paperclip.remote.pair.PairingController
 import com.paperclip.remote.pair.PeerRegistry
 import com.paperclip.remote.pair.RoomCode
+import com.paperclip.remote.session.SessionHolder
+import com.paperclip.remote.transport.ControlMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,7 +47,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         val code = RoomCode.generate()
         _roomCode.value = code
-        pairing.start(role = "controlled", relayUrl = url, roomId = code, peerIdPubExpected = null)
+        val metrics = getApplication<Application>().resources.displayMetrics
+        pairing.start(
+            role = "controlled", relayUrl = url, roomId = code,
+            peerIdPubExpected = null,
+            myWidthPx = metrics.widthPixels, myHeightPx = metrics.heightPixels,
+        )
     }
 
     fun startPairingAsControllerFromQr(qrText: String): Boolean {
@@ -78,6 +85,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun cancelPairing() {
         pairing.cancel()
         _roomCode.value = null
+    }
+
+    /** Controller-side: ship a tap to the controlled peer. */
+    fun sendTap(peerX: Int, peerY: Int) {
+        SessionHolder.get()?.sendText(ControlMessage.Tap(peerX, peerY, System.currentTimeMillis()))
+    }
+
+    /** Controller-side: ship a swipe to the controlled peer. */
+    fun sendSwipe(x1: Int, y1: Int, x2: Int, y2: Int, durMs: Int) {
+        SessionHolder.get()?.sendText(
+            ControlMessage.Swipe(x1, y1, x2, y2, durMs, System.currentTimeMillis())
+        )
     }
 
     override fun onCleared() {

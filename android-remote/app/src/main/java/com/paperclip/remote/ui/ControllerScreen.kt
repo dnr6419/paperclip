@@ -1,9 +1,12 @@
 package com.paperclip.remote.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.paperclip.remote.MainViewModel
 import com.paperclip.remote.pair.PairingController
+import com.paperclip.remote.playback.VideoSurface
 
 @Composable
 fun ControllerScreen() {
@@ -92,8 +96,22 @@ fun ControllerScreen() {
                 }
             }
             is PairingController.State.Ready -> {
-                Text("Paired. Waiting for video…")
-                // Surface playback lands when CameraX + decoder-render-surface lands.
+                Text("Paired — drag or tap to control the other phone.",
+                     modifier = Modifier.padding(bottom = 12.dp))
+                val aspect = s.peerWidthPx.toFloat() / s.peerHeightPx
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(aspect),
+                ) {
+                    VideoSurface(
+                        peerWidth = s.peerWidthPx,
+                        peerHeight = s.peerHeightPx,
+                        modifier = Modifier.fillMaxSize(),
+                        onTap = vm::sendTap,
+                        onSwipe = vm::sendSwipe,
+                    )
+                }
                 OutlinedButton(onClick = vm::cancelPairing,
                                modifier = Modifier.padding(top = 16.dp)) {
                     Text("Disconnect")

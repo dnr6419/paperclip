@@ -55,7 +55,12 @@ class PairingController(
         data object AwaitingPeerHello : State
         /** Show safety code; if [isResumed] true the UI may auto-confirm silently. */
         data class AwaitingConfirm(val safetyCode: String, val isResumed: Boolean) : State
-        data class Ready(val peerIdPub: ByteArray, val isResumed: Boolean) : State
+        data class Ready(
+            val peerIdPub: ByteArray,
+            val isResumed: Boolean,
+            val peerWidthPx: Int,
+            val peerHeightPx: Int,
+        ) : State
         data class Failed(val reason: String) : State
     }
 
@@ -77,7 +82,14 @@ class PairingController(
     private var role: String? = null
     private var driver: Job? = null
 
-    fun start(role: String, relayUrl: String, roomId: String, peerIdPubExpected: ByteArray? = null) {
+    fun start(
+        role: String,
+        relayUrl: String,
+        roomId: String,
+        peerIdPubExpected: ByteArray? = null,
+        myWidthPx: Int? = null,
+        myHeightPx: Int? = null,
+    ) {
         require(role == "controller" || role == "controlled") { "bad role" }
         cancel()  // discard any prior attempt
 
@@ -86,7 +98,7 @@ class PairingController(
 
         driver = scope.launch {
             try {
-                runHandshake(role, relayUrl, roomId, peerIdPubExpected)
+                runHandshake(role, relayUrl, roomId, peerIdPubExpected, myWidthPx, myHeightPx)
             } catch (t: Throwable) {
                 _state.value = State.Failed(t.message ?: t::class.simpleName ?: "unknown")
                 tearDown()
@@ -122,7 +134,14 @@ class PairingController(
                 }
                 SessionHolder.set(channel)
                 val isResumed = existing != null
-                _state.value = State.Ready(peerHello.idPub, isResumed = isResumed)
+                _state.value = State.Ready(
+                    peerIdPub = peerHello.idPub,
+                    isResumed = isResumed,
+                    // Fallbacks if the peer's hello omitted geometry; a typical
+                    // controlled phone (Pixel-class) defaults sit here.
+                    peerWidthPx  = peerHello.w   ?: 1080,
+                    peerHeightPx = peerHello.h   ?: 2400,
+                )
             } catch (t: Throwable) {
                 _state.value = State.Failed("handshake derive failed: ${t.message}")
                 tearDown()
@@ -151,6 +170,8 @@ class PairingController(
         relayUrl: String,
         roomId: String,
         peerIdPubExpected: ByteArray?,
+        myWidthPx: Int?,
+        myHeightPx: Int?,
     ) {
         val r = RelayClient()
         relay = r
@@ -194,6 +215,8 @@ class PairingController(
             v = HelloPayload.PROTOCOL_VERSION,
             idPub = myKp.pub,
             ephPub = channel.myEphPub,
+            w = myWidthPx,
+            h = myHeightPx,
         )
         val myCanonical = myHello.toCanonicalJson()
         pendingMyCanonical = myCanonical
