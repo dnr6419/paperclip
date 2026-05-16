@@ -8,9 +8,11 @@ code that disagrees with it is the bug.
 
 ## Current state
 
-- [x] Wire protocol fixed (`docs/PROTOCOL.md`)
+- [x] Wire protocol v2 (E2E, `docs/PROTOCOL.md`)
 - [x] Relay server, docker-compose, round-trip verified
 - [x] Android app scaffold — pairing, transport, UI shell
+- [ ] Identity store + handshake + AEAD wrap (E2E layer)
+- [ ] Peer registry + safety-phrase UI (first-pair flow)
 - [ ] MediaProjection capture + H.264 encoder
 - [ ] H.264 decoder + Surface playback on controller
 - [ ] AccessibilityService input injection

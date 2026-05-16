@@ -1,8 +1,13 @@
-# Wire protocol
+# Wire protocol (v2 — E2E)
 
 Single WebSocket per peer to the relay. Relay forwards every frame
 verbatim — it never inspects payloads. Both peers send + receive on the
 same socket; multiplexing is done by frame type, not by separate channels.
+
+**Confidentiality model.** The relay sees only ciphertext for everything
+sent after the cryptographic handshake completes. Plaintext layers
+described below are what each peer encrypts/decrypts locally; on the
+wire they are wrapped (see §AEAD wrap).
 
 ## Endpoint
 
@@ -26,16 +31,26 @@ relay. Receiver dispatches by tag.
 Every message has a `t` field (type). Other fields depend on `t`. Unknown
 `t` values are ignored by the receiver (forward-compatible).
 
-#### `hello` — first message both peers must send
+#### `hello` — first message both peers must send (CLEARTEXT)
 
 ```json
-{"t": "hello", "role": "controlled", "v": 1, "w": 1080, "h": 2400, "dpi": 480, "model": "Pixel 8"}
+{
+  "t": "hello",
+  "role": "controlled",
+  "v": 2,
+  "id_pub": "BASE64URL(32-byte X25519 identity pubkey)",
+  "eph_pub": "BASE64URL(32-byte X25519 ephemeral pubkey)",
+  "w": 1080, "h": 2400, "dpi": 480, "model": "Pixel 8"
+}
 ```
 
 `v` is the protocol version. Receiving a higher `v` than supported: send
 `bye` with reason `unsupported_version` and close. The controller side
-includes `w`/`h`/`dpi` as best-known controller display geometry (for
-absolute-coordinate mapping decisions).
+includes `w`/`h`/`dpi` as best-known controller display geometry.
+
+`hello` is **the only message sent in cleartext.** It carries the
+material needed to derive a session key (see §Handshake). Everything
+after the local `ready` is AEAD-wrapped.
 
 #### `ready` — controlled side has consented and is about to start capture
 
@@ -144,8 +159,83 @@ Controlled                Relay                 Controller
   2 access units worth of pending bytes, drop the oldest non-IDR frame.
   Don't queue indefinitely — latency matters more than completeness.
 
+## Handshake (v2)
+
+Identity keys are long-lived per install, stored encrypted on each
+device. Ephemeral keys are fresh per session.
+
+```
+KDF_input =
+  "paperclip-remote v2 session-key"     (literal)
+  || transcript_hash                     (32 bytes, SHA-256 over both hellos
+                                          in canonical lexicographic-key JSON,
+                                          shorter side first)
+  || X25519(my_id_priv,  peer_id_pub)    (32 bytes — static)
+  || X25519(my_eph_priv, peer_eph_pub)   (32 bytes — ephemeral)
+
+session_key = HKDF-SHA256(salt=transcript_hash, ikm=KDF_input, info=role, L=32)
+```
+
+A different `info` per direction (`"controller"` vs `"controlled"`)
+yields two distinct keys, one per direction. Each direction has its own
+nonce counter starting at 0.
+
+**First pairing (no prior knowledge):**
+
+1. Controlled side displays a QR with
+   `room_id || id_pub_controlled || nonce_qr`. The controller side scans.
+2. Controller derives a **safety phrase** (4 words from the BIP-39
+   English wordlist via `id_pub_controlled[0..6]` → 11-bit indices,
+   discarding the last bit) and shows it on screen. Controlled side
+   shows the same phrase. The user must accept the match. This is the
+   only step that defeats a relay-side MITM.
+3. After acceptance, store the peer's `id_pub` keyed by alias.
+
+**Resumed pairing (identity pubkeys already known):**
+
+1. Both sides skip the safety-phrase step and silently verify that the
+   peer's `id_pub` in the cleartext `hello` matches the stored value.
+2. Mismatch → close with `bye.reason = "identity_mismatch"`. Do not
+   automatically re-pair; require the user to explicitly delete the
+   stored peer and rescan.
+
+## AEAD wrap
+
+Every WebSocket message sent after the local `ready` is wrapped:
+
+```
+on-the-wire frame =
+  u64_be(nonce_counter)               (8 bytes)
+  || frame_kind_byte                  (1 byte: 0x54 TEXT, 0x42 BINARY+tag)
+  || (if BINARY) original tag byte    (1 byte)
+  || ChaCha20-Poly1305(
+        key   = session_key_for_my_direction,
+        nonce = 12-byte LE of nonce_counter (zero-padded),
+        aad   = u64_be(nonce_counter) || frame_kind_byte [|| tag],
+        plaintext = original payload
+     )                                (M + 16 bytes)
+```
+
+The whole frame is sent as a BINARY WebSocket message regardless of
+whether the inner payload was TEXT or BINARY. The receiver:
+
+1. Reads the 8-byte counter, rejects if not `> last_seen_counter`
+   (replay/reorder defense — strict monotonic).
+2. Reads kind byte; if 0x42, reads the original tag.
+3. AEAD-decrypts with peer's direction key; on failure, close with
+   `bye.reason = "decrypt_failure"`.
+4. Dispatches the plaintext exactly as the cleartext spec above
+   describes.
+
+Nonces never wrap. A session that approaches 2⁶³ frames sent (≈ never
+in practice) must close with `bye.reason = "rekey_needed"`. v2 does not
+specify rekey; v3 may.
+
 ## Versioning
 
 Bump `hello.v` on **breaking** changes only. Forward-compatible additions
 (new optional JSON fields, new `t` values, new binary type tags) keep `v`
 the same. Receivers MUST ignore unknown fields and unknown `t` values.
+
+v1 (cleartext) is gone. Mixed-version connections close with
+`unsupported_version`.

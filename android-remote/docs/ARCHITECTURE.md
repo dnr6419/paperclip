@@ -49,11 +49,20 @@ app/src/main/java/com/paperclip/remote/
 ├── ui/
 │   ├── HomeScreen.kt
 │   ├── ControllerScreen.kt      QR scanner + video surface + input overlay
-│   └── ControlledScreen.kt      room code display + status
+│   ├── ControlledScreen.kt      room code + QR + safety-phrase display
+│   └── PeerListScreen.kt        saved devices (resumed pairing)
 ├── transport/
 │   ├── RelayClient.kt           WebSocket connect + send + receive loop
-│   ├── Frame.kt                 sealed class for TEXT/BINARY frames
+│   ├── SecureChannel.kt         AEAD wrap/unwrap around RelayClient
 │   └── Protocol.kt              JSON message dataclasses + binary tags
+├── crypto/
+│   ├── IdentityStore.kt         long-lived X25519 keypair via Keystore
+│   ├── Handshake.kt             session-key derivation per PROTOCOL.md
+│   └── SafetyPhrase.kt          4-word fingerprint for first-pair UI
+├── pair/
+│   ├── RoomCode.kt              6-char base32 generator + validator
+│   ├── QrPayload.kt             encode/decode the QR contents
+│   └── PeerRegistry.kt          EncryptedSharedPreferences of known peers
 ├── capture/
 │   ├── ScreenCaptureService.kt  foreground service, owns MediaProjection
 │   └── H264Encoder.kt           MediaCodec wrapper, emits Annex-B NALs
@@ -62,11 +71,8 @@ app/src/main/java/com/paperclip/remote/
 ├── input/
 │   ├── RemoteInputService.kt    AccessibilityService: dispatchGesture etc.
 │   └── InputMapper.kt           controller-side: scale taps to controlled px
-├── files/
-│   └── FileTransferManager.kt   chunk + reassemble + progress
-└── pair/
-    ├── RoomCode.kt              6-char base32 generator + validator
-    └── QrCode.kt                ZXing thin wrapper
+└── files/
+    └── FileTransferManager.kt   chunk + reassemble + progress
 ```
 
 ### Threading model
@@ -96,7 +102,8 @@ sits idle until `RelayClient` hands it a `tap`/`swipe`/`key` frame.
 
 ## What the relay deliberately does NOT do
 
-- No frame inspection, transcoding, or reformatting.
+- No frame inspection, transcoding, or reformatting. (It mathematically
+  cannot: payloads are AEAD-wrapped end-to-end, the relay holds no key.)
 - No TURN-style media coalescing.
 - No durable storage of files in transit.
 - No metrics export beyond `/healthz`.

@@ -3,6 +3,12 @@
 > Generated via Ouroboros-style Interview → Seed flow.
 > Ambiguity score at sign-off: **0.12** (target ≤ 0.20).
 > Date: 2026-05-16
+>
+> **Amendment 2026-05-16/r2**: §2 persistence and §4 cryptography
+> re-negotiated mid-Execute after the user picked persistent same-owner
+> pairing + E2E encryption + AccessibilityService input. The earlier
+> "no E2E", "no persistent pairing" non-goals are removed. New
+> Ambiguity post-amendment: 0.10.
 
 This document is the **validated specification**. Code lives downstream of
 it; conflicts between code and this file are bugs in the code until this
@@ -36,7 +42,13 @@ peers.
 - Single APK installed on both phones.
 - Per-session role choice: either side can be **Controller** (sees + drives)
   or **Controlled** (shares screen + accepts input).
-- No persistent device pairing in v1. Each session is established fresh.
+- **Persistent device identity.** Each install generates a long-lived
+  X25519 + Ed25519 identity keypair stored in
+  `EncryptedSharedPreferences` (Android Keystore-backed). First pairing
+  is QR-mediated; subsequent connections between the same two installs
+  auto-resume without a fresh code.
+- A short-lived 6-character room code remains the fallback path for
+  re-pairing after an app reinstall or for new device pairs.
 
 ---
 
@@ -58,37 +70,66 @@ peers.
 
 ### Why not WebRTC
 
-WebRTC would give us lower latency and direct P2P, but it requires STUN+TURN
-infrastructure and the same-owner trust model doesn't benefit from
-end-to-end media encryption (the user already trusts their own server).
-WSS keeps the server <300 lines of Python and is good enough for the
-500 ms target.
+WebRTC would give us lower latency and direct P2P, but it requires
+STUN+TURN infrastructure and a much larger client SDK. WSS + an
+application-layer AEAD wrap (see §4) gets us E2E confidentiality without
+DTLS-SRTP, keeps the relay <300 lines of Python, and is good enough for
+the 500 ms target.
 
 ---
 
 ## 4. Pairing & auth
 
-- Controlled phone generates a **one-time 6-character room code** (base32,
-  no ambiguous chars) and renders it as text + QR.
-- Controller scans QR or types code → connects to same room.
-- Controlled phone shows a system confirmation ("Accept connection from
-  this controller?") before accepting any input or starting capture.
-- Room code is invalidated immediately after both peers join, OR after 5
-  minutes if unused, OR after either peer disconnects.
-- No user accounts, no persistence of pairings. Re-pair next session.
+Two pairing paths:
 
-### Threat model (in scope)
+**First pairing (QR-mediated, in-band verification):**
 
-- Random attacker guessing a 6-char room code in the 5-minute window:
-  32⁶ ≈ 10⁹ → with rate limiting (10 tries/min per IP), infeasible.
-- Eavesdropper between phone and relay: prevented by WSS.
-- Operator of the relay (= the user themselves): trusted by definition.
+1. Controlled phone generates a room code AND a per-session X25519
+   ephemeral keypair. Encodes a QR containing:
+   `room_id || identity_pubkey_controlled || ephemeral_pubkey_controlled
+   || nonce`.
+2. Controller scans QR. Confirms a 4-word safety phrase derived from
+   `SHA-256(identity_pubkey_controlled)` matches what the controlled
+   phone displays. (Defense against relay-side MITM substituting keys.)
+3. Both sides perform X25519(my_identity_priv, their_identity_pub) +
+   X25519(my_ephemeral_priv, their_ephemeral_pub), feed both into HKDF
+   with a transcript hash → session key.
+4. From `ready` onward, every WebSocket message (TEXT and BINARY) is
+   wrapped: `nonce_counter || ChaCha20-Poly1305(session_key,
+   nonce_counter, plaintext)`. Counter is per-direction, monotonic,
+   resets per session.
+5. After successful pairing the **controlled side's identity_pubkey**
+   is saved on the controller (and vice versa) under a user-chosen
+   alias.
 
-### Threat model (explicitly out of scope)
+**Resumed connection (paired devices):**
 
-- Compromised controlled phone (e.g. malware also has Accessibility) —
-  this app cannot defend against that.
-- Coercion of the user to share their room code.
+1. Either side opens a saved peer. Controller connects to a room
+   derived from `HMAC(identity_shared_secret, today's date)` so even
+   the room namespace rotates.
+2. Only the ephemeral X25519 exchange happens; identity verification
+   is silent (keys already known).
+3. Same AEAD wrap applies.
+
+### Threat model
+
+| Adversary | Defense |
+|---|---|
+| Random attacker guesses room code in 5 min | 30⁶ ≈ 7×10⁸ + rate-limit 10/min/IP |
+| Eavesdropper between phone and relay | WSS |
+| **Compromised/curious relay operator** | E2E AEAD; relay sees ciphertext only |
+| Relay swaps keys during first pairing | QR fingerprint comparison on first pair |
+| Relay swaps keys after pairing | Stored identity pubkey rejects mismatch |
+| Replay of captured ciphertext | Per-direction monotonic nonce counter |
+
+### Threat model (still out of scope)
+
+- Compromised controlled phone (e.g. malware also has Accessibility).
+- Coercion of the user.
+- Forward secrecy of past sessions if identity key is later stolen.
+  Ephemeral exchange provides per-session forward secrecy *forward* of
+  identity compromise, but does not retroactively protect old sessions
+  against a key-exfiltration on the device.
 
 ---
 
@@ -154,6 +195,10 @@ WebSocket:
   `swipe`, `key`, `file_begin`, `file_end`, `quality`, `bye`.
 - **BINARY frames** carry a 1-byte type tag + payload: `0x01` H.264 NAL
   access units, `0x02` file data chunks tagged by transfer id.
+- After session establishment every TEXT/BINARY frame is AEAD-wrapped
+  by an outer fixed framing: `u64 nonce_counter || ciphertext` with
+  ChaCha20-Poly1305 (16-byte tag). The relay treats this as opaque
+  bytes; only the two peers can decrypt.
 
 The protocol is intentionally minimal — adding a new message type should
 not require a server release.
