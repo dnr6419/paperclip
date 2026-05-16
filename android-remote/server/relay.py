@@ -26,6 +26,29 @@ MAX_JOIN_PER_MIN = 10  # per source IP, defense against room-code brute force
 ROOM_IDLE_TTL_SEC = 300  # rooms with no peers and no joins for 5 min get reaped
 
 
+def _client_ip(ws: WebSocket) -> str:
+    """Best-effort original-client IP.
+
+    Behind a reverse proxy (Caddy / nginx — see docker-compose.yml
+    `tls` profile) the TCP peer is the proxy container, not the phone.
+    Honour X-Forwarded-For / X-Real-IP so the rate limiter sees real
+    client addresses and one misconfigured app doesn't get the proxy
+    permanently throttled.
+
+    Trusting these headers requires that they cannot be spoofed by
+    untrusted callers — the relay endpoint is expected to sit behind
+    the proxy (no direct internet exposure on port 8765). Self-hosted
+    same-owner deployments per SEED §4 satisfy this.
+    """
+    xff = ws.headers.get("x-forwarded-for")
+    if xff:
+        return xff.split(",", 1)[0].strip() or "unknown"
+    real = ws.headers.get("x-real-ip")
+    if real:
+        return real
+    return ws.client.host if ws.client else "unknown"
+
+
 @dataclass
 class Room:
     controller: WebSocket | None = None
@@ -92,7 +115,7 @@ async def healthz():
 
 @app.websocket("/ws/{room_id}/{role}")
 async def ws_endpoint(ws: WebSocket, room_id: str, role: str):
-    client_ip = ws.client.host if ws.client else "unknown"
+    client_ip = _client_ip(ws)
 
     if role not in ROLES:
         await ws.close(code=status.WS_1008_POLICY_VIOLATION, reason="invalid role")

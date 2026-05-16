@@ -1,0 +1,38 @@
+# Caddy reverse proxy for paperclip-remote.
+#
+# Enabled by `docker compose --profile tls up -d` once you have:
+#   1. A domain (your own or e.g. yourname.duckdns.org)
+#   2. The domain's A/AAAA record pointing at this host
+#   3. Ports 80 + 443 reachable from the public internet (so Let's
+#      Encrypt's HTTP-01 / TLS-ALPN-01 challenge can complete)
+#   4. `DOMAIN=remote.example.com` set in this directory's `.env`
+#
+# Caddy will fetch and auto-renew a certificate the first time the
+# container starts; expect ~30–60 s of HTTP 503 while it does.
+
+{$DOMAIN} {
+	# Minimal: ferry WebSocket + HTTP to the relay container.
+	# Caddy auto-detects the Upgrade header and forwards the WS frames
+	# without us having to spell that out.
+	encode zstd gzip
+	reverse_proxy relay:8765
+
+	# Tighten common attack surface a bit. The relay's protocol is
+	# AEAD-wrapped end-to-end so there's no meaningful sniffing
+	# possible, but a passing scanner will still try.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	log {
+		# Drop the noise — successful WebSocket upgrades plus the
+		# /healthz pings would otherwise flood. Errors still go to
+		# stderr (visible via `docker compose logs caddy`).
+		output stdout
+		format console
+		level WARN
+	}
+}

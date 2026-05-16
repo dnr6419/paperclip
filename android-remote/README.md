@@ -151,48 +151,93 @@ stateDiagram-v2
 도달할 수 있어야 합니다. 가정용 NAS, VPS, 회사 내부망 서버 어디든
 가능합니다.
 
-## 옵션 A — 로컬 네트워크 안에서만 (가장 간단)
+## 옵션 B (권장) — Caddy 자동 TLS, 한 명령 배포
 
-같은 Wi-Fi 안에서만 쓸 거면 TLS 도 필요 없습니다.
+`docker-compose.yml` 에 Caddy 사이드카가 프로필로 들어있어, 도메인 하나만
+있으면 다음 한 번에 끝납니다.
+
+### 사전 준비
+
+1. **도메인 1개** — 자체 도메인이 없으면 [DuckDNS](https://www.duckdns.org/)
+   (무료) 에서 `yourname.duckdns.org` 발급
+2. **공인 IP** — 가정 회선이면 CGNAT 가 아닌지 확인 (`whatismyip.com` 와
+   공유기 WAN IP 가 같아야 함)
+3. **포트 80 + 443 외부 노출** — 공유기 포트포워드 또는 클라우드 보안그룹
+4. 도메인의 A 레코드를 위 IP 로 가리킴
+
+### 배포
 
 ```bash
 cd android-remote/server
+
+# 1. .env 작성
+cp .env.example .env
+$EDITOR .env       # DOMAIN=remote.example.com 한 줄만 채우면 됨
+
+# 2. 릴레이 + Caddy 한 번에 기동 (--profile tls 가 핵심)
+docker compose --profile tls up -d
+
+# 3. 초기 발급 30초~1분 대기 후 헬스체크
+sleep 60
+curl -fsSL https://remote.example.com/healthz
+# {"ok":true,"rooms":0}
+```
+
+이게 끝입니다. Caddy 가:
+- Let's Encrypt 인증서를 알아서 발급 (HTTP-01 challenge)
+- 60일마다 자동 갱신
+- HTTP/2 + HTTP/3 (QUIC) 지원
+- HSTS 등 보안 헤더 자동 부착
+
+폰의 *Relay URL*: `wss://remote.example.com/` — 운영 빌드 그대로 사용 가능.
+
+### Caddyfile 커스터마이즈
+
+기본 [`server/Caddyfile`](./server/Caddyfile) 은 최소 구성입니다. 더 필요한
+경우 (basic-auth, IP allow-list, fail2ban 등) 그 파일을 수정 후
+`docker compose --profile tls restart caddy`.
+
+### 운영 확인
+
+```bash
+# 인증서 발급 로그
+docker compose logs caddy | head -30
+
+# 릴레이 자체 로그
+docker compose logs -f relay
+
+# 입장 분당 10회 제한이 진짜 클라이언트 IP 기준으로 동작하는지 확인
+# (Caddy 가 X-Forwarded-For 자동 부착, 릴레이가 _client_ip() 로 읽음)
+```
+
+## 옵션 A — 로컬 네트워크 안에서만 (TLS 불필요)
+
+같은 Wi-Fi 안에서만 쓸 거면 TLS 도 외부 도메인도 필요 없습니다. 단,
+**운영 빌드는 평문 `ws://` 를 거부**하므로 디버그 APK 가 필요합니다.
+
+```bash
+cd android-remote/server
+
+# .env 에서 LAN 노출 허용
+cp .env.example .env
+echo "RELAY_BIND=0.0.0.0" >> .env
+
+# Caddy 없이 릴레이만
 docker compose up -d
 curl http://localhost:8765/healthz
-# {"ok": true, "rooms": 0}
+# {"ok":true,"rooms":0}
 ```
 
-폰의 *Relay URL* 에는 PC 의 LAN IP 로 `ws://192.168.x.x:8765/` 식으로
-입력. 단, **운영 빌드는 평문 `ws://` 를 거부**하므로 디버그 빌드로
-빌드해서 설치해야 합니다 (Android Studio Run → Run 'app' 기본값).
+폰의 *Relay URL*: `ws://192.168.x.x:8765/` (호스트의 LAN IP).
 
-## 옵션 B — 인터넷 어디서나 (Caddy + TLS, 권장)
+기본 `.env` 에선 `RELAY_BIND=127.0.0.1` 로 호스트 루프백에만 바인딩하니,
+실수로 LAN 에 8765 가 열려있을 일은 없습니다. LAN 노출을 *원할 때만*
+명시적으로 `0.0.0.0` 으로 바꾸세요.
 
-도메인 1개 + 80/443 포트 열린 서버 1대 필요. Caddy 가 Let's Encrypt
-인증서를 자동 발급합니다.
+## 옵션 C — Caddy 말고 nginx 가 좋다면
 
-`/etc/caddy/Caddyfile`:
-
-```caddyfile
-remote.example.com {
-    reverse_proxy 127.0.0.1:8765
-}
-```
-
-```bash
-# 릴레이는 호스트 루프백에만 바인딩
-cd android-remote/server
-docker compose up -d   # 8765 가 호스트로 노출됨
-sudo systemctl reload caddy
-```
-
-폰의 *Relay URL*: `wss://remote.example.com/`.
-
-방화벽:
-- 인바운드 443 (Caddy) — 외부에서 도달 가능
-- 8765 는 외부에 열 필요 없음 (호스트 내부 통신만)
-
-## 옵션 C — VPS + nginx + Certbot
+이미 nginx + certbot 으로 운영중이면 sidecar 안 띄우고 호스트 nginx 에
+연결:
 
 ```nginx
 # /etc/nginx/sites-available/paperclip-remote
@@ -208,6 +253,7 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_read_timeout 86400s;     # 장기 WebSocket 유지
         proxy_send_timeout 86400s;
     }
@@ -215,12 +261,16 @@ server {
 ```
 
 ```bash
+# 릴레이는 호스트 루프백에만
+cd android-remote/server
+docker compose up -d   # .env 의 기본 RELAY_BIND=127.0.0.1 그대로
+
 sudo certbot --nginx -d remote.example.com
 sudo systemctl reload nginx
 ```
 
-`X-Real-IP` 를 넘기면 릴레이의 입장 분당 10회 제한이 원래 IP 기준으로
-정확히 적용됩니다.
+릴레이가 `X-Real-IP` / `X-Forwarded-For` 둘 다 인식하므로 분당 10회
+제한이 원래 IP 기준으로 정확히 적용됩니다.
 
 ## 옵션 D — Docker 없이 직접 실행 (systemd)
 
