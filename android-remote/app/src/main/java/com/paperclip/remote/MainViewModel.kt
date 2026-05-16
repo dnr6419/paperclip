@@ -125,6 +125,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    /** Controller-side: BACK / HOME / RECENTS / NOTIFICATIONS keys. */
+    fun sendKey(code: String) {
+        SessionHolder.get()?.sendText(
+            ControlMessage.Key(code, System.currentTimeMillis())
+        )
+    }
+
     /** Controller-side: inject text into the controlled phone's focused field. */
     fun sendType(text: String) {
         if (text.isEmpty()) return

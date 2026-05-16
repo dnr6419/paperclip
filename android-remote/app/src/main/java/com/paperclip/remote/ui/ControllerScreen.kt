@@ -116,6 +116,7 @@ fun ControllerScreen(onScanQr: () -> Unit = {}) {
                         onSwipe = vm::sendSwipe,
                     )
                 }
+                HardwareKeyRow()
                 TextEntrySection()
                 FileTransferSection()
                 OutlinedButton(onClick = vm::cancelPairing,
