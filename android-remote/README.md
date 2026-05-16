@@ -16,9 +16,10 @@ code that disagrees with it is the bug.
 - [x] MediaProjection capture + H.264 encoder + decoder pipeline
 - [x] PairingController + PeerRegistry + safety-code UI
 - [x] AccessibilityService input injection (taps, swipes, BACK/HOME/RECENTS)
-- [ ] CameraX QR scanner on controller (typed-code path works today)
-- [ ] Decoder Surface playback wired into ControllerScreen
-- [ ] File transfer
+- [x] InputMapper (FIT / STRETCH, letterbox-aware) — 13 JVM cases pass
+- [x] Decoder Surface playback wired into ControllerScreen
+- [x] CameraX QR scanner on controller (manual-code path still works)
+- [x] File transfer (bidirectional, 16 KiB chunks) — 12 JVM cases pass
 - [ ] End-to-end on real hardware
 
 See `SEED.md §11` for the definition of done.
