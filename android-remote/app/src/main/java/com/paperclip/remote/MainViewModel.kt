@@ -1,8 +1,11 @@
 package com.paperclip.remote
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.paperclip.remote.crypto.IdentityStore
+import com.paperclip.remote.files.FileTransferManager
 import com.paperclip.remote.pair.PairingController
 import com.paperclip.remote.pair.PeerRegistry
 import com.paperclip.remote.pair.RoomCode
@@ -11,6 +14,8 @@ import com.paperclip.remote.transport.ControlMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * One process-wide ViewModel that owns the long-lived collaborators
@@ -25,7 +30,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val identityStore = IdentityStore(application)
     val peerRegistry = PeerRegistry(application)
     val pairing = PairingController(identityStore, peerRegistry)
+    val files = FileTransferManager(application)
     private val settings = SettingsStore(application)
+
+    init {
+        // Bind file-transfer manager to the SecureChannel the moment
+        // pairing completes; unbind on cancel / failure so a fresh attempt
+        // starts with a clean transfer table.
+        viewModelScope.launch {
+            pairing.state.collect { st ->
+                when (st) {
+                    is PairingController.State.Ready -> {
+                        SessionHolder.get()?.let(files::bind)
+                    }
+                    is PairingController.State.Idle,
+                    is PairingController.State.Failed -> files.unbind()
+                    else -> Unit
+                }
+            }
+        }
+    }
 
     private val _relayUrl = MutableStateFlow(settings.relayUrl)
     val relayUrl: StateFlow<String> = _relayUrl.asStateFlow()
@@ -99,8 +123,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    fun sendFile(uri: Uri, displayName: String, mime: String) {
+        files.sendUri(uri, displayName, mime)
+    }
+
     override fun onCleared() {
         pairing.cancel()
+        files.release()
         super.onCleared()
     }
 }

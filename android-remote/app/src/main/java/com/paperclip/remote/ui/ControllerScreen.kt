@@ -116,6 +116,7 @@ fun ControllerScreen(onScanQr: () -> Unit = {}) {
                         onSwipe = vm::sendSwipe,
                     )
                 }
+                FileTransferSection()
                 OutlinedButton(onClick = vm::cancelPairing,
                                modifier = Modifier.padding(top = 16.dp)) {
                     Text("Disconnect")
