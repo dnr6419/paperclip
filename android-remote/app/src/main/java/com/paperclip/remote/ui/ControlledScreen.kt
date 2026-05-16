@@ -120,6 +120,15 @@ fun ControlledScreen() {
                 ClipboardOnlySection()
                 FileTransferSection()
             }
+            is PairingController.State.Reconnecting -> {
+                Text("Reconnecting (attempt #${s.attempt})…",
+                     modifier = Modifier.padding(bottom = 8.dp))
+                Text(s.reason)
+                OutlinedButton(onClick = vm::cancelPairing,
+                               modifier = Modifier.padding(top = 16.dp)) {
+                    Text("Stop trying")
+                }
+            }
             is PairingController.State.Failed -> {
                 Text("Failed: ${s.reason}", modifier = Modifier.padding(bottom = 16.dp))
                 Button(onClick = vm::cancelPairing) { Text("Reset") }

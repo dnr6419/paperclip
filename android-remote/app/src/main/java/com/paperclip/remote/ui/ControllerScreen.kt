@@ -84,6 +84,9 @@ fun ControllerScreen(onScanQr: () -> Unit = {}) {
             }
             is PairingController.State.Connecting -> Text("Connecting to relay…")
             is PairingController.State.AwaitingPeerHello -> Text("Waiting for the other phone…")
+            is PairingController.State.Reconnecting -> Text(
+                "Reconnecting (attempt #${s.attempt})… ${s.reason}",
+            )
             is PairingController.State.AwaitingConfirm -> {
                 Text("Safety code", modifier = Modifier.padding(bottom = 4.dp))
                 Text(s.safetyCode, fontSize = 24.sp, fontFamily = FontFamily.Monospace,

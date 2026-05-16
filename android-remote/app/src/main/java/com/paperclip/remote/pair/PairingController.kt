@@ -10,11 +10,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -25,24 +24,19 @@ import java.nio.charset.StandardCharsets
  * or controlled; the role is just a parameter that picks which slot
  * the relay places us in.
  *
- * Lifecycle:
+ * Two confirmation paths:
  *
- *   start(role, relayUrl, roomId, peerIdPubExpected = …)
- *       │
- *       ├── opens RelayClient, generates ephemeral X25519, sends hello
- *       ├── awaits peer hello, parses HelloPayload
- *       ├── if peerIdPubExpected is provided (resumed pair) and matches,
- *       │   transitions to AwaitingConfirm with isResumed=true so the UI
- *       │   can skip the safety-code prompt
- *       ├── else exposes the 16-hex safety code for the user to compare
- *       │   on both phones, awaits confirm()
- *       └── on confirm(): derives session keys, saves peer to registry,
- *           installs SecureChannel into SessionHolder, state = Ready
+ *   - **First pair** — no prior identity. UI shows the 16-hex safety
+ *     code, user compares both phones and calls [confirm].
+ *   - **Resumed pair** — peer identity already known (from QR
+ *     fingerprint or PeerRegistry). Handshake auto-confirms silently;
+ *     UI never enters AwaitingConfirm.
  *
- *   Any failure transitions to Failed and tears down the socket.
- *
- * One PairingController instance handles one attempt. Tap "Pair again"
- * → spin up a fresh instance.
+ * Auto-resume: once Ready, the controller subscribes to the underlying
+ * RelayClient state and retries with exponential backoff if the socket
+ * closes unexpectedly. Retries use the same room id + the now-known
+ * peer identity, so the user doesn't have to do anything during a Wi-Fi
+ * flap.
  */
 class PairingController(
     private val identityStore: IdentityStore,
@@ -53,7 +47,7 @@ class PairingController(
         data object Idle : State
         data object Connecting : State
         data object AwaitingPeerHello : State
-        /** Show safety code; if [isResumed] true the UI may auto-confirm silently. */
+        /** Show safety code; if [isResumed] true the controller auto-confirms internally. */
         data class AwaitingConfirm(val safetyCode: String, val isResumed: Boolean) : State
         data class Ready(
             val peerIdPub: ByteArray,
@@ -61,6 +55,8 @@ class PairingController(
             val peerWidthPx: Int,
             val peerHeightPx: Int,
         ) : State
+        /** Auto-resume in progress; controller will retry shortly. */
+        data class Reconnecting(val attempt: Int, val reason: String) : State
         data class Failed(val reason: String) : State
     }
 
@@ -81,6 +77,14 @@ class PairingController(
     private var pendingPeerCanonical: ByteArray? = null
     private var role: String? = null
     private var driver: Job? = null
+    private var watchdog: Job? = null
+
+    /** Saved so auto-resume can re-run [runHandshake] without UI input. */
+    private data class StartParams(
+        val role: String, val relayUrl: String, val roomId: String,
+        val peerIdPubExpected: ByteArray?, val myWidthPx: Int?, val myHeightPx: Int?,
+    )
+    private var lastStart: StartParams? = null
 
     fun start(
         role: String,
@@ -94,6 +98,7 @@ class PairingController(
         cancel()  // discard any prior attempt
 
         this.role = role
+        lastStart = StartParams(role, relayUrl, roomId, peerIdPubExpected, myWidthPx, myHeightPx)
         _state.value = State.Connecting
 
         driver = scope.launch {
@@ -108,51 +113,50 @@ class PairingController(
 
     /** Called from the UI after the user compares + accepts the safety code. */
     fun confirm() {
+        scope.launch { finalizeHandshake() }
+    }
+
+    private suspend fun finalizeHandshake() {
         val peerHello = pendingPeerHello ?: return
         val myCanonical = pendingMyCanonical ?: return
         val peerCanonical = pendingPeerCanonical ?: return
         val channel = secureChannel ?: return
-        val r = role ?: return
 
-        scope.launch {
-            try {
-                channel.completeHandshake(
-                    myCanonicalHello = myCanonical,
-                    peerCanonicalHello = peerCanonical,
-                    peerIdPub = peerHello.idPub,
-                    peerEphPub = peerHello.ephPub,
-                )
-                // Persist the peer (alias defaults to the safety code's first
-                // group; the user can rename from the peer list later).
-                val safety = Handshake.safetyCode(identityStore.keyPair.pub, peerHello.idPub)
-                val existing = peerRegistry.findByIdPub(peerHello.idPub)
-                if (existing == null) {
-                    peerRegistry.save(PeerRegistry.Peer(
-                        alias = "Peer-${safety.substring(0, 4)}",
-                        idPub = peerHello.idPub,
-                    ))
-                }
-                SessionHolder.set(channel)
-                val isResumed = existing != null
-                _state.value = State.Ready(
-                    peerIdPub = peerHello.idPub,
-                    isResumed = isResumed,
-                    // Fallbacks if the peer's hello omitted geometry; a typical
-                    // controlled phone (Pixel-class) defaults sit here.
-                    peerWidthPx  = peerHello.w   ?: 1080,
-                    peerHeightPx = peerHello.h   ?: 2400,
-                )
-            } catch (t: Throwable) {
-                _state.value = State.Failed("handshake derive failed: ${t.message}")
-                tearDown()
+        try {
+            channel.completeHandshake(
+                myCanonicalHello = myCanonical,
+                peerCanonicalHello = peerCanonical,
+                peerIdPub = peerHello.idPub,
+                peerEphPub = peerHello.ephPub,
+            )
+            val safety = Handshake.safetyCode(identityStore.keyPair.pub, peerHello.idPub)
+            val existing = peerRegistry.findByIdPub(peerHello.idPub)
+            if (existing == null) {
+                peerRegistry.save(PeerRegistry.Peer(
+                    alias = "Peer-${safety.substring(0, 4)}",
+                    idPub = peerHello.idPub,
+                ))
             }
+            SessionHolder.set(channel)
+            _state.value = State.Ready(
+                peerIdPub = peerHello.idPub,
+                isResumed = existing != null,
+                peerWidthPx  = peerHello.w ?: 1080,
+                peerHeightPx = peerHello.h ?: 2400,
+            )
+            startWatchdog()
+        } catch (t: Throwable) {
+            _state.value = State.Failed("handshake derive failed: ${t.message}")
+            tearDown()
         }
     }
 
     fun cancel() {
-        driver?.cancel()
-        driver = null
+        watchdog?.cancel(); watchdog = null
+        driver?.cancel(); driver = null
+        lastStart = null  // user-initiated cancel disables auto-resume
         tearDown()
+        if (_state.value !is State.Idle) _state.value = State.Idle
     }
 
     private fun tearDown() {
@@ -163,6 +167,7 @@ class PairingController(
         pendingMyCanonical = null
         pendingPeerCanonical = null
         _qrPayload.value = null
+        SessionHolder.clear()
     }
 
     private suspend fun runHandshake(
@@ -176,7 +181,6 @@ class PairingController(
         val r = RelayClient()
         relay = r
         r.connect(relayUrl, roomId, role)
-        // Wait until the socket is Open or fails fast.
         val openResult = withTimeoutOrNull(CONNECT_TIMEOUT_MS) {
             r.state.firstOrNull {
                 it is RelayClient.State.Open || it is RelayClient.State.Failed || it is RelayClient.State.Closed
@@ -184,39 +188,30 @@ class PairingController(
         }
         when (openResult) {
             is RelayClient.State.Open -> {}
-            is RelayClient.State.Failed -> { _state.value = State.Failed("connect failed: ${openResult.t.message}"); return }
-            is RelayClient.State.Closed -> { _state.value = State.Failed("closed pre-hello (${openResult.code}: ${openResult.reason})"); return }
+            is RelayClient.State.Failed  -> { _state.value = State.Failed("connect failed: ${openResult.t.message}"); return }
+            is RelayClient.State.Closed  -> { _state.value = State.Failed("closed pre-hello (${openResult.code}: ${openResult.reason})"); return }
             null -> { _state.value = State.Failed("connect timeout"); return }
             else -> { _state.value = State.Failed("unexpected state $openResult"); return }
         }
 
         val myKp = identityStore.keyPair
         val channel = SecureChannel(
-            relay = r,
-            myRole = role,
-            myIdPriv = myKp.priv,
-            myIdPub = myKp.pub,
+            relay = r, myRole = role,
+            myIdPriv = myKp.priv, myIdPub = myKp.pub,
             scope = scope,
         )
         channel.start()
         secureChannel = channel
 
-        // Controlled side: publish QR payload now that ephemeral is ready.
         if (role == "controlled") {
-            _qrPayload.value = QrPayload.Payload(
-                roomId = roomId,
-                idPub  = myKp.pub,
-                ephPub = channel.myEphPub,
-            )
+            _qrPayload.value = QrPayload.Payload(roomId = roomId,
+                idPub = myKp.pub, ephPub = channel.myEphPub)
         }
 
         val myHello = HelloPayload(
-            role = role,
-            v = HelloPayload.PROTOCOL_VERSION,
-            idPub = myKp.pub,
-            ephPub = channel.myEphPub,
-            w = myWidthPx,
-            h = myHeightPx,
+            role = role, v = HelloPayload.PROTOCOL_VERSION,
+            idPub = myKp.pub, ephPub = channel.myEphPub,
+            w = myWidthPx, h = myHeightPx,
         )
         val myCanonical = myHello.toCanonicalJson()
         pendingMyCanonical = myCanonical
@@ -240,14 +235,73 @@ class PairingController(
             _state.value = State.Failed("identity_mismatch — relay-side substitution?"); return
         }
 
-        val isResumed = peerIdPubExpected != null ||
-            peerRegistry.findByIdPub(peerHello.idPub) != null
+        val knownPeer = peerRegistry.findByIdPub(peerHello.idPub) != null
+        val isResumed = peerIdPubExpected != null || knownPeer
         val safety = Handshake.safetyCode(myKp.pub, peerHello.idPub)
         _state.value = State.AwaitingConfirm(safety, isResumed)
+
+        // Resumed pair → auto-confirm. First pair → wait for user.
+        if (isResumed) finalizeHandshake()
+    }
+
+    /**
+     * Watches the relay socket. If it closes while we were Ready and
+     * the user didn't cancel, kicks off [autoResume] on the
+     * supervisor scope.
+     */
+    private fun startWatchdog() {
+        watchdog?.cancel()
+        val r = relay ?: return
+        watchdog = scope.launch {
+            r.state.collect { s ->
+                if (s is RelayClient.State.Closed || s is RelayClient.State.Failed) {
+                    if (_state.value is State.Ready && lastStart != null) {
+                        autoResume()
+                    }
+                    return@collect
+                }
+            }
+        }
+    }
+
+    private suspend fun autoResume() {
+        val params = lastStart ?: return
+        val knownPeer = params.peerIdPubExpected
+            ?: pendingPeerHello?.idPub
+            ?: run { _state.value = State.Failed("auto-resume: no peer id"); return }
+
+        SessionHolder.clear()
+        try { relay?.close(1000, "auto_resume") } catch (_: Exception) {}
+
+        val backoffMs = longArrayOf(2_000L, 4_000L, 8_000L, 16_000L, 30_000L)
+        var attempt = 0
+        while (attempt < MAX_RESUME_ATTEMPTS) {
+            attempt += 1
+            val wait = backoffMs.getOrElse(attempt - 1) { backoffMs.last() }
+            _state.value = State.Reconnecting(attempt, reason = "socket dropped")
+            delay(wait)
+            try {
+                runHandshake(
+                    role = params.role,
+                    relayUrl = params.relayUrl,
+                    roomId = params.roomId,
+                    peerIdPubExpected = knownPeer,
+                    myWidthPx = params.myWidthPx,
+                    myHeightPx = params.myHeightPx,
+                )
+                // runHandshake transitions to Ready (via auto-confirm) on success.
+                if (_state.value is State.Ready) return
+                // Otherwise it set Failed; treat as a retry.
+            } catch (_: Throwable) {
+                // continue
+            }
+        }
+        _state.value = State.Failed("auto-resume gave up after $attempt attempts")
     }
 
     companion object {
         private const val CONNECT_TIMEOUT_MS = 10_000L
         private const val HELLO_TIMEOUT_MS = 20_000L
+        private const val MAX_RESUME_ATTEMPTS = 12     // ~5 minutes with backoff
     }
 }
