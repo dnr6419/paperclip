@@ -17,6 +17,16 @@ import android.util.Log
 import android.view.WindowManager
 import com.paperclip.remote.R
 import com.paperclip.remote.session.SessionHolder
+import com.paperclip.remote.transport.ControlMessage
+import com.paperclip.remote.transport.SecureChannel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
 
 /**
  * Foreground service owning the MediaProjection lifecycle.
@@ -31,6 +41,8 @@ class ScreenCaptureService : Service() {
     private var projection: MediaProjection? = null
     private var encoder: H264Encoder? = null
     private var virtualDisplay: VirtualDisplay? = null
+    private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var qualityPump: Job? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -76,17 +88,54 @@ class ScreenCaptureService : Service() {
             enc.inputSurface, null, null,
         )
 
+        // Subscribe to incoming Quality control messages so the
+        // controller can adjust bitrate live. MediaCodec's PARAMETER_KEY
+        // _VIDEO_BITRATE is runtime-tunable; fps and scale require a
+        // full encoder + VirtualDisplay restart, which we don't do here
+        // — the new values take effect next time sharing starts.
+        qualityPump?.cancel()
+        qualityPump = ioScope.launch { observeQuality(enc) }
+
         return START_NOT_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        qualityPump?.cancel()
+        qualityPump = null
         virtualDisplay?.release()
         encoder?.stop()
         projection?.stop()
         virtualDisplay = null
         encoder = null
         projection = null
+        ioScope.cancel()
+    }
+
+    private suspend fun observeQuality(enc: H264Encoder) {
+        // Poll for the active SecureChannel — it can be torn down and
+        // recreated independently of this service.
+        while (true) {
+            val channel = SessionHolder.get()
+            if (channel != null) {
+                channel.incoming
+                    .filterIsInstance<SecureChannel.Plain.Text>()
+                    .collect { plain ->
+                        val q = plain.message as? ControlMessage.Quality ?: return@collect
+                        try {
+                            enc.updateBitrate(q.bitrate)
+                            // Force an IDR so the new bitrate is visible
+                            // within ~1 GOP rather than waiting up to
+                            // KEY_I_FRAME_INTERVAL.
+                            enc.requestKeyFrame()
+                            Log.i(TAG, "quality applied: bitrate=${q.bitrate}")
+                        } catch (e: Exception) {
+                            Log.w(TAG, "quality apply failed", e)
+                        }
+                    }
+            }
+            delay(200)
+        }
     }
 
     private fun startForegroundCompat() {

@@ -132,6 +132,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    /**
+     * Controller-side: ask the controlled phone to retune its encoder.
+     * Only bitrate is live-tunable on MediaCodec; fps and scale take
+     * effect on the next sharing start.
+     */
+    fun sendQuality(bitrateBps: Int, fps: Int = 30, scale: Double = 1.0) {
+        SessionHolder.get()?.sendText(
+            ControlMessage.Quality(bitrateBps, fps, scale)
+        )
+    }
+
     /** Controller-side: inject text into the controlled phone's focused field. */
     fun sendType(text: String) {
         if (text.isEmpty()) return

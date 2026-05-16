@@ -117,6 +117,7 @@ fun ControllerScreen(onScanQr: () -> Unit = {}) {
                     )
                 }
                 HardwareKeyRow()
+                QualityControlSection()
                 TextEntrySection()
                 FileTransferSection()
                 OutlinedButton(onClick = vm::cancelPairing,
