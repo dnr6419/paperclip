@@ -14,11 +14,11 @@ code that disagrees with it is the bug.
 - [x] Identity store + handshake + AEAD wrap (E2E layer, cross-checked
       against Python reference)
 - [x] MediaProjection capture + H.264 encoder + decoder pipeline
-- [ ] Peer registry + safety-code UI (first-pair flow that ties handshake
-      to MediaProjection start)
-- [ ] AccessibilityService input injection
+- [x] PairingController + PeerRegistry + safety-code UI
+- [x] AccessibilityService input injection (taps, swipes, BACK/HOME/RECENTS)
+- [ ] CameraX QR scanner on controller (typed-code path works today)
+- [ ] Decoder Surface playback wired into ControllerScreen
 - [ ] File transfer
-- [ ] QR scan on controller (CameraX)
 - [ ] End-to-end on real hardware
 
 See `SEED.md §11` for the definition of done.
