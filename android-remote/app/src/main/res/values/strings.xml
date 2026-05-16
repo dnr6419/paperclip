@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">paperclip remote</string>
+    <string name="role_controller">Control another phone</string>
+    <string name="role_controlled">Share this phone</string>
+    <string name="relay_url_label">Relay URL</string>
+    <string name="connect">Connect</string>
+    <string name="room_code_label">Room code</string>
+    <string name="capture_notification_channel">Screen sharing</string>
+    <string name="capture_notification_title">Sharing screen</string>
+    <string name="capture_notification_text">Tap to stop</string>
+</resources>
