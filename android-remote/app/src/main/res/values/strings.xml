@@ -9,4 +9,5 @@
     <string name="capture_notification_channel">Screen sharing</string>
     <string name="capture_notification_title">Sharing screen</string>
     <string name="capture_notification_text">Tap to stop</string>
+    <string name="accessibility_service_description">Lets a paired remote phone tap and swipe on this device.</string>
 </resources>

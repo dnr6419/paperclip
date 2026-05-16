@@ -19,15 +19,9 @@ val ProtocolJson = Json {
 
 @Serializable
 sealed interface ControlMessage {
-    @Serializable @SerialName("hello")
-    data class Hello(
-        val role: String,
-        val v: Int = 1,
-        val w: Int? = null,
-        val h: Int? = null,
-        val dpi: Int? = null,
-        val model: String? = null,
-    ) : ControlMessage
+    // NOTE: `hello` is sent in cleartext *before* the AEAD layer is up,
+    // so it lives in pair.HelloPayload rather than here. ControlMessage
+    // covers only the post-handshake encrypted JSON frames.
 
     @Serializable @SerialName("ready")
     data object Ready : ControlMessage
