@@ -11,10 +11,11 @@ code that disagrees with it is the bug.
 - [x] Wire protocol v2 (E2E, `docs/PROTOCOL.md`)
 - [x] Relay server, docker-compose, round-trip verified
 - [x] Android app scaffold — pairing, transport, UI shell
-- [ ] Identity store + handshake + AEAD wrap (E2E layer)
-- [ ] Peer registry + safety-phrase UI (first-pair flow)
-- [ ] MediaProjection capture + H.264 encoder
-- [ ] H.264 decoder + Surface playback on controller
+- [x] Identity store + handshake + AEAD wrap (E2E layer, cross-checked
+      against Python reference)
+- [x] MediaProjection capture + H.264 encoder + decoder pipeline
+- [ ] Peer registry + safety-code UI (first-pair flow that ties handshake
+      to MediaProjection start)
 - [ ] AccessibilityService input injection
 - [ ] File transfer
 - [ ] QR scan on controller (CameraX)
